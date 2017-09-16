@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+	<name>ModSwitch</name>
+	<author>DoctorVanGogh</author>
+	<targetVersion>0.17.1557</targetVersion>
+    <url>COMING SOON</url>
+	<description><![CDATA[<b><color=#ff0000ff>DEVELOPMENT VERSION</color>: alpha1</b>
+
+Allows loading & saving sets of active mods for Rimworld.]]></description>
+</ModMetaData>
