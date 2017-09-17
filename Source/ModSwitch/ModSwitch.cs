@@ -7,7 +7,9 @@ using UnityEngine;
 using Verse;
 
 namespace DoctorVanGogh.ModSwitch {
+
     class ModSwitch : Mod {
+
         private Settings _settings;
 
         public ModSwitch(ModContentPack content) : base(content) {
@@ -30,5 +32,10 @@ namespace DoctorVanGogh.ModSwitch {
         public void DoModsConfigWindowContents(Rect bottom) {
             _settings.DoModsConfigWindowContents(bottom);
         }
+
+        public void DeleteSet(ModSet modSet) {
+            if (_settings.Sets.Remove(modSet))
+                WriteSettings();
+        }       
     }
 }
