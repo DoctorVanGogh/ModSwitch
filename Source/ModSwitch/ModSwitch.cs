@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Harmony;
+﻿using Harmony;
 using UnityEngine;
 using Verse;
 
 namespace DoctorVanGogh.ModSwitch {
 
     class ModSwitch : Mod {
-
         private Settings _settings;
 
         public ModSwitch(ModContentPack content) : base(content) {
@@ -22,7 +17,7 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         public override string SettingsCategory() {
-            return "ModSwitch";
+            return LanguageKeys.keyed.ModSwitch.Translate();
         }
 
         public override void DoSettingsWindowContents(Rect inRect) {
@@ -36,6 +31,6 @@ namespace DoctorVanGogh.ModSwitch {
         public void DeleteSet(ModSet modSet) {
             if (_settings.Sets.Remove(modSet))
                 WriteSettings();
-        }       
+        }
     }
 }

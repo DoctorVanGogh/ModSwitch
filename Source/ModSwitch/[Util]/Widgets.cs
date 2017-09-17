@@ -6,10 +6,9 @@ namespace DoctorVanGogh.ModSwitch {
 
     [StaticConstructorOnStartup]
     public static class ExtraWidgets {
-
-        public static Texture2D ButtonBGAtlas;
-        public static Texture2D ButtonBGAtlasMouseover;
-        public static Texture2D ButtonBGAtlasClick;
+        public static readonly Texture2D ButtonBGAtlas;
+        public static readonly Texture2D ButtonBGAtlasMouseover;
+        public static readonly Texture2D ButtonBGAtlasClick;
 
         static ExtraWidgets() {
             ButtonBGAtlas = ContentFinder<Texture2D>.Get("UI/Widgets/ButtonBG", true);
@@ -18,24 +17,17 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         public static bool ButtonImage(Rect butRect, Texture2D tex, bool doMouseoverSound = false, TipSignal? tipSignal = null, Rect? texRect = null) {
-            Texture2D atlas = ExtraWidgets.ButtonBGAtlas;
+            Texture2D atlas = ButtonBGAtlas;
             if (Mouse.IsOver(butRect)) {
-                atlas = ExtraWidgets.ButtonBGAtlasMouseover;
-                if (Input.GetMouseButton(0)) {
-                    atlas = ExtraWidgets.ButtonBGAtlasClick;
-                }
+                atlas = ButtonBGAtlasMouseover;
+                if (Input.GetMouseButton(0)) atlas = ButtonBGAtlasClick;
             }
             var result = Widgets.ButtonImage(butRect, atlas);
-            if (doMouseoverSound) {
-                MouseoverSounds.DoRegion(butRect);
-            }
+            if (doMouseoverSound) MouseoverSounds.DoRegion(butRect);
             GUI.DrawTexture(texRect ?? butRect, tex);
 
-            if (tipSignal != null) {
-                TooltipHandler.TipRegion(butRect, tipSignal.Value);
-            }
+            if (tipSignal != null) TooltipHandler.TipRegion(butRect, tipSignal.Value);
             return result;
         }
-
     }
 }

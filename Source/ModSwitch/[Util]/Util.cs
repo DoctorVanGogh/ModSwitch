@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using Verse;
 
 namespace DoctorVanGogh.ModSwitch {
@@ -14,6 +11,14 @@ namespace DoctorVanGogh.ModSwitch {
 
         public static void Warning(string s) {
             Log.Warning($"[ModSwitch]: {s}");
+        }
+
+        public static void Error(string s) {
+            Log.Error($"[ModSwitch]: {s}");
+        }
+
+        public static void Error(Exception e) {
+            Error(e.ToString());
         }
     }
 }

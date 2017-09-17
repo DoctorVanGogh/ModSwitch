@@ -51,6 +51,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LanguageKeys.Generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>LanguageKeys.Generated.tt</DependentUpon>
+    </Compile>
     <Compile Include="Model\ModAttributes.cs" />
     <Compile Include="Model\ModSet.cs" />
     <Compile Include="ModSwitch.cs" />
@@ -62,6 +67,15 @@
     <Compile Include="[Patches]\Patches.cs" />
     <Compile Include="[Util]\Linq.cs" />
     <Compile Include="[Util]\Widgets.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LanguageKeys.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>LanguageKeys.Generated.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

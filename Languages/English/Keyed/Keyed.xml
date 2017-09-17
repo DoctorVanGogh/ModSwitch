@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+	<ModSwitch>ModSwitch</ModSwitch>
+
+	<ModSwitch.Tip.Create>Save current mod set</ModSwitch.Tip.Create>
+	<ModSwitch.Tip.Delete>Delete</ModSwitch.Tip.Delete>
+	<ModSwitch.Tip.Rename>Rename</ModSwitch.Tip.Rename>
+	<ModSwitch.Tip.Settings>Settings</ModSwitch.Tip.Settings>
+	<ModSwitch.Tip.Undo>Undo</ModSwitch.Tip.Undo>
+	<ModSwitch.Tip.Apply>Apply mod set</ModSwitch.Tip.Apply>
+
+	<ModSwitch.Import>Import</ModSwitch.Import>
+
+	<ModSwitch.ModSet.Mods>{0} items</ModSwitch.ModSet.Mods>
+
+	<ModSwitch.ModSet.ConfirmDelete>Really delete '{0}'?</ModSwitch.ModSet.ConfirmDelete>
+
+	<ModSwitch.Confirmation.Title>Confirmation needed</ModSwitch.Confirmation.Title>
+
+	<ModSwitch.MissingMods.Title>Missing mods</ModSwitch.MissingMods.Title>
+
+	<ModSwitch.Create.DefaultName>New mod set</ModSwitch.Create.DefaultName>
+
+	<ModSwitch.Import.Text>Do you want to append the imported sets or replace all existing sets?</ModSwitch.Import.Text>
+	<ModSwitch.Import.Choice.Replace>Replace</ModSwitch.Import.Choice.Replace>
+	<ModSwitch.Import.Choice.Append>Append</ModSwitch.Import.Choice.Append>
+
+</LanguageData>

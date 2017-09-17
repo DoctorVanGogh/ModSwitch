@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace DoctorVanGogh.ModSwitch {
     internal static class LinqExtensions {
-
         internal static IEnumerable<TResult> FullOuterGroupJoin<TA, TB, TKey, TResult>(
             this IEnumerable<TA> a,
             IEnumerable<TB> b,
