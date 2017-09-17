@@ -10,7 +10,7 @@ Supports importing your sets from ModListBackup.
 
 ## Third party acknowledgements
 
-### Uses ![Open Iconic](www.useiconic.com/open)
+### Uses [Open Iconic](http://www.useiconic.com/open)
 
 Open Iconic is lisenced under a [MIT license](http://opensource.org/licenses/MIT).
 
