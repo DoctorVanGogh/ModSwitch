@@ -1,4 +1,6 @@
-﻿using Harmony;
+﻿using System;
+using System.Linq;
+using Harmony;
 using UnityEngine;
 using Verse;
 
@@ -8,7 +10,7 @@ namespace DoctorVanGogh.ModSwitch {
         private Settings _settings;
 
         public ModSwitch(ModContentPack content) : base(content) {
-            var harmony = HarmonyInstance.Create("DoctorVanGogh.ModSwitch");
+            var harmony = HarmonyInstance.Create("DoctorVanGogh.ModSwitch");          
             harmony.PatchAll(typeof(ModSwitch).Assembly);
 
             Log.Message("Initialized ModSwitch patches...");
@@ -28,9 +30,14 @@ namespace DoctorVanGogh.ModSwitch {
             _settings.DoModsConfigWindowContents(bottom);
         }
 
-        public void DeleteSet(ModSet modSet) {
-            if (_settings.Sets.Remove(modSet))
-                WriteSettings();
+        public Color GetModColor(ModMetaData mod) {
+            return _settings.AttributesForKey(mod.Identifier)?.Color ?? Color.white;
+        }
+
+        public void SetModColor(ModMetaData mod, Color value) {
+            var attr = _settings.AttributesForKey(mod.Identifier);
+            if (attr != null)
+                attr.Color = value;
         }
     }
 }

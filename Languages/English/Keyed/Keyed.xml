@@ -13,7 +13,7 @@
 
 	<ModSwitch.ModSet.Mods>{0} items</ModSwitch.ModSet.Mods>
 
-	<ModSwitch.ModSet.ConfirmDelete>Really delete '{0}'?</ModSwitch.ModSet.ConfirmDelete>
+	<ModSwitch.ModSet.ConfirmDelete>Really delete {0}?</ModSwitch.ModSet.ConfirmDelete>
 
 	<ModSwitch.Confirmation.Title>Confirmation needed</ModSwitch.Confirmation.Title>
 

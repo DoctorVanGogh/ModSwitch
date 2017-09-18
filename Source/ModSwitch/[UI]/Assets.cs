@@ -12,6 +12,7 @@ namespace DoctorVanGogh.ModSwitch {
         public static readonly Texture2D Apply;
         public static readonly Texture2D Extract;
         public static readonly Texture2D Undo;
+        public static readonly Texture2D White;
 
         static Assets() {
             Edit = ContentFinder<Texture2D>.Get("UI/Edit", true);
@@ -21,6 +22,9 @@ namespace DoctorVanGogh.ModSwitch {
             Apply = ContentFinder<Texture2D>.Get("UI/Apply", true);
             Extract = ContentFinder<Texture2D>.Get("UI/Extract", true);
             Undo = ContentFinder<Texture2D>.Get("UI/Undo", true);
+            Undo = ContentFinder<Texture2D>.Get("UI/White", true);
         }
+
+
     }
 }

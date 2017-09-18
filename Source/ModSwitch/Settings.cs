@@ -33,7 +33,7 @@ namespace DoctorVanGogh.ModSwitch {
         public static TipSignal TipUndo => (_tipUndo ?? (_tipUndo = new TipSignal(LanguageKeys.keyed.ModSwitch_Tip_Undo.Translate()))).Value;
 
         public override void ExposeData() {
-            Scribe_Collections.Look(ref Sets, false, @"sets");
+            Scribe_Collections.Look(ref Sets, false, @"sets", LookMode.Undefined, this);
             Scribe_Collections.Look(ref Attributes, false, @"attributes");
 
             if (Scribe.mode == LoadSaveMode.PostLoadInit) InitLookup();
@@ -41,6 +41,11 @@ namespace DoctorVanGogh.ModSwitch {
 
         private void InitLookup() {
             _lookup = Attributes.ToDictionary(ma => ma.Key);
+        }
+
+        internal ModAttributes AttributesForKey(string key) {
+            ModAttributes result;
+            return _lookup.TryGetValue(key, out result) ? result : null;
         }
 
         public void DoWindowContents(Rect rect) {
@@ -117,7 +122,7 @@ namespace DoctorVanGogh.ModSwitch {
                     XmlDocument doc = new XmlDocument();
                     doc.Load(mlbSet);
                     try {
-                        var set = new ModSet {
+                        var set = new ModSet(this) {
                                       Name = $"MLB '{Path.GetFileNameWithoutExtension(mlbSet)}'",
                                       // ReSharper disable PossibleNullReferenceException
                                       // ReSharper disable AssignNullToNotNullAttribute
@@ -150,18 +155,20 @@ namespace DoctorVanGogh.ModSwitch {
                         if (!_lookup.TryGetValue(key, out attr)) _lookup[key] = attr = new ModAttributes { Key = key };
                         var textColor = doc.DocumentElement.SelectSingleNode(@"//textColor");
                         try {
-                            attr.attributes.Add(new MLBAttributes {
-                                                    altName = doc.DocumentElement.SelectSingleNode(@"//altName/text()")?.Value,
-                                                    installName = doc.DocumentElement.SelectSingleNode(@"//installName/text()")?.Value,
-                                                    color = textColor != null
-                                                        ? new Color(
-                                                              float.Parse(textColor.SelectSingleNode("r/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
-                                                              float.Parse(textColor.SelectSingleNode("g/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
-                                                              float.Parse(textColor.SelectSingleNode("b/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
-                                                              float.Parse(textColor.SelectSingleNode("a/text()")?.Value ?? "1", CultureInfo.InvariantCulture)
-                                                          )
-                                                        : Color.white
-                                                });
+                            var mlb = new MLBAttributes {
+                                          altName = doc.DocumentElement.SelectSingleNode(@"//altName/text()")?.Value,
+                                          installName = doc.DocumentElement.SelectSingleNode(@"//installName/text()")?.Value,
+                                          color = textColor != null
+                                              ? new Color(
+                                                    float.Parse(textColor.SelectSingleNode("r/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
+                                                    float.Parse(textColor.SelectSingleNode("g/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
+                                                    float.Parse(textColor.SelectSingleNode("b/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
+                                                    float.Parse(textColor.SelectSingleNode("a/text()")?.Value ?? "1", CultureInfo.InvariantCulture)
+                                                )
+                                              : Color.white
+                                      };
+                            attr.attributes.Add(mlb);
+                            attr.Color = mlb.color;
                         }
                         catch (Exception e) {
                             Util.Error(e);
@@ -172,7 +179,7 @@ namespace DoctorVanGogh.ModSwitch {
                 Attributes.AddRange(_lookup.Values);
             }
 
-            LoadedModManager.GetMod<ModSwitch>().WriteSettings();
+            Mod.WriteSettings();
         }
 
 
@@ -182,7 +189,7 @@ namespace DoctorVanGogh.ModSwitch {
             var rctApply = new Rect(target.x, target.y, 30f, 30f);
             if (ExtraWidgets.ButtonImage(rctApply, Assets.Apply, false, TipApply, rctApply.ContractedBy(4)))
                 Find.WindowStack.Add(new FloatMenu(Sets.Select(ms => new FloatMenuOption(ms.Name, () => {
-                                                                                                      _undo = ModSet.FromCurrent("undo");
+                                                                                                      _undo = ModSet.FromCurrent("undo", this);
                                                                                                       ms.Apply();
                                                                                                   })).ToList()));
             var rctNew = new Rect(target.x + 30f + 8f, target.y, 30f, 30f);
@@ -190,8 +197,8 @@ namespace DoctorVanGogh.ModSwitch {
                 Find.WindowStack.Add(
                         new Dialog_SetText(
                             s => {
-                                Sets.Add(ModSet.FromCurrent(s));
-                                LoadedModManager.GetMod<ModSwitch>().WriteSettings();
+                                Sets.Add(ModSet.FromCurrent(s, this));
+                                Mod.WriteSettings();
                             },
                             LanguageKeys.keyed.ModSwitch_Create_DefaultName.Translate()
                         ));
@@ -205,7 +212,7 @@ namespace DoctorVanGogh.ModSwitch {
             var rctSettings = new Rect(350f - 30f, target.y, 30f, 30f);
             if (ExtraWidgets.ButtonImage(rctSettings, Assets.Settings, false, TipSettings, rctSettings.ContractedBy(4))) {
                 var settings = new Dialog_ModSettings();
-                AccessTools.Field(typeof(Dialog_ModSettings), @"selMod").SetValue(settings, LoadedModManager.GetMod<ModSwitch>());
+                AccessTools.Field(typeof(Dialog_ModSettings), @"selMod").SetValue(settings, Mod);
                 Find.WindowStack.Add(settings);
             }
 

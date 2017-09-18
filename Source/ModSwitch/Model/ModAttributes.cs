@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Verse;
 
@@ -9,9 +10,17 @@ namespace DoctorVanGogh.ModSwitch {
         public List<IExposable> attributes = new List<IExposable>();
         public string Key = String.Empty;
 
+        public Color? Color;
+
         public void ExposeData() {
             Scribe_Values.Look(ref Key, @"key");
             Scribe_Collections.Look(ref attributes, false, @"attributes");
+            Scribe_Values.Look(ref Color, "color", UnityEngine.Color.white);
+
+            if (Scribe.mode == LoadSaveMode.LoadingVars) {
+                if (Color == null)
+                    Color = attributes.OfType<MLBAttributes>().FirstOrDefault()?.color;
+            }
         }
     }
 
