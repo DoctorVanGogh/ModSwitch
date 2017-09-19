@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Harmony;
+using RimWorld;
+using Steamworks;
 using UnityEngine;
 using Verse;
 
@@ -14,6 +18,9 @@ namespace DoctorVanGogh.ModSwitch {
         private static readonly FieldInfo fiModsConfig_data;
         private static readonly FieldInfo fiModsConfigData_activeMods;
         private static readonly FieldInfo fiModsConfigData_buildNumber;
+
+        private static readonly Regex rgxSteamModId;
+
         private static TipSignal? _renameTip;
         private static TipSignal? _deleteTip;
 
@@ -32,6 +39,7 @@ namespace DoctorVanGogh.ModSwitch {
             fiModsConfigData_buildNumber = AccessTools.Field(tModsConfigData, @"buildNumber");
             fiModsConfig_data = AccessTools.Field(tModsConfig, @"data");
 
+            rgxSteamModId = new Regex(@"^\d+$", RegexOptions.Singleline | RegexOptions.Compiled);
         }
 
         public ModSet(Settings owner) {
@@ -100,27 +108,68 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         public void Apply() {
-            // TODO: improve performance, dont do multiple joins over same data...
 
-            // join set with installed mods while perserving order from set
-            List<string> installedMods = Mods
-                .Select((m, idx) => new {id = m, Index = idx})
-                .Join(ModLister.AllInstalledMods, t => t.id, md => md.Identifier, (t, md) => new {Id = t.id, t.Index})
-                .OrderBy(t => t.Index)
-                .Select(t => t.Id)
-                .ToList();
+            // mix installed and set mods
+            var tmp = Mods
+                .Select((m, idx) => new {
+                                            id = m,
+                                            Index = idx
+                                        })
+                .FullOuterJoin(
+                    ModLister.AllInstalledMods,
+                    t => t.id,
+                    mmd => mmd.Identifier,
+                    (t, mmd, s) => new {
+                                           Key = s,
+                                           SetIndex = t?.Index,
+                                           InstalledIdentifier = mmd?.Identifier
+                                       })
+                .ToArray();
 
-            fiModsConfigData_activeMods.SetValue(fiModsConfig_data.GetValue(null), new List<string>(installedMods));
+            // partition by install status
+            var notInstalled = tmp.Where(t => t.InstalledIdentifier == null).ToArray();
+            var installedMods = tmp.Where(t => t.SetIndex != null && t.InstalledIdentifier != null).OrderBy(t => t.SetIndex).Select(t => t.Key);
 
-            if (installedMods.Count != Mods.Count) {
-                var missingMods = Mods.Where(m => !installedMods.Contains(m));
-                StringBuilder sb = new StringBuilder($"Some mods from {Name} are not currently installed:");
+            if (notInstalled.Length != 0) {
+                var missing = notInstalled
+                    .Select(t => new {
+                                         Key = t.Key,
+                                         IsSteam = rgxSteamModId.IsMatch(t.Key)
+                                     })
+                    .OrderBy(t => t.Key)
+                    .ToArray();
+
+                StringBuilder sb = new StringBuilder(LanguageKeys.keyed.ModSwitch_MissingMods.Translate(Name));
                 sb.AppendLine();
                 sb.AppendLine();
-                foreach (var item in missingMods) sb.AppendLine($" - {item}");
+                foreach (var item in missing) {
+                    sb.AppendLine(item.IsSteam ? $" - [Steam] {item.Key}" : $" - {item.Key}");
+                }
 
-                Find.WindowStack.Add(new Dialog_MessageBox(sb.ToString(), title:  LanguageKeys.keyed.ModSwitch_MissingMods_Title.Translate()));
+                Find.WindowStack.Add(
+                    new Dialog_MissingMods(
+                        sb.ToString(),
+                        () => ApplyMods(installedMods),
+                        () => {
+                            // dont know how to open multiple tabs in steam overlay right now - just pop urls to browser ;)
+                            foreach (var mod in missing.Where(t => t.IsSteam)) {                                   
+                                Process.Start($"http://steamcommunity.com/sharedfiles/filedetails/?id={mod.Key}");
+                            }                           
+                        },
+                        () => {
+                            this.Mods.RemoveAll(s => notInstalled.Any(ni => ni.Key == s));
+                            _owner.Mod.WriteSettings();
+                            ApplyMods(installedMods);
+                        }
+                    ));
             }
+            else {
+                ApplyMods(installedMods);
+            }
+        }
+
+        private static void ApplyMods(IEnumerable<string> mods) {
+            fiModsConfigData_activeMods.SetValue(fiModsConfig_data.GetValue(null), new List<string>(mods));
         }
 
         public void Delete() {

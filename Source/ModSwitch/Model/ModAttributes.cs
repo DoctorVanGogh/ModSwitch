@@ -15,7 +15,7 @@ namespace DoctorVanGogh.ModSwitch {
         public void ExposeData() {
             Scribe_Values.Look(ref Key, @"key");
             Scribe_Collections.Look(ref attributes, false, @"attributes");
-            Scribe_Values.Look(ref Color, "color", UnityEngine.Color.white);
+            Scribe_Values.Look(ref Color, "color", null);
 
             if (Scribe.mode == LoadSaveMode.LoadingVars) {
                 if (Color == null)

@@ -65,6 +65,34 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_MissingMods_Title = "ModSwitch.MissingMods.Title";
 			/// <summary>
+			/// Get's the translation key for '<em>Some mods from {0} are not currently installed:</em>'
+			/// </summary>
+			public const string @ModSwitch_MissingMods = "ModSwitch.MissingMods";
+			/// <summary>
+			/// Get's the translation key for '<em>Ignore</em>'
+			/// </summary>
+			public const string @ModSwitch_MissingMods_Choice_Ignore = "ModSwitch.MissingMods.Choice.Ignore";
+			/// <summary>
+			/// Get's the translation key for '<em>Ignore the missing mods.</em>'
+			/// </summary>
+			public const string @ModSwitch_MissingMods_Choice_Ignore_Tip = "ModSwitch.MissingMods.Choice.Ignore.Tip";
+			/// <summary>
+			/// Get's the translation key for '<em>Open workshop</em>'
+			/// </summary>
+			public const string @ModSwitch_MissingMods_Choice_Workshop = "ModSwitch.MissingMods.Choice.Workshop";
+			/// <summary>
+			/// Get's the translation key for '<em>Try retrieving applicable mods from the Steam Workshop. Keep in mind those mods might no longer be available.</em>'
+			/// </summary>
+			public const string @ModSwitch_MissingMods_Choice_Workshop_Tip = "ModSwitch.MissingMods.Choice.Workshop.Tip";
+			/// <summary>
+			/// Get's the translation key for '<em>Remove from Set</em>'
+			/// </summary>
+			public const string @ModSwitch_MissingMods_Choice_Remove = "ModSwitch.MissingMods.Choice.Remove";
+			/// <summary>
+			/// Get's the translation key for '<em>Remove the missing mods from the stored Mod Set.</em>'
+			/// </summary>
+			public const string @ModSwitch_MissingMods_Choice_Remove_Tip = "ModSwitch.MissingMods.Choice.Remove.Tip";
+			/// <summary>
 			/// Get's the translation key for '<em>New mod set</em>'
 			/// </summary>
 			public const string @ModSwitch_Create_DefaultName = "ModSwitch.Create.DefaultName";
