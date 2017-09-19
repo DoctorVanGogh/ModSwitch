@@ -50,9 +50,9 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         private string Colorize(string modId) {
-            var color = _owner.AttributesForKey(modId)?.Color;
+            var color = _owner.GetOrInsertAttributes(modId)?.Color;
             return color != null
-                ? $"<color=#{((byte)(color.Value.r*255)):X2}{((byte)(color.Value.g * 255)):X2}{((byte)(color.Value.b * 255)):X2}{((byte)(color.Value.a * 255)):X2}>{modId}</color>"
+                ? modId.Colorize(color.Value)
                 : modId;
         }
 

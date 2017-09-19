@@ -43,9 +43,14 @@ namespace DoctorVanGogh.ModSwitch {
             _lookup = Attributes.ToDictionary(ma => ma.Key);
         }
 
-        internal ModAttributes AttributesForKey(string key) {
+        internal ModAttributes GetOrInsertAttributes(string key) {
             ModAttributes result;
-            return _lookup.TryGetValue(key, out result) ? result : null;
+            if (!_lookup.TryGetValue(key, out result)) {
+                result = new ModAttributes { Key = key };
+                Attributes.Add(result);
+                _lookup[key] = result;
+            }
+            return result;
         }
 
         public void DoWindowContents(Rect rect) {

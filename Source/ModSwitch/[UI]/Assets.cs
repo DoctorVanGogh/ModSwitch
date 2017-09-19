@@ -22,7 +22,7 @@ namespace DoctorVanGogh.ModSwitch {
             Apply = ContentFinder<Texture2D>.Get("UI/Apply", true);
             Extract = ContentFinder<Texture2D>.Get("UI/Extract", true);
             Undo = ContentFinder<Texture2D>.Get("UI/Undo", true);
-            Undo = ContentFinder<Texture2D>.Get("UI/White", true);
+            White = ContentFinder<Texture2D>.Get("UI/White", true);
         }
 
 

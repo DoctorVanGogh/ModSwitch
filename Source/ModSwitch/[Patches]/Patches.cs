@@ -110,38 +110,37 @@ namespace DoctorVanGogh.ModSwitch {
             }
 
             public static void DoContextMenu(ModMetaData mod) {
-                /*Find.WindowStack.Add(
+                Find.WindowStack.Add(
                         new FloatMenu(
                             new List<FloatMenuOption> {
                                 new FloatMenuOption(
-                                    "Color",
+                                    LanguageKeys.keyed.ModSwitch_Color.Translate(),
                                     () => {
                                         Find.WindowStack.Add(
-                                                new FloatMenu(
-                                                    ColorMap.Select(
-                                                                kvp => new FloatMenuOption(
-                                                                           kvp.Key,
-                                                                           () => LoadedModManager.GetMod<ModSwitch>()
-                                                                                                 .SetModColor(mod, kvp.Value),
-                                                                           extraPartWidth: 16f,
-                                                                           extraPartOnGUI: r => {
-                                                                                               var color = GUI.backgroundColor;
-                                                                                               GUI.backgroundColor = kvp.Value;
-                                                                                               GUI.DrawTexture(r, Assets.White);
-                                                                                               GUI.backgroundColor = color;
-                                                                                               return false;
-                                                                                           })
-                                                            ).ToList()
-                                                ));
+                                            new FloatMenu(
+                                                ColorMap.Select(
+                                                    kvp => new FloatMenuOption(
+                                                        $"{kvp.Key.Colorize(kvp.Value)} ({kvp.Key})",
+                                                        () => LoadedModManager.GetMod<ModSwitch>()
+                                                                              .SetModColor(mod, kvp.Value)
+                                                    )
+                                                ).ToList()
+                                            ));
                                     })
-                            }));*/
-
-                Find.WindowStack.Add(new FloatMenu(new List<FloatMenuOption> { new FloatMenuOption("Color: *coming soon*", null)}));
+                            }));
             }
 
-            public static IDictionary<string, Color> ColorMap {
-                get { return _colorMap ?? (_colorMap = typeof(Color).GetProperties(BindingFlags.Public | BindingFlags.Static).ToDictionary(pi => pi.Name, pi => (Color) pi.GetValue(null, null))); }
-            }
+            public static IDictionary<string, Color> ColorMap => _colorMap ?? (_colorMap = new Dictionary<string, Color> {
+                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_white.Translate(), Color.white},
+                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_black.Translate(), Color.black},
+                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_gray.Translate(), Color.gray},
+                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_red.Translate(), Color.red},
+                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_green.Translate(), Color.green},
+                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_blue.Translate(), Color.blue},
+                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_magenta.Translate(), Color.magenta},
+                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_cyan.Translate(), Color.cyan},
+                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_yellow.Translate(), Color.yellow}
+                                                                                                                         });
 
             public static Color SetGUIColorMod(ModMetaData mod) {
                 var current = GUI.contentColor;

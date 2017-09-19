@@ -53,7 +53,7 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_ModSet_Mods = "ModSwitch.ModSet.Mods";
 			/// <summary>
-			/// Get's the translation key for '<em>Really delete <em>'{0}'</em>?</em>'
+			/// Get's the translation key for '<em>Really delete {0}?</em>'
 			/// </summary>
 			public const string @ModSwitch_ModSet_ConfirmDelete = "ModSwitch.ModSet.ConfirmDelete";
 			/// <summary>
@@ -80,6 +80,46 @@ namespace DoctorVanGogh.ModSwitch {
 			/// Get's the translation key for '<em>Append</em>'
 			/// </summary>
 			public const string @ModSwitch_Import_Choice_Append = "ModSwitch.Import.Choice.Append";
+			/// <summary>
+			/// Get's the translation key for '<em>Color</em>'
+			/// </summary>
+			public const string @ModSwitch_Color = "ModSwitch.Color";
+			/// <summary>
+			/// Get's the translation key for '<em>white</em>'
+			/// </summary>
+			public const string @ModSwitch_Color_white = "ModSwitch.Color.white";
+			/// <summary>
+			/// Get's the translation key for '<em>black</em>'
+			/// </summary>
+			public const string @ModSwitch_Color_black = "ModSwitch.Color.black";
+			/// <summary>
+			/// Get's the translation key for '<em>gray</em>'
+			/// </summary>
+			public const string @ModSwitch_Color_gray = "ModSwitch.Color.gray";
+			/// <summary>
+			/// Get's the translation key for '<em>red</em>'
+			/// </summary>
+			public const string @ModSwitch_Color_red = "ModSwitch.Color.red";
+			/// <summary>
+			/// Get's the translation key for '<em>green</em>'
+			/// </summary>
+			public const string @ModSwitch_Color_green = "ModSwitch.Color.green";
+			/// <summary>
+			/// Get's the translation key for '<em>blue</em>'
+			/// </summary>
+			public const string @ModSwitch_Color_blue = "ModSwitch.Color.blue";
+			/// <summary>
+			/// Get's the translation key for '<em>magenta</em>'
+			/// </summary>
+			public const string @ModSwitch_Color_magenta = "ModSwitch.Color.magenta";
+			/// <summary>
+			/// Get's the translation key for '<em>cyan</em>'
+			/// </summary>
+			public const string @ModSwitch_Color_cyan = "ModSwitch.Color.cyan";
+			/// <summary>
+			/// Get's the translation key for '<em>yellow</em>'
+			/// </summary>
+			public const string @ModSwitch_Color_yellow = "ModSwitch.Color.yellow";
 		}
 	}
 }

@@ -25,4 +25,17 @@
 	<ModSwitch.Import.Choice.Replace>Replace</ModSwitch.Import.Choice.Replace>
 	<ModSwitch.Import.Choice.Append>Append</ModSwitch.Import.Choice.Append>
 
+	<ModSwitch.Color>Color</ModSwitch.Color>
+
+	<ModSwitch.Color.white>white</ModSwitch.Color.white>
+	<ModSwitch.Color.black>black</ModSwitch.Color.black>
+	<ModSwitch.Color.gray>gray</ModSwitch.Color.gray>
+	<ModSwitch.Color.red>red</ModSwitch.Color.red>
+	<ModSwitch.Color.green>green</ModSwitch.Color.green>
+	<ModSwitch.Color.blue>blue</ModSwitch.Color.blue>
+	<ModSwitch.Color.magenta>magenta</ModSwitch.Color.magenta>
+	<ModSwitch.Color.cyan>cyan</ModSwitch.Color.cyan>
+	<ModSwitch.Color.yellow>yellow</ModSwitch.Color.yellow>
+
+
 </LanguageData>

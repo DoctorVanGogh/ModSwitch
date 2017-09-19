@@ -31,13 +31,11 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         public Color GetModColor(ModMetaData mod) {
-            return _settings.AttributesForKey(mod.Identifier)?.Color ?? Color.white;
+            return _settings.GetOrInsertAttributes(mod.Identifier)?.Color ?? Color.white;
         }
 
         public void SetModColor(ModMetaData mod, Color value) {
-            var attr = _settings.AttributesForKey(mod.Identifier);
-            if (attr != null)
-                attr.Color = value;
+            _settings.GetOrInsertAttributes(mod.Identifier).Color = value;
         }
     }
 }
