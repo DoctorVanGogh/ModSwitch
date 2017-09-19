@@ -32,11 +32,15 @@ namespace DoctorVanGogh.ModSwitch {
 
         public static TipSignal TipUndo => (_tipUndo ?? (_tipUndo = new TipSignal(LanguageKeys.keyed.ModSwitch_Tip_Undo.Translate()))).Value;
 
+        public Settings() {
+            _lookup = Attributes.ToDictionary(ma => ma.Key);
+        }
+
         public override void ExposeData() {
             Scribe_Collections.Look(ref Sets, false, @"sets", LookMode.Undefined, this);
             Scribe_Collections.Look(ref Attributes, false, @"attributes");
 
-            if (Scribe.mode == LoadSaveMode.PostLoadInit) InitLookup();
+            if (Scribe.mode == LoadSaveMode.LoadingVars) InitLookup();
         }
 
         private void InitLookup() {
@@ -193,10 +197,11 @@ namespace DoctorVanGogh.ModSwitch {
 
             var rctApply = new Rect(target.x, target.y, 30f, 30f);
             if (ExtraWidgets.ButtonImage(rctApply, Assets.Apply, false, TipApply, rctApply.ContractedBy(4)))
-                Find.WindowStack.Add(new FloatMenu(Sets.Select(ms => new FloatMenuOption(ms.Name, () => {
-                                                                                                      _undo = ModSet.FromCurrent("undo", this);
-                                                                                                      ms.Apply();
-                                                                                                  })).ToList()));
+                if (Sets.Count != 0)
+                    Find.WindowStack.Add(new FloatMenu(Sets.Select(ms => new FloatMenuOption(ms.Name, () => {
+                                                                                                          _undo = ModSet.FromCurrent("undo", this);
+                                                                                                          ms.Apply();
+                                                                                                      })).ToList()));
             var rctNew = new Rect(target.x + 30f + 8f, target.y, 30f, 30f);
             if (ExtraWidgets.ButtonImage(rctNew, Assets.Extract, false, TipCreateNew, rctNew.ContractedBy(4)))
                 Find.WindowStack.Add(

@@ -15,7 +15,7 @@ namespace DoctorVanGogh.ModSwitch {
 
             Log.Message("Initialized ModSwitch patches...");
 
-            _settings =  GetSettings<Settings>();
+            _settings = GetSettings<Settings>();
         }
 
         public override string SettingsCategory() {
