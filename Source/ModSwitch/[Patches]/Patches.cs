@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
+using System.Text.RegularExpressions;
 using Harmony;
 using RimWorld;
+using Steamworks;
 using UnityEngine;
 using Verse;
 
@@ -110,24 +114,129 @@ namespace DoctorVanGogh.ModSwitch {
             }
 
             public static void DoContextMenu(ModMetaData mod) {
-                Find.WindowStack.Add(
-                        new FloatMenu(
-                            new List<FloatMenuOption> {
-                                new FloatMenuOption(
-                                    LanguageKeys.keyed.ModSwitch_Color.Translate(),
-                                    () => {
-                                        Find.WindowStack.Add(
-                                            new FloatMenu(
-                                                ColorMap.Select(
-                                                    kvp => new FloatMenuOption(
-                                                        $"{kvp.Key.Colorize(kvp.Value)} ({kvp.Key})",
-                                                        () => LoadedModManager.GetMod<ModSwitch>()
-                                                                              .SetModColor(mod, kvp.Value)
-                                                    )
-                                                ).ToList()
-                                            ));
-                                    })
-                            }));
+                var options = new List<FloatMenuOption>();
+
+                if (mod.OnSteamWorkshop) {
+                    if (SteamAPI.IsSteamRunning())
+                        options.Add(
+                            new FloatMenuOption(
+                                LanguageKeys.keyed.ModSwitch_CopyLocal.Translate(),
+                                () => {
+                                    Find.WindowStack.Add(new Dialog_SetText(
+                                                             name => {
+                                                                 var targetDirectory = Path.Combine(GenFilePaths.CoreModsFolderPath, name);
+
+                                                                 // copy mod
+                                                                 Util.DirectoryCopy(mod.RootDir.FullName, targetDirectory, true);
+                                                                 StringBuilder sb = new StringBuilder();
+                                                                 sb.AppendLine(LanguageKeys.keyed.ModSwitch_CopyLocal_Result_Copy.Translate(mod.Name, targetDirectory));
+                                                                 sb.AppendLine();
+
+                                                                 // copy mod settings
+                                                                 var settings = Directory.GetFiles(GenFilePaths.ConfigFolderPath);
+                                                                 var pattern = $@"^Mod_{mod.Identifier}_([^\.]+).xml$";
+                                                                 Util.Log(pattern);
+                                                                 var rgxSettings = new Regex(pattern);
+                                                                 var matching = settings
+                                                                     .Select(s => rgxSettings.Match(Path.GetFileName(s)))
+                                                                     .Where(m => m.Success)
+                                                                     .Select(m => new {
+                                                                                          source = Path.Combine(GenFilePaths.ConfigFolderPath, m.Value),
+                                                                                          destination = Path.Combine(GenFilePaths.ConfigFolderPath,
+                                                                                                                     string.Format(
+                                                                                                                         "Mod_{0}_{1}.xml",
+                                                                                                                         name,
+                                                                                                                         m.Groups[1].Value))
+                                                                                      }).ToArray();
+
+                                                                 Action<bool> copySettings = b => {
+                                                                                                 foreach (var element in matching) {
+                                                                                                     File.Copy(element.source, element.destination, b);
+                                                                                                 }
+                                                                                                 sb.AppendLine(LanguageKeys.keyed.ModSwitch_CopyLocal_Result_Settings.Translate(matching.Length));
+
+                                                                                                 Find.WindowStack.Add(new Dialog_MessageBox(sb.ToString()) {
+                                                                                                                                                               title = LanguageKeys
+                                                                                                                                                                   .keyed.ModSwitch_CopyLocal
+                                                                                                                                                                   .Translate()
+                                                                                                                                                           });
+                                                                                             };
+
+                                                                 if (matching.Any(t => File.Exists(t.destination))) {
+                                                                     Find.WindowStack.Add(
+                                                                         new Dialog_MessageBox(
+                                                                             LanguageKeys.keyed.ModSwitch_ExistingSettings.Translate(name),
+                                                                             LanguageKeys.keyed.ModSwitch_ExistingSettings_Choice_Overwrite.Translate(),
+                                                                             () => copySettings(true),
+                                                                             LanguageKeys.keyed.ModSwitch_ExistingSettings_Choice_Skip.Translate(),
+                                                                             () => {
+                                                                                 sb.AppendLine(LanguageKeys.keyed.ModSwitch_CopyLocal_Result_Skipped.Translate());
+                                                                             },
+                                                                             LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate(),
+                                                                             true));
+                                                                 }
+                                                                 else {
+                                                                     copySettings(false);
+                                                                 }
+                                                             },
+                                                             $"{mod.Name}",
+                                                             name => {
+                                                                 var targetDirectory = Path.Combine(GenFilePaths.CoreModsFolderPath, name);
+                                                                 if (Path.GetInvalidPathChars().Any(name.Contains)) {
+                                                                     return LanguageKeys.keyed.ModSwitch_Error_InvalidChars.Translate();
+                                                                 }
+                                                                 if (Directory.Exists(targetDirectory))
+                                                                     return LanguageKeys.keyed.ModSwitch_Error_TargetExists.Translate();
+                                                                 return null;
+                                                             }
+                                                         ));
+                                }));
+                    else {
+                        options.Add(
+                            new FloatMenuOption(
+                                $"{LanguageKeys.keyed.ModSwitch_CopyLocal.Translate()}: *{LanguageKeys.keyed.ModSwitch_Error_SteamNotRunning}*",
+                                null));
+                    }
+                }
+
+                /*options.Add(new FloatMenuOption(
+                                LanguageKeys.keyed.ModSwitch_MoveTo.Translate(),
+                                () => {
+                                    Find.WindowStack.Add(
+                                        new FloatMenu(new List<FloatMenuOption> {
+                                                                                    new FloatMenuOption(
+                                                                                        LanguageKeys.keyed.ModSwitch_MoveTo_Top.Translate(),
+                                                                                        () => {
+                                                                                            LoadedModManager.GetMod<ModSwitch>().MovePosition(mod, Position.Top);
+                                                                                        }),
+                                                                                    new FloatMenuOption(
+                                                                                        LanguageKeys.keyed.ModSwitch_MoveTo_Bottom.Translate(),
+                                                                                        () => {
+                                                                                            LoadedModManager.GetMod<ModSwitch>().MovePosition(mod, Position.Bottom);
+                                                                                        })
+                                                                                }));
+                                }
+                            ));*/
+
+                options.Add(
+                    new FloatMenuOption(
+                        LanguageKeys.keyed.ModSwitch_Color.Translate(),
+                        () => {
+                            Find.WindowStack.Add(new FloatMenu(CreateColorizationOptions(mod)));
+                        }));
+
+
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
+
+            private static List<FloatMenuOption> CreateColorizationOptions(ModMetaData mod) {
+                return ColorMap.Select(
+                    kvp => new FloatMenuOption(
+                        $"{kvp.Key.Colorize(kvp.Value)} ({kvp.Key})",
+                        () => LoadedModManager.GetMod<ModSwitch>()
+                                              .SetModColor(mod, kvp.Value)
+                    )
+                ).ToList();
             }
 
             public static IDictionary<string, Color> ColorMap => _colorMap ?? (_colorMap = new Dictionary<string, Color> {

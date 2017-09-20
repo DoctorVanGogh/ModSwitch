@@ -77,11 +77,11 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_MissingMods_Choice_Ignore_Tip = "ModSwitch.MissingMods.Choice.Ignore.Tip";
 			/// <summary>
-			/// Get's the translation key for '<em>Open workshop</em>'
+			/// Get's the translation key for '<em>Cancel & Open workshop</em>'
 			/// </summary>
 			public const string @ModSwitch_MissingMods_Choice_Workshop = "ModSwitch.MissingMods.Choice.Workshop";
 			/// <summary>
-			/// Get's the translation key for '<em>Try retrieving applicable mods from the Steam Workshop. Keep in mind those mods might no longer be available.</em>'
+			/// Get's the translation key for '<em>Dont apply the Mod Set. Instead try retrieving applicable mods from the Steam Workshop. Keep in mind those mods might no longer be available.</em>'
 			/// </summary>
 			public const string @ModSwitch_MissingMods_Choice_Workshop_Tip = "ModSwitch.MissingMods.Choice.Workshop.Tip";
 			/// <summary>
@@ -109,7 +109,7 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_Import_Choice_Append = "ModSwitch.Import.Choice.Append";
 			/// <summary>
-			/// Get's the translation key for '<em>Color</em>'
+			/// Get's the translation key for '<em>Color...</em>'
 			/// </summary>
 			public const string @ModSwitch_Color = "ModSwitch.Color";
 			/// <summary>
@@ -148,6 +148,58 @@ namespace DoctorVanGogh.ModSwitch {
 			/// Get's the translation key for '<em>yellow</em>'
 			/// </summary>
 			public const string @ModSwitch_Color_yellow = "ModSwitch.Color.yellow";
+			/// <summary>
+			/// Get's the translation key for '<em>Create a local copy</em>'
+			/// </summary>
+			public const string @ModSwitch_CopyLocal = "ModSwitch.CopyLocal";
+			/// <summary>
+			/// Get's the translation key for '<em>Steam currently not running/available</em>'
+			/// </summary>
+			public const string @ModSwitch_Error_SteamNotRunning = "ModSwitch.Error.SteamNotRunning";
+			/// <summary>
+			/// Get's the translation key for '<em>There are already stored settings for the mod under the new name {0}. You can confirm overwriting the existing settings or skip copying settings.</em>'
+			/// </summary>
+			public const string @ModSwitch_ExistingSettings = "ModSwitch.ExistingSettings";
+			/// <summary>
+			/// Get's the translation key for '<em>Overwrite.</em>'
+			/// </summary>
+			public const string @ModSwitch_ExistingSettings_Choice_Overwrite = "ModSwitch.ExistingSettings.Choice.Overwrite";
+			/// <summary>
+			/// Get's the translation key for '<em>Skip.</em>'
+			/// </summary>
+			public const string @ModSwitch_ExistingSettings_Choice_Skip = "ModSwitch.ExistingSettings.Choice.Skip";
+			/// <summary>
+			/// Get's the translation key for '<em>Contains invalid characters</em>'
+			/// </summary>
+			public const string @ModSwitch_Error_InvalidChars = "ModSwitch.Error.InvalidChars";
+			/// <summary>
+			/// Get's the translation key for '<em>Target already exists</em>'
+			/// </summary>
+			public const string @ModSwitch_Error_TargetExists = "ModSwitch.Error.TargetExists";
+			/// <summary>
+			/// Get's the translation key for '<em>Copied mod {0} to {1}.</em>'
+			/// </summary>
+			public const string @ModSwitch_CopyLocal_Result_Copy = "ModSwitch.CopyLocal.Result.Copy";
+			/// <summary>
+			/// Get's the translation key for '<em>Copied {0} settings file(s).</em>'
+			/// </summary>
+			public const string @ModSwitch_CopyLocal_Result_Settings = "ModSwitch.CopyLocal.Result.Settings";
+			/// <summary>
+			/// Get's the translation key for '<em>Skipped copying settings.</em>'
+			/// </summary>
+			public const string @ModSwitch_CopyLocal_Result_Skipped = "ModSwitch.CopyLocal.Result.Skipped";
+			/// <summary>
+			/// Get's the translation key for '<em>Move to...</em>'
+			/// </summary>
+			public const string @ModSwitch_MoveTo = "ModSwitch.MoveTo";
+			/// <summary>
+			/// Get's the translation key for '<em>Top</em>'
+			/// </summary>
+			public const string @ModSwitch_MoveTo_Top = "ModSwitch.MoveTo.Top";
+			/// <summary>
+			/// Get's the translation key for '<em>Bottom</em>'
+			/// </summary>
+			public const string @ModSwitch_MoveTo_Bottom = "ModSwitch.MoveTo.Bottom";
 		}
 	}
 }
