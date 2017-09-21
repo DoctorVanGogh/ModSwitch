@@ -49,8 +49,8 @@
 	<ModSwitch.Error.SteamNotRunning>Steam currently not running/available</ModSwitch.Error.SteamNotRunning>
 
 	<ModSwitch.ExistingSettings>There are already stored settings for the mod under the new name {0}. You can confirm overwriting the existing settings or skip copying settings.</ModSwitch.ExistingSettings>
-	<ModSwitch.ExistingSettings.Choice.Overwrite>Overwrite.</ModSwitch.ExistingSettings.Choice.Overwrite>
-	<ModSwitch.ExistingSettings.Choice.Skip>Skip.</ModSwitch.ExistingSettings.Choice.Skip>
+	<ModSwitch.ExistingSettings.Choice.Overwrite>Overwrite</ModSwitch.ExistingSettings.Choice.Overwrite>
+	<ModSwitch.ExistingSettings.Choice.Skip>Skip</ModSwitch.ExistingSettings.Choice.Skip>
 	
 	<ModSwitch.Error.InvalidChars>Contains invalid characters</ModSwitch.Error.InvalidChars>
 	<ModSwitch.Error.TargetExists>Target already exists</ModSwitch.Error.TargetExists>
