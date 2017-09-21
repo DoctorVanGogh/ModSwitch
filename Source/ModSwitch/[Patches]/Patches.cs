@@ -135,7 +135,7 @@ namespace DoctorVanGogh.ModSwitch {
                                                                  // copy mod settings
                                                                  var settings = Directory.GetFiles(GenFilePaths.ConfigFolderPath);
                                                                  var pattern = $@"^Mod_{mod.Identifier}_([^\.]+).xml$";
-                                                                 Util.Log(pattern);
+                                                                 Util.Trace(pattern);
                                                                  var rgxSettings = new Regex(pattern);
                                                                  var matching = settings
                                                                      .Select(s => rgxSettings.Match(Path.GetFileName(s)))
@@ -194,7 +194,7 @@ namespace DoctorVanGogh.ModSwitch {
                     else {
                         options.Add(
                             new FloatMenuOption(
-                                $"{LanguageKeys.keyed.ModSwitch_CopyLocal.Translate()}: *{LanguageKeys.keyed.ModSwitch_Error_SteamNotRunning}*",
+                                $"{LanguageKeys.keyed.ModSwitch_CopyLocal.Translate()}: *{LanguageKeys.keyed.ModSwitch_Error_SteamNotRunning.Translate()}*",
                                 null));
                     }
                 }
