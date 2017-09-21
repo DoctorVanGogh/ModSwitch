@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+	<ModSwitch>ModSwitch</ModSwitch>
+
+	<ModSwitch.Tip.Create>Sauvegarder l'ensemble de Mod courant</ModSwitch.Tip.Create>
+	<ModSwitch.Tip.Delete>Enlever</ModSwitch.Tip.Delete>
+	<ModSwitch.Tip.Rename>Renommer</ModSwitch.Tip.Rename>
+	<ModSwitch.Tip.Settings>Configuration</ModSwitch.Tip.Settings>
+	<ModSwitch.Tip.Undo>Annuler</ModSwitch.Tip.Undo>
+	<ModSwitch.Tip.Apply>Appliquer l'ensemble de Mod</ModSwitch.Tip.Apply>
+
+	<ModSwitch.Import>Importer</ModSwitch.Import>
+
+	<ModSwitch.ModSet.Mods>{0} éléments</ModSwitch.ModSet.Mods>
+
+	<ModSwitch.ModSet.ConfirmDelete>Vraiment effacer {0} ?</ModSwitch.ModSet.ConfirmDelete>
+
+	<ModSwitch.Confirmation.Title>Confirmation requise</ModSwitch.Confirmation.Title>
+
+	<ModSwitch.MissingMods.Title>Mods manquants</ModSwitch.MissingMods.Title>
+	<ModSwitch.MissingMods>Certains mods de {0} ne sont pas actuellement installés :</ModSwitch.MissingMods>
+	<ModSwitch.MissingMods.Choice.Ignore>Ignorer</ModSwitch.MissingMods.Choice.Ignore>
+	<ModSwitch.MissingMods.Choice.Ignore.Tip>Ignorer les mods manquants.</ModSwitch.MissingMods.Choice.Ignore.Tip>
+	<ModSwitch.MissingMods.Choice.Workshop>Annuler &amp; Ouvrir le workshop</ModSwitch.MissingMods.Choice.Workshop>
+	<ModSwitch.MissingMods.Choice.Workshop.Tip>Ne pas appliquer l'ensemble de Mod. Au lieu de cela, essayer de récupérer les mods applicables à partir du Steam Workshop. Gardez à l'esprit que ces mods pourraient ne plus être disponibles.</ModSwitch.MissingMods.Choice.Workshop.Tip>
+	<ModSwitch.MissingMods.Choice.Remove>Enlever de l'ensemble</ModSwitch.MissingMods.Choice.Remove>
+	<ModSwitch.MissingMods.Choice.Remove.Tip>Supprimer les Mods manquants de l'ensemble mémorisé.</ModSwitch.MissingMods.Choice.Remove.Tip>
+
+	<ModSwitch.Create.DefaultName>Nouvel ensemble de Mods</ModSwitch.Create.DefaultName>
+
+	<ModSwitch.Import.Text>Voulez-vous ajouter les ensembles importés ou remplacer tous les ensembles existants ?</ModSwitch.Import.Text>
+	<ModSwitch.Import.Choice.Replace>Remplacer</ModSwitch.Import.Choice.Replace>
+	<ModSwitch.Import.Choice.Append>Ajouter</ModSwitch.Import.Choice.Append>
+
+	<ModSwitch.Color>Couleur...</ModSwitch.Color>
+
+	<ModSwitch.Color.white>blanc</ModSwitch.Color.white>
+	<ModSwitch.Color.black>noir</ModSwitch.Color.black>
+	<ModSwitch.Color.gray>gris</ModSwitch.Color.gray>
+	<ModSwitch.Color.red>rouge</ModSwitch.Color.red>
+	<ModSwitch.Color.green>vert</ModSwitch.Color.green>
+	<ModSwitch.Color.blue>bleu</ModSwitch.Color.blue>
+	<ModSwitch.Color.magenta>magenta</ModSwitch.Color.magenta>
+	<ModSwitch.Color.cyan>cyan</ModSwitch.Color.cyan>
+	<ModSwitch.Color.yellow>jaune</ModSwitch.Color.yellow>
+
+	<ModSwitch.CopyLocal>Créer une copie locale</ModSwitch.CopyLocal>
+
+	<ModSwitch.Error.SteamNotRunning>Steam ne fonctionne pas / n'est pas disponible</ModSwitch.Error.SteamNotRunning>
+
+	<ModSwitch.ExistingSettings>Il existe déjà des paramètres mémorisés pour le Mod sous le nouveau nom {0}. Vous pouvez confirmer l'écrasement des paramètres existants ou ignorer les paramètres de copie.</ModSwitch.ExistingSettings>
+	<ModSwitch.ExistingSettings.Choice.Overwrite>Écraser</ModSwitch.ExistingSettings.Choice.Overwrite>
+	<ModSwitch.ExistingSettings.Choice.Skip>Ignorer</ModSwitch.ExistingSettings.Choice.Skip>
+
+	<ModSwitch.Error.InvalidChars>Contient des caractères invalides.</ModSwitch.Error.InvalidChars>
+	<ModSwitch.Error.TargetExists>La cible existe déjà.</ModSwitch.Error.TargetExists>
+
+	<ModSwitch.CopyLocal.Result.Copy>Copié mod {0} vers {1}.</ModSwitch.CopyLocal.Result.Copy>>
+	<ModSwitch.CopyLocal.Result.Settings>Copié {0} fichier(s) de configuration.</ModSwitch.CopyLocal.Result.Settings>>
+	<ModSwitch.CopyLocal.Result.Skipped>Copie des paramètres ignorée.</ModSwitch.CopyLocal.Result.Skipped>>
+
+	<ModSwitch.MoveTo>Déplacer vers...</ModSwitch.MoveTo>
+	<ModSwitch.MoveTo.Top>Haut</ModSwitch.MoveTo.Top>
+	<ModSwitch.MoveTo.Bottom>Bas</ModSwitch.MoveTo.Bottom>
+
+
+</LanguageData>
