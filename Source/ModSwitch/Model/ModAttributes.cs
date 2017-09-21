@@ -12,10 +12,27 @@ namespace DoctorVanGogh.ModSwitch {
 
         public Color? Color;
 
+        /// <summary>
+        /// For mods copied from steam: original identifier
+        /// </summary>
+        public string SteamOrigin;
+        /// <summary>
+        /// For mods copied from a steam source: last uploaded TS at time of copy
+        /// </summary>
+        public uint? SteamOriginTS;
+
+        /// <summary>
+        /// For steam mods: last uploaded TS
+        /// </summary>
+        /// <remarks>NOT SERIALIZED</remarks>
+        public uint? LastUpdateTS;
+
         public void ExposeData() {
             Scribe_Values.Look(ref Key, @"key");
             Scribe_Collections.Look(ref attributes, false, @"attributes");
             Scribe_Values.Look(ref Color, "color", null);
+            Scribe_Values.Look(ref SteamOrigin, "origin", null);
+            Scribe_Values.Look(ref SteamOriginTS, "originTS", null);
 
             if (Scribe.mode == LoadSaveMode.LoadingVars) {
                 if (Color == null)

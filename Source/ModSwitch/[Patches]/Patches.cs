@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using RimWorld;
 using Steamworks;
 using UnityEngine;
 using Verse;
+using Verse.Steam;
 
 namespace DoctorVanGogh.ModSwitch {
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "HarmonyPatch container")]
@@ -26,16 +28,10 @@ namespace DoctorVanGogh.ModSwitch {
 
         [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow", new Type[] { typeof(Listing_Standard), typeof(ModMetaData), typeof(int), typeof(int) })]
         public class Page_ModsConfig_DoModRow {
-
-            public static MethodInfo miCheckboxLabeledSelectable = AccessTools.Method(typeof(Widgets), nameof(Widgets.CheckboxLabeledSelectable));
-            public static MethodInfo miGuiSetContentColor = AccessTools.Property(typeof(GUI), nameof(GUI.color)).GetSetMethod(true);
-
-            private static IDictionary<string, Color> _colorMap;
-
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen) {
                 var instr = new List<CodeInstruction>(instructions);
 
-                int idxCheckboxLabeledSelectable = instr.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == miCheckboxLabeledSelectable);
+                int idxCheckboxLabeledSelectable = instr.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == ModsConfig.miCheckboxLabeledSelectable);
                 if (idxCheckboxLabeledSelectable == -1) {
                     Util.Warning("Could not find anchor for ModRow transpiler - not modifying code");
                     return instr;
@@ -81,7 +77,7 @@ namespace DoctorVanGogh.ModSwitch {
                 // insert <code>else { GUI.contentColor = color; }</code>
                 instr.InsertRange(idxBlockEnd, new[] {
                                                    new CodeInstruction(OpCodes.Ldloc, localColor) {labels = new List<Label> {lblNoClick}},
-                                                   new CodeInstruction(OpCodes.Call, miGuiSetContentColor),
+                                                   new CodeInstruction(OpCodes.Call, ModsConfig.miGuiSetContentColor),
                                                });
 
                 // setup <code>else { ... }</code> branch label
@@ -90,12 +86,12 @@ namespace DoctorVanGogh.ModSwitch {
                 // insert <code>GUI.contentColor = color; if (Input.GetMouseButtonUp(1)) { DoContextMenu(mod); }</code>
                 instr.InsertRange(idxCheckboxLabeledSelectable + 2, new[] {
                                                                         new CodeInstruction(OpCodes.Ldloc, localColor),
-                                                                        new CodeInstruction(OpCodes.Call, miGuiSetContentColor),
+                                                                        new CodeInstruction(OpCodes.Call, ModsConfig.miGuiSetContentColor),
                                                                         new CodeInstruction(OpCodes.Ldc_I4_1),
                                                                         new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Input), nameof(Input.GetMouseButtonUp))),
                                                                         new CodeInstruction(OpCodes.Brfalse, lblExistingClickCode),
                                                                         new CodeInstruction(OpCodes.Ldarg_2),
-                                                                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Page_ModsConfig_DoModRow), nameof(DoContextMenu))),
+                                                                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfig), nameof(ModsConfig.DoContextMenu))),
                                                                         new CodeInstruction(OpCodes.Br, lblBlockEnd),
                                                                     });
 
@@ -105,158 +101,59 @@ namespace DoctorVanGogh.ModSwitch {
                 // insert <code>Color color = Page_ModsConfig_DoModRow.SetGUIColorMod(mod);</code>
                 instr.InsertRange(idxCheckboxLabeledSelectable - 4, new[] {
                                                                         new CodeInstruction(OpCodes.Ldarg_2),
-                                                                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Page_ModsConfig_DoModRow), nameof(SetGUIColorMod))),
+                                                                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfig), nameof(ModsConfig.SetGUIColorMod))),
                                                                         new CodeInstruction(OpCodes.Stloc, localColor),
                                                                     });
 
 
                 return instr;
             }
+        }
 
-            public static void DoContextMenu(ModMetaData mod) {
-                var options = new List<FloatMenuOption>();
 
-                if (mod.OnSteamWorkshop) {
-                    if (SteamAPI.IsSteamRunning())
-                        options.Add(
-                            new FloatMenuOption(
-                                LanguageKeys.keyed.ModSwitch_CopyLocal.Translate(),
-                                () => {
-                                    Find.WindowStack.Add(new Dialog_SetText(
-                                                             name => {
-                                                                 var targetDirectory = Path.Combine(GenFilePaths.CoreModsFolderPath, name);
 
-                                                                 // copy mod
-                                                                 Util.DirectoryCopy(mod.RootDir.FullName, targetDirectory, true);
-                                                                 StringBuilder sb = new StringBuilder();
-                                                                 sb.AppendLine(LanguageKeys.keyed.ModSwitch_CopyLocal_Result_Copy.Translate(mod.Name, targetDirectory));
-                                                                 sb.AppendLine();
+        [HarmonyPatch(typeof(WorkshopItem), nameof(WorkshopItem.MakeFrom))]
+        public class WorkshopItem_MakeFrom {
 
-                                                                 // copy mod settings
-                                                                 var settings = Directory.GetFiles(GenFilePaths.ConfigFolderPath);
-                                                                 var pattern = $@"^Mod_{mod.Identifier}_([^\.]+).xml$";
-                                                                 Util.Trace(pattern);
-                                                                 var rgxSettings = new Regex(pattern);
-                                                                 var matching = settings
-                                                                     .Select(s => rgxSettings.Match(Path.GetFileName(s)))
-                                                                     .Where(m => m.Success)
-                                                                     .Select(m => new {
-                                                                                          source = Path.Combine(GenFilePaths.ConfigFolderPath, m.Value),
-                                                                                          destination = Path.Combine(GenFilePaths.ConfigFolderPath,
-                                                                                                                     string.Format(
-                                                                                                                         "Mod_{0}_{1}.xml",
-                                                                                                                         name,
-                                                                                                                         m.Groups[1].Value))
-                                                                                      }).ToArray();
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr) {
+                var instructions = new List<CodeInstruction>(instr);
 
-                                                                 Action<bool> copySettings = b => {
-                                                                                                 foreach (var element in matching) {
-                                                                                                     File.Copy(element.source, element.destination, b);
-                                                                                                 }
-                                                                                                 sb.AppendLine(LanguageKeys.keyed.ModSwitch_CopyLocal_Result_Settings.Translate(matching.Length));
+                var ciTarget = AccessTools.Constructor(typeof(WorkshopItem_Mod));
 
-                                                                                                 Find.WindowStack.Add(new Dialog_MessageBox(sb.ToString()) {
-                                                                                                                                                               title = LanguageKeys
-                                                                                                                                                                   .keyed.ModSwitch_CopyLocal
-                                                                                                                                                                   .Translate()
-                                                                                                                                                           });
-                                                                                             };
+                var idxAnchor = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Newobj && ci.operand == ciTarget);
 
-                                                                 if (matching.Any(t => File.Exists(t.destination))) {
-                                                                     Find.WindowStack.Add(
-                                                                         new Dialog_MessageBox(
-                                                                             LanguageKeys.keyed.ModSwitch_ExistingSettings.Translate(name),
-                                                                             LanguageKeys.keyed.ModSwitch_ExistingSettings_Choice_Overwrite.Translate(),
-                                                                             () => copySettings(true),
-                                                                             LanguageKeys.keyed.ModSwitch_ExistingSettings_Choice_Skip.Translate(),
-                                                                             () => {
-                                                                                 sb.AppendLine(LanguageKeys.keyed.ModSwitch_CopyLocal_Result_Skipped.Translate());
-                                                                             },
-                                                                             LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate(),
-                                                                             true));
-                                                                 }
-                                                                 else {
-                                                                     copySettings(false);
-                                                                 }
-                                                             },
-                                                             $"{mod.Name}",
-                                                             name => {
-                                                                 var targetDirectory = Path.Combine(GenFilePaths.CoreModsFolderPath, name);
-                                                                 if (Path.GetInvalidPathChars().Any(name.Contains)) {
-                                                                     return LanguageKeys.keyed.ModSwitch_Error_InvalidChars.Translate();
-                                                                 }
-                                                                 if (Directory.Exists(targetDirectory))
-                                                                     return LanguageKeys.keyed.ModSwitch_Error_TargetExists.Translate();
-                                                                 return null;
-                                                             }
-                                                         ));
-                                }));
-                    else {
-                        options.Add(
-                            new FloatMenuOption(
-                                $"{LanguageKeys.keyed.ModSwitch_CopyLocal.Translate()}: *{LanguageKeys.keyed.ModSwitch_Error_SteamNotRunning.Translate()}*",
-                                null));
-                    }
+                if (-1 == idxAnchor) {
+                    Util.Warning("Could not find WorkshopItem.MakeFrom transpiler anchor - not injecting code");
+                    return instructions;
                 }
 
-                /*options.Add(new FloatMenuOption(
-                                LanguageKeys.keyed.ModSwitch_MoveTo.Translate(),
-                                () => {
-                                    Find.WindowStack.Add(
-                                        new FloatMenu(new List<FloatMenuOption> {
-                                                                                    new FloatMenuOption(
-                                                                                        LanguageKeys.keyed.ModSwitch_MoveTo_Top.Translate(),
-                                                                                        () => {
-                                                                                            LoadedModManager.GetMod<ModSwitch>().MovePosition(mod, Position.Top);
-                                                                                        }),
-                                                                                    new FloatMenuOption(
-                                                                                        LanguageKeys.keyed.ModSwitch_MoveTo_Bottom.Translate(),
-                                                                                        () => {
-                                                                                            LoadedModManager.GetMod<ModSwitch>().MovePosition(mod, Position.Bottom);
-                                                                                        })
-                                                                                }));
-                                }
-                            ));*/
+                /* Transform
+                 * 
+                 * 		if (workshopItem == null)
+                 * 		{
+                 * 			workshopItem = new WorkshopItem_Mod();
+                 * 		}
+                 * 
+                 * into
+                 * 
+                 * 		if (workshopItem == null)
+                 * 		{
+                 * 		    ModsConfig.UpdateSteamTS(pfid, num2);
+                 * 			workshopItem = new WorkshopItem_Mod();
+                 * 		}
+                 * 
+                 */
 
-                options.Add(
-                    new FloatMenuOption(
-                        LanguageKeys.keyed.ModSwitch_Color.Translate(),
-                        () => {
-                            Find.WindowStack.Add(new FloatMenu(CreateColorizationOptions(mod)));
-                        }));
+                instructions.InsertRange(
+                    idxAnchor,
+                    new [] {
+                               new CodeInstruction(OpCodes.Ldarg_0), 
+                               new CodeInstruction(OpCodes.Ldloc_2), 
+                               new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfig), nameof(ModsConfig.UpdateSteamTS))), 
+                           }
+                    );
 
-
-                Find.WindowStack.Add(new FloatMenu(options));
-            }
-
-            private static List<FloatMenuOption> CreateColorizationOptions(ModMetaData mod) {
-                return ColorMap.Select(
-                    kvp => new FloatMenuOption(
-                        $"{kvp.Key.Colorize(kvp.Value)} ({kvp.Key})",
-                        () => LoadedModManager.GetMod<ModSwitch>()
-                                              .SetModColor(mod, kvp.Value)
-                    )
-                ).ToList();
-            }
-
-            public static IDictionary<string, Color> ColorMap => _colorMap ?? (_colorMap = new Dictionary<string, Color> {
-                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_white.Translate(), Color.white},
-                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_black.Translate(), Color.black},
-                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_gray.Translate(), Color.gray},
-                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_red.Translate(), Color.red},
-                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_green.Translate(), Color.green},
-                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_blue.Translate(), Color.blue},
-                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_magenta.Translate(), Color.magenta},
-                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_cyan.Translate(), Color.cyan},
-                                                                                                                             {LanguageKeys.keyed.ModSwitch_Color_yellow.Translate(), Color.yellow}
-                                                                                                                         });
-
-            public static Color SetGUIColorMod(ModMetaData mod) {
-                var current = GUI.contentColor;
-
-                GUI.color = LoadedModManager.GetMod<ModSwitch>().GetModColor(mod);
-
-                return current;
+                return instructions;
             }
         }
     }
