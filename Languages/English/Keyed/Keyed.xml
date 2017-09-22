@@ -54,14 +54,34 @@
 	
 	<ModSwitch.Error.InvalidChars>Contains invalid characters</ModSwitch.Error.InvalidChars>
 	<ModSwitch.Error.TargetExists>Target already exists</ModSwitch.Error.TargetExists>
+	<ModSwitch.Error.NotValid>Not a valid mod path</ModSwitch.Error.NotValid>
 
 	<ModSwitch.CopyLocal.Result.Copy>Copied mod {0} to {1}.</ModSwitch.CopyLocal.Result.Copy>>
 	<ModSwitch.CopyLocal.Result.Settings>Copied {0} settings file(s).</ModSwitch.CopyLocal.Result.Settings>>
 	<ModSwitch.CopyLocal.Result.Skipped>Skipped copying settings.</ModSwitch.CopyLocal.Result.Skipped>>
+	<ModSwitch.CopyLocal.Result.TimestampUnknown><![CDATA[<b>Warning</b>: Last upload time of the Steam original is unknown - sync support will be degraded.]]></ModSwitch.CopyLocal.Result.TimestampUnknown>
+
 
 	<ModSwitch.MoveTo>Move to...</ModSwitch.MoveTo>
 	<ModSwitch.MoveTo.Top>Top</ModSwitch.MoveTo.Top>
 	<ModSwitch.MoveTo.Bottom>Bottom</ModSwitch.MoveTo.Bottom>
+
+	<ModSwitch.OpenFolder>Open folder</ModSwitch.OpenFolder>
+
+	<ModSwitch.Sync>Sync with Steam original</ModSwitch.Sync>
+	<ModSwitch.Sync.Identical>identical</ModSwitch.Sync.Identical>
+	<ModSwitch.Sync.Message><![CDATA[The mod {0} will be updated to the current Steam version.
+	(Last) copied from Steam at an upload date of: {1}
+	Current upload date on Steam: {2}
+
+Do you want to keep your existing settings from the local copy or replace them with the version of Steam?]]></ModSwitch.Sync.Message>
+	<ModSwitch.Sync.UnknownTimestamp>Unknown</ModSwitch.Sync.UnknownTimestamp>
+	<ModSwitch.Sync.Choice.KeepSettings>Keep existing</ModSwitch.Sync.Choice.KeepSettings>		
+	<ModSwitch.Sync.Choice.CopySteam>Replace with Steam</ModSwitch.Sync.Choice.CopySteam>		
+
+	<ModSwitch.Search.Watermark>Search...</ModSwitch.Search.Watermark>
+
+	<ModSwitch.Source.SteamCopy>Local Steam copy</ModSwitch.Source.SteamCopy>
 
 
 </LanguageData>

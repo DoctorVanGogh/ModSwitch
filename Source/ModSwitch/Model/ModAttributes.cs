@@ -19,13 +19,15 @@ namespace DoctorVanGogh.ModSwitch {
         /// <summary>
         /// For mods copied from a steam source: last uploaded TS at time of copy
         /// </summary>
-        public uint? SteamOriginTS;
+        // HACK: shoulds be <c>uint</c>, but RW can't deserialize uints....
+        public long? SteamOriginTS;
 
         /// <summary>
         /// For steam mods: last uploaded TS
         /// </summary>
         /// <remarks>NOT SERIALIZED</remarks>
-        public uint? LastUpdateTS;
+        // HACK: shoulds be <c>uint</c>, but RW can't deserialize uints....
+        public long? LastUpdateTS;
 
         public void ExposeData() {
             Scribe_Values.Look(ref Key, @"key");

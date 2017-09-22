@@ -11,7 +11,7 @@ using System.CodeDom.Compiler;
 using System.Diagnostics.CodeAnalysis;
 
 namespace DoctorVanGogh.ModSwitch {
-    [GeneratedCode("DefGenerator.tt","0.1")]
+    [GeneratedCode("DefGenerator.tt","0.2")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public static partial class LanguageKeys {
@@ -77,7 +77,7 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_MissingMods_Choice_Ignore_Tip = "ModSwitch.MissingMods.Choice.Ignore.Tip";
 			/// <summary>
-			/// Get's the translation key for '<em>Cancel & Open workshop</em>'
+			/// Get's the translation key for '<em>Cancel &amp; Open workshop</em>'
 			/// </summary>
 			public const string @ModSwitch_MissingMods_Choice_Workshop = "ModSwitch.MissingMods.Choice.Workshop";
 			/// <summary>
@@ -161,11 +161,11 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_ExistingSettings = "ModSwitch.ExistingSettings";
 			/// <summary>
-			/// Get's the translation key for '<em>Overwrite.</em>'
+			/// Get's the translation key for '<em>Overwrite</em>'
 			/// </summary>
 			public const string @ModSwitch_ExistingSettings_Choice_Overwrite = "ModSwitch.ExistingSettings.Choice.Overwrite";
 			/// <summary>
-			/// Get's the translation key for '<em>Skip.</em>'
+			/// Get's the translation key for '<em>Skip</em>'
 			/// </summary>
 			public const string @ModSwitch_ExistingSettings_Choice_Skip = "ModSwitch.ExistingSettings.Choice.Skip";
 			/// <summary>
@@ -176,6 +176,10 @@ namespace DoctorVanGogh.ModSwitch {
 			/// Get's the translation key for '<em>Target already exists</em>'
 			/// </summary>
 			public const string @ModSwitch_Error_TargetExists = "ModSwitch.Error.TargetExists";
+			/// <summary>
+			/// Get's the translation key for '<em>Not a valid mod path</em>'
+			/// </summary>
+			public const string @ModSwitch_Error_NotValid = "ModSwitch.Error.NotValid";
 			/// <summary>
 			/// Get's the translation key for '<em>Copied mod {0} to {1}.</em>'
 			/// </summary>
@@ -189,6 +193,10 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_CopyLocal_Result_Skipped = "ModSwitch.CopyLocal.Result.Skipped";
 			/// <summary>
+			/// Get's the translation key for '<em>&lt;b&gt;Warning&lt;/b&gt;: Last upload time of the Steam original is unknown - sync support will be degraded.</em>'
+			/// </summary>
+			public const string @ModSwitch_CopyLocal_Result_TimestampUnknown = "ModSwitch.CopyLocal.Result.TimestampUnknown";
+			/// <summary>
 			/// Get's the translation key for '<em>Move to...</em>'
 			/// </summary>
 			public const string @ModSwitch_MoveTo = "ModSwitch.MoveTo";
@@ -200,6 +208,42 @@ namespace DoctorVanGogh.ModSwitch {
 			/// Get's the translation key for '<em>Bottom</em>'
 			/// </summary>
 			public const string @ModSwitch_MoveTo_Bottom = "ModSwitch.MoveTo.Bottom";
+			/// <summary>
+			/// Get's the translation key for '<em>Open folder</em>'
+			/// </summary>
+			public const string @ModSwitch_OpenFolder = "ModSwitch.OpenFolder";
+			/// <summary>
+			/// Get's the translation key for '<em>Sync with Steam original</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync = "ModSwitch.Sync";
+			/// <summary>
+			/// Get's the translation key for '<em>identical</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync_Identical = "ModSwitch.Sync.Identical";
+			/// <summary>
+			/// Get's the translation key for '<em>The mod {0} will be updated to the current Steam version.<br />	(Last) copied from Steam at an upload date of: {1}<br />	Current upload date on Steam: {2}<br /><br />Do you want to keep your existing settings from the local copy or replace them with the version of Steam?</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync_Message = "ModSwitch.Sync.Message";
+			/// <summary>
+			/// Get's the translation key for '<em>Unknown</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync_UnknownTimestamp = "ModSwitch.Sync.UnknownTimestamp";
+			/// <summary>
+			/// Get's the translation key for '<em>Keep existing</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync_Choice_KeepSettings = "ModSwitch.Sync.Choice.KeepSettings";
+			/// <summary>
+			/// Get's the translation key for '<em>Replace with Steam</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync_Choice_CopySteam = "ModSwitch.Sync.Choice.CopySteam";
+			/// <summary>
+			/// Get's the translation key for '<em>Search...</em>'
+			/// </summary>
+			public const string @ModSwitch_Search_Watermark = "ModSwitch.Search.Watermark";
+			/// <summary>
+			/// Get's the translation key for '<em>Local Steam copy</em>'
+			/// </summary>
+			public const string @ModSwitch_Source_SteamCopy = "ModSwitch.Source.SteamCopy";
 		}
 	}
 }
