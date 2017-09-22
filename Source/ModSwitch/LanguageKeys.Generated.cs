@@ -161,11 +161,11 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_ExistingSettings = "ModSwitch.ExistingSettings";
 			/// <summary>
-			/// Get's the translation key for '<em>Overwrite.</em>'
+			/// Get's the translation key for '<em>Overwrite</em>'
 			/// </summary>
 			public const string @ModSwitch_ExistingSettings_Choice_Overwrite = "ModSwitch.ExistingSettings.Choice.Overwrite";
 			/// <summary>
-			/// Get's the translation key for '<em>Skip.</em>'
+			/// Get's the translation key for '<em>Skip</em>'
 			/// </summary>
 			public const string @ModSwitch_ExistingSettings_Choice_Skip = "ModSwitch.ExistingSettings.Choice.Skip";
 			/// <summary>
@@ -176,6 +176,10 @@ namespace DoctorVanGogh.ModSwitch {
 			/// Get's the translation key for '<em>Target already exists</em>'
 			/// </summary>
 			public const string @ModSwitch_Error_TargetExists = "ModSwitch.Error.TargetExists";
+			/// <summary>
+			/// Get's the translation key for '<em>Not a valid mod path</em>'
+			/// </summary>
+			public const string @ModSwitch_Error_NotValid = "ModSwitch.Error.NotValid";
 			/// <summary>
 			/// Get's the translation key for '<em>Copied mod {0} to {1}.</em>'
 			/// </summary>

@@ -187,7 +187,17 @@ namespace DoctorVanGogh.ModSwitch {
                                                                  }
                                                                  if (Directory.Exists(targetDirectory))
                                                                      return LanguageKeys.keyed.ModSwitch_Error_TargetExists.Translate();
-                                                                 return null;
+                                                                 
+                                                                 // walk target path up to root, check we are under 'CoreModsFolderPath' - no '..\..\' shenanigans to break out of mods jail
+                                                                 var modsRoot = new DirectoryInfo(GenFilePaths.CoreModsFolderPath);
+                                                                 for (DirectoryInfo current = new DirectoryInfo(targetDirectory);
+                                                                      current?.FullName != current?.Root.FullName;
+                                                                      current = current.Parent) {
+                                                                     if (current.FullName == modsRoot.FullName)
+                                                                         return null;
+                                                                 }
+
+                                                                 return LanguageKeys.keyed.ModSwitch_Error_NotValid.Translate();                                                                 
                                                              }
                                                          ));
                                 }));

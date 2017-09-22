@@ -54,6 +54,7 @@
 	
 	<ModSwitch.Error.InvalidChars>Contains invalid characters</ModSwitch.Error.InvalidChars>
 	<ModSwitch.Error.TargetExists>Target already exists</ModSwitch.Error.TargetExists>
+	<ModSwitch.Error.NotValid>Not a valid mod path</ModSwitch.Error.NotValid>
 
 	<ModSwitch.CopyLocal.Result.Copy>Copied mod {0} to {1}.</ModSwitch.CopyLocal.Result.Copy>>
 	<ModSwitch.CopyLocal.Result.Settings>Copied {0} settings file(s).</ModSwitch.CopyLocal.Result.Settings>>
