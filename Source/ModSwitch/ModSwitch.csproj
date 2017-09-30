@@ -70,7 +70,7 @@
     <Compile Include="[UI]\Assets.cs" />
     <Compile Include="[UI]\Dialog_MissingMods.cs" />
     <Compile Include="[UI]\Dialog_SetText.cs" />
-    <Compile Include="[UI]\ModsConfig.cs" />
+    <Compile Include="[UI]\ModsConfigUI.cs" />
     <Compile Include="[Util]\Position.cs" />
     <Compile Include="[Util]\Util.cs" />
     <Compile Include="[Patches]\Patches.cs" />

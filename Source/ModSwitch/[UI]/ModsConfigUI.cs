@@ -93,27 +93,71 @@ namespace DoctorVanGogh.ModSwitch {
                     var option = new FloatMenuOption();
                     if (tsCopy != null && tsCopy == tsSteam) {
                         option.Label = Helpers.ExplainError(label, LanguageKeys.keyed.ModSwitch_Sync_Identical.Translate());
-                    }
-                    else {
+                    } else {
                         option.Label = label;
                         option.action = () => {
-                                            Find.WindowStack.Add(
-                                                new Dialog_MessageBox(
-                                                    LanguageKeys.keyed.ModSwitch_Sync_Message.Translate(
-                                                        mod.Identifier, Helpers.WrapTimestamp(tsCopy), Helpers.WrapTimestamp(tsSteam)
-                                                    ),
-                                                    LanguageKeys.keyed.ModSwitch_Sync_Choice_KeepSettings.Translate(),
-                                                    () => { SyncSteam(mod, localAttributes.SteamOrigin, false); },
-                                                    LanguageKeys.keyed.ModSwitch_Sync_Choice_CopySteam.Translate(),
-                                                    () => { SyncSteam(mod, localAttributes.SteamOrigin, true); },
-                                                    LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate(),
-                                                    false) {
-                                                               doCloseX = true,
-                                                               closeOnEscapeKey = true
-                                                           });
-                                        };
+                            Find.WindowStack.Add(
+                                new Dialog_MessageBox(
+                                    LanguageKeys.keyed.ModSwitch_Sync_Message.Translate(
+                                        mod.Identifier, Helpers.WrapTimestamp(tsCopy), Helpers.WrapTimestamp(tsSteam)
+                                    ),
+                                    LanguageKeys.keyed.ModSwitch_Sync_Choice_KeepSettings.Translate(),
+                                    () => {
+                                        SyncSteam(mod, localAttributes.SteamOrigin, false);
+                                    },
+                                    LanguageKeys.keyed.ModSwitch_Sync_Choice_CopySteam.Translate(),
+                                    () => {
+                                        SyncSteam(mod, localAttributes.SteamOrigin, true);
+                                    },
+                                    LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate(),
+                                    false) {
+                                    doCloseX = true,
+                                    closeOnEscapeKey = true
+                                });
+                        };
                     }
                     options.Add(option);
+                } else {
+                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
+                        if (SteamAPI.IsSteamRunning()) {
+                            var installed = ModLister.AllInstalledMods.ToArray();
+
+                            if (installed.Length > 0)
+                                options.Add(new FloatMenuOption(
+                                                LanguageKeys.keyed.ModSwitch_SetOrigin.Translate(),
+                                                () => Find.WindowStack.Add(
+                                                    new FloatMenu(
+                                                        installed
+                                                            .Where(mmd => mmd.OnSteamWorkshop)
+                                                            .Select(mmd => new FloatMenuOption(
+                                                                        mmd.Name,
+                                                                        () => Find.WindowStack.Add(
+                                                                            Dialog_MessageBox.CreateConfirmation(
+                                                                                LanguageKeys.keyed.ModSwitch_SetOrigin_Confirm.Translate(mod.Name, mmd.Name),
+                                                                                () => {
+                                                                                    var attributes = ms[mod.Identifier];
+                                                                                    attributes.SteamOrigin = mmd.Identifier;
+                                                                                    Helpers.RebuildModsList();
+                                                                                },
+                                                                                true,
+                                                                                LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate()
+                                                                            )
+                                                                        )))
+                                                            .ToList()
+
+                                                    ))
+                                            ));
+                        }
+                        else {
+                            options.Add(
+                                new FloatMenuOption(
+                                    Helpers.ExplainError(
+                                        LanguageKeys.keyed.ModSwitch_SetOrigin.Translate(),
+                                        LanguageKeys.keyed.ModSwitch_Error_SteamNotRunning.Translate()
+                                    ),
+                                    null));
+                        }
+                    }
                 }
             }
 
@@ -264,7 +308,7 @@ namespace DoctorVanGogh.ModSwitch {
 
         public static class Helpers {
             public static string WrapTimestamp(long? timestamp) {
-                return timestamp != null ? Util.UnixTimeStampToDateTime(timestamp.Value).ToString("g") : $"<em>{LanguageKeys.keyed.ModSwitch_Sync_UnknownTimestamp.Translate()}</em>";
+                return timestamp != null ? Util.UnixTimeStampToDateTime(timestamp.Value).ToString("g") : $"<i>{LanguageKeys.keyed.ModSwitch_Sync_UnknownTimestamp.Translate()}</i>";
             }
 
             public static string ExplainError(string label, string error) {

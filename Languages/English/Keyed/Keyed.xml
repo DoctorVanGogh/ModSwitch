@@ -15,6 +15,11 @@
 
 <i>(You can suppress this dialog by holding SHIFT when you choose this option.)</i>]]></ModSwitch.OverwritExisting.Confirm>
 
+	<ModSwitch.SetOrigin>Set Steam origin...</ModSwitch.SetOrigin>
+	<ModSwitch.SetOrigin.Confirm><![CDATA[Manually set the steam original of {0} to {1}?
+	
+<b>WARNING:</b> Setting a steam original source to incorrect values will lead to unexpected behavior should you ever sync the local copy to an updated steam version.]]></ModSwitch.SetOrigin.Confirm>
+
 	<ModSwitch.Import>Import</ModSwitch.Import>
 
 	<ModSwitch.ModSet.Mods>{0} items</ModSwitch.ModSet.Mods>
@@ -77,8 +82,9 @@
 	<ModSwitch.Sync>Sync with Steam original</ModSwitch.Sync>
 	<ModSwitch.Sync.Identical>identical</ModSwitch.Sync.Identical>
 	<ModSwitch.Sync.Message><![CDATA[The mod {0} will be updated to the current Steam version.
-	(Last) copied from Steam at an upload date of: {1}
-	Current upload date on Steam: {2}
+
+  {1} - Steam upload date at (last) local copy
+  {2} - Steam upload date currently on Steam
 
 Do you want to keep your existing settings from the local copy or replace them with the version of Steam?]]></ModSwitch.Sync.Message>
 	<ModSwitch.Sync.UnknownTimestamp>Unknown</ModSwitch.Sync.UnknownTimestamp>

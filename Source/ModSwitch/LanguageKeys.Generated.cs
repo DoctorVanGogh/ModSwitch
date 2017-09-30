@@ -57,6 +57,14 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_OverwritExisting_Confirm = "ModSwitch.OverwritExisting.Confirm";
 			/// <summary>
+			/// Get's the translation key for '<em>Set Steam origin...</em>'
+			/// </summary>
+			public const string @ModSwitch_SetOrigin = "ModSwitch.SetOrigin";
+			/// <summary>
+			/// Get's the translation key for '<em>Manually set the steam original of {0} to {1}?<br />	<br />&lt;b&gt;WARNING:&lt;/b&gt; Setting a steam original source to incorrect values will lead to unexpected behavior should you ever sync the local copy to an updated steam version.</em>'
+			/// </summary>
+			public const string @ModSwitch_SetOrigin_Confirm = "ModSwitch.SetOrigin.Confirm";
+			/// <summary>
 			/// Get's the translation key for '<em>Import</em>'
 			/// </summary>
 			public const string @ModSwitch_Import = "ModSwitch.Import";
@@ -233,7 +241,7 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_Sync_Identical = "ModSwitch.Sync.Identical";
 			/// <summary>
-			/// Get's the translation key for '<em>The mod {0} will be updated to the current Steam version.<br />	(Last) copied from Steam at an upload date of: {1}<br />	Current upload date on Steam: {2}<br /><br />Do you want to keep your existing settings from the local copy or replace them with the version of Steam?</em>'
+			/// Get's the translation key for '<em>The mod {0} will be updated to the current Steam version.<br />  Steam upload date at (last) local copy:	{1}<br />  Steam upload date currently on Steam:		{2}<br /><br />Do you want to keep your existing settings from the local copy or replace them with the version of Steam?</em>'
 			/// </summary>
 			public const string @ModSwitch_Sync_Message = "ModSwitch.Sync.Message";
 			/// <summary>
