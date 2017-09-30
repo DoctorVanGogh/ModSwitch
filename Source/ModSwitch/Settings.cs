@@ -8,6 +8,7 @@ using Harmony;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace DoctorVanGogh.ModSwitch {
     class Settings : ModSettings {
@@ -97,19 +98,34 @@ namespace DoctorVanGogh.ModSwitch {
             Widgets.BeginScrollView(r, ref _scrollPosition, new Rect(0, 0, r.width - scrollbarSize, count*(lineHeight + gapSize)));
             Vector2 position = new Vector2();
 
+            int reorderableGroup = ReorderableWidget.NewGroup((@from, to) => {
+                                                                  ReorderModSet(@from, to);
+                                                                  SoundDefOf.TickHigh.PlayOneShotOnCamera(null);
+                                                              });
+
             // render each row
             foreach (var entry in Sets) {
                 position.y = position.y + gapSize;
 
                 Rect line = new Rect(0, position.y, r.width - scrollbarSize, lineHeight);
 
-                entry.DoWindowContents(line);
+                entry.DoWindowContents(line, reorderableGroup);
                 position.y += lineHeight;
             }
 
             Widgets.EndScrollView();
 
             list.End();
+        }
+
+        private void ReorderModSet(int @from, int to) {
+            if (@from == to) {
+                return;
+            }
+
+            var item = Sets[@from];
+            Sets.RemoveAt(@from);
+            Sets.Insert(to, item);
         }
 
         private void ImportModListBackup(bool overwrite = false) {

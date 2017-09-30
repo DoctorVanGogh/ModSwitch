@@ -23,6 +23,7 @@ namespace DoctorVanGogh.ModSwitch {
 
         private static TipSignal? _renameTip;
         private static TipSignal? _deleteTip;
+        private static TipSignal? _dragTip;
 
 
         private TipSignal? _modsTip;
@@ -52,6 +53,8 @@ namespace DoctorVanGogh.ModSwitch {
         private static TipSignal TipRename => (_renameTip ?? (_renameTip = new TipSignal(LanguageKeys.keyed.ModSwitch_Tip_Rename.Translate()))).Value;
         private static TipSignal TipDelete => (_deleteTip ?? (_deleteTip = new TipSignal(LanguageKeys.keyed.ModSwitch_Tip_Delete.Translate()))).Value;
 
+        private static TipSignal TipDrag => (_dragTip ?? (_dragTip = new TipSignal("DragToReorder".Translate()))).Value;
+
         public void ExposeData() {
             Scribe_Collections.Look(ref Mods, false, @"mods");
             Scribe_Values.Look(ref Name, @"name");
@@ -71,7 +74,7 @@ namespace DoctorVanGogh.ModSwitch {
             return Mods.Aggregate(new StringBuilder(), (sb, m) => sb.Length == 0 ? sb.Append(Colorize(m)) : sb.AppendFormat(@", {0}", Colorize(m)), sb => sb.ToString());
         }
 
-        public void DoWindowContents(Rect rect) {
+        public void DoWindowContents(Rect rect, int reorderableGroup) {
             const float padding = 2f;
             var height = rect.height;
             var buttonSize = height - 2*padding;
@@ -82,6 +85,15 @@ namespace DoctorVanGogh.ModSwitch {
             Widgets.Label(left, Name);
 
             var right = new Rect(rect.x + leftColumnsWidth*0.6f + 3*padding, rect.y + padding, leftColumnsWidth*0.4f, buttonSize);
+
+            ReorderableWidget.Reorderable(reorderableGroup, right);
+
+            Rect dragHash = new Rect(right.x, right.y, buttonSize, buttonSize);
+            GUI.DrawTexture(dragHash, Assets.DragHash);
+            TooltipHandler.TipRegion(dragHash, TipDrag);
+
+            right = new Rect(right.x + buttonSize + padding, right.y, right.width - buttonSize - padding, right.height);
+
             Widgets.Label(right, LanguageKeys.keyed.ModSwitch_ModSet_Mods.Translate(Mods.Count));
             TooltipHandler.TipRegion(right, Tip);
 
