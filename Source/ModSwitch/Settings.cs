@@ -203,16 +203,49 @@ namespace DoctorVanGogh.ModSwitch {
                                                                                                           ms.Apply();
                                                                                                       })).ToList()));
             var rctNew = new Rect(target.x + 30f + 8f, target.y, 30f, 30f);
-            if (ExtraWidgets.ButtonImage(rctNew, Assets.Extract, false, TipCreateNew, rctNew.ContractedBy(4)))
-                Find.WindowStack.Add(
-                        new Dialog_SetText(
-                            s => {
-                                Sets.Add(ModSet.FromCurrent(s, this));
-                                Mod.WriteSettings();
-                            },
-                            LanguageKeys.keyed.ModSwitch_Create_DefaultName.Translate()
-                        ));
-            var rctUndo = new Rect(target.x + 2* (30f + 8f) , target.y, 30f, 30f);
+            if (ExtraWidgets.ButtonImage(rctNew, Assets.Extract, false, TipCreateNew, rctNew.ContractedBy(4))) {
+                Find.WindowStack.Add(new FloatMenu(new List<FloatMenuOption> {
+                                                                                 new FloatMenuOption(
+                                                                                     LanguageKeys.keyed.ModSwitch_CreateNew.Translate(),
+                                                                                     () => Find.WindowStack.Add(
+                                                                                         new Dialog_SetText(
+                                                                                             s => {
+                                                                                                 Sets.Add(ModSet.FromCurrent(s, this));
+                                                                                                 Mod.WriteSettings();
+                                                                                             },
+                                                                                             LanguageKeys.keyed.ModSwitch_Create_DefaultName.Translate()
+                                                                                         ))),
+                                                                                 new FloatMenuOption(
+                                                                                     LanguageKeys.keyed.ModSwitch_OverwritExisting.Translate(),
+                                                                                     () => Find.WindowStack.Add(
+                                                                                         new FloatMenu(Sets.Select(
+                                                                                                           ms => new FloatMenuOption(
+                                                                                                               ms.Name,
+                                                                                                               () => {
+                                                                                                                   if (Input.GetKey(KeyCode.LeftShift) ||
+                                                                                                                       Input.GetKey(KeyCode.RightShift)
+                                                                                                                   ) {
+                                                                                                                       OverwriteMod(ms);
+                                                                                                                   }
+                                                                                                                   else {
+                                                                                                                       Find.WindowStack.Add(
+                                                                                                                           Dialog_MessageBox.CreateConfirmation(
+                                                                                                                               LanguageKeys
+                                                                                                                                   .keyed.ModSwitch_OverwritExisting_Confirm
+                                                                                                                                   .Translate(ms.Name),
+                                                                                                                               () => OverwriteMod(ms),
+                                                                                                                               true,
+                                                                                                                               LanguageKeys.keyed.ModSwitch_Confirmation_Title
+                                                                                                                                           .Translate()
+                                                                                                                           ));
+                                                                                                                   }
+                                                                                                               })
+
+                                                                                                       ).ToList()))
+                                                                                 )
+                                                                             }));
+            }
+            var rctUndo = new Rect(target.x + 2 * (30f + 8f), target.y, 30f, 30f);
             if (_undo != null)
                 if (ExtraWidgets.ButtonImage(rctUndo, Assets.Undo, false, TipUndo, rctUndo.ContractedBy(4))) {
                     _undo.Apply();
@@ -225,7 +258,12 @@ namespace DoctorVanGogh.ModSwitch {
                 AccessTools.Field(typeof(Dialog_ModSettings), @"selMod").SetValue(settings, Mod);
                 Find.WindowStack.Add(settings);
             }
+        }
 
+        private void OverwriteMod(ModSet ms) {
+            var idx = Sets.IndexOf(ms);
+            Sets[idx] = ModSet.FromCurrent(ms.Name, this);
+            Mod.WriteSettings();
         }
     }
 }

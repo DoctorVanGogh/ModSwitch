@@ -45,6 +45,18 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_Tip_Apply = "ModSwitch.Tip.Apply";
 			/// <summary>
+			/// Get's the translation key for '<em>Create new</em>'
+			/// </summary>
+			public const string @ModSwitch_CreateNew = "ModSwitch.CreateNew";
+			/// <summary>
+			/// Get's the translation key for '<em>Overwrite existing...</em>'
+			/// </summary>
+			public const string @ModSwitch_OverwritExisting = "ModSwitch.OverwritExisting";
+			/// <summary>
+			/// Get's the translation key for '<em>Really overwrite {0}?<br /><br />&lt;i&gt;(You can suppress this dialog by holding SHIFT when you choose this option.)&lt;/i&gt;</em>'
+			/// </summary>
+			public const string @ModSwitch_OverwritExisting_Confirm = "ModSwitch.OverwritExisting.Confirm";
+			/// <summary>
 			/// Get's the translation key for '<em>Import</em>'
 			/// </summary>
 			public const string @ModSwitch_Import = "ModSwitch.Import";

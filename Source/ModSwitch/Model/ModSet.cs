@@ -33,13 +33,15 @@ namespace DoctorVanGogh.ModSwitch {
         public string Name = String.Empty;
 
         static ModSet() {
-            var tModsConfig = typeof(ModsConfig);
+            var tModsConfig = typeof(Verse.ModsConfig);
             var tModsConfigData = AccessTools.Inner(tModsConfig, @"ModsConfigData");
             fiModsConfigData_activeMods = AccessTools.Field(tModsConfigData, @"activeMods");
             fiModsConfigData_buildNumber = AccessTools.Field(tModsConfigData, @"buildNumber");
             fiModsConfig_data = AccessTools.Field(tModsConfig, @"data");
 
             rgxSteamModId = new Regex(@"^\d+$", RegexOptions.Singleline | RegexOptions.Compiled);
+
+            Util.Log($"ModSet cctor: {tModsConfig != null}, {tModsConfigData != null}, {fiModsConfigData_activeMods != null}, {fiModsConfigData_buildNumber != null}, {fiModsConfig_data != null}");
         }
 
         public ModSet(Settings owner) {
@@ -179,14 +181,14 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
 
-        public static ModSet FromCurrent(string name, Settings owner) {
+        public static ModSet FromCurrent(string name, Settings owner) {         
             object modsConfigData = fiModsConfig_data.GetValue(null);
 
             return new ModSet(owner) {
-                       Name = name,
-                       BuildNumber = (int) fiModsConfigData_buildNumber.GetValue(modsConfigData),
-                       Mods = new List<string>((IEnumerable<string>) fiModsConfigData_activeMods.GetValue(modsConfigData))
-                   };
+                                         Name = name,
+                                         BuildNumber = (int)fiModsConfigData_buildNumber.GetValue(modsConfigData),
+                                         Mods = new List<string>((IEnumerable<string>)fiModsConfigData_activeMods.GetValue(modsConfigData))
+                                     };            
         }
     }
 }

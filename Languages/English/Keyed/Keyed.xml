@@ -9,6 +9,12 @@
 	<ModSwitch.Tip.Undo>Undo</ModSwitch.Tip.Undo>
 	<ModSwitch.Tip.Apply>Apply mod set</ModSwitch.Tip.Apply>
 
+	<ModSwitch.CreateNew>Create new</ModSwitch.CreateNew>
+	<ModSwitch.OverwritExisting>Overwrite existing...</ModSwitch.OverwritExisting>
+	<ModSwitch.OverwritExisting.Confirm><![CDATA[Really overwrite {0}?
+
+<i>(You can suppress this dialog by holding SHIFT when you choose this option.)</i>]]></ModSwitch.OverwritExisting.Confirm>
+
 	<ModSwitch.Import>Import</ModSwitch.Import>
 
 	<ModSwitch.ModSet.Mods>{0} items</ModSwitch.ModSet.Mods>

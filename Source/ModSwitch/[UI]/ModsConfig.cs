@@ -13,7 +13,7 @@ using Verse;
 using Verse.Steam;
 
 namespace DoctorVanGogh.ModSwitch {
-    public static class ModsConfig {
+    public static class ModsConfigUI {
         public static MethodInfo miCheckboxLabeledSelectable = AccessTools.Method(typeof(Widgets), nameof(Widgets.CheckboxLabeledSelectable));
         public static MethodInfo miGuiSetContentColor = AccessTools.Property(typeof(GUI), nameof(GUI.color)).GetSetMethod(true);
         private static readonly MethodInfo miGetModWithIdentifier = AccessTools.Method(typeof(ModLister), "GetModWithIdentifier");

@@ -41,10 +41,10 @@ namespace DoctorVanGogh.ModSwitch {
                 }
 
                 public static Rect AllocateAndDrawSearchboxRect(Rect r) {
-                    const float offset = ModsConfig.Search.buttonSize + 2 * ModsConfig.Search.buttonsInset;
+                    const float offset = ModsConfigUI.Search.buttonSize + 2 * ModsConfigUI.Search.buttonsInset;
 
-                    ModsConfig.Search.DoSearchBlock(
-                        new Rect(r.x + ModsConfig.Search.buttonsInset, r.y + ModsConfig.Search.buttonsInset, r.width - 2 * ModsConfig.Search.buttonsInset, ModsConfig.Search.buttonSize),
+                    ModsConfigUI.Search.DoSearchBlock(
+                        new Rect(r.x + ModsConfigUI.Search.buttonsInset, r.y + ModsConfigUI.Search.buttonsInset, r.width - 2 * ModsConfigUI.Search.buttonsInset, ModsConfigUI.Search.buttonSize),
                         LanguageKeys.keyed.ModSwitch_Search_Watermark.Translate());
 
                     return new Rect(r.x, r.y + offset, r.width, r.height - offset);
@@ -72,7 +72,7 @@ namespace DoctorVanGogh.ModSwitch {
                     Util.Warning("Could not find Page_ModsConfig.PreOpen transpiler anchor - not injecting code.");
                     return instructions;
                 }
-                instructions[idxAnchor].operand = AccessTools.Method(typeof(ModsConfig.Helpers), nameof(ModsConfig.Helpers.ForceSteamWorkshopRequery));
+                instructions[idxAnchor].operand = AccessTools.Method(typeof(ModsConfigUI.Helpers), nameof(ModsConfigUI.Helpers.ForceSteamWorkshopRequery));
                 return instructions;
             }
 
@@ -84,8 +84,8 @@ namespace DoctorVanGogh.ModSwitch {
             [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow", new Type[] { typeof(Listing_Standard), typeof(ModMetaData), typeof(int), typeof(int) })]
             public class SupressNonMatchingFilteredRows {
                 public static bool Prefix(ModMetaData mod) {
-                    if (ModsConfig.Search.searchTerm != String.Empty)
-                        return mod.Name.IndexOf(ModsConfig.Search.searchTerm, StringComparison.CurrentCultureIgnoreCase) != -1;
+                    if (ModsConfigUI.Search.searchTerm != String.Empty)
+                        return mod.Name.IndexOf(ModsConfigUI.Search.searchTerm, StringComparison.CurrentCultureIgnoreCase) != -1;
                     return true;
                 }
             }
@@ -97,7 +97,7 @@ namespace DoctorVanGogh.ModSwitch {
                 public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen) {
                     var instr = new List<CodeInstruction>(instructions);
 
-                    int idxCheckboxLabeledSelectable = instr.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == ModsConfig.miCheckboxLabeledSelectable);
+                    int idxCheckboxLabeledSelectable = instr.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == ModsConfigUI.miCheckboxLabeledSelectable);
                     if (idxCheckboxLabeledSelectable == -1) {
                         Util.Warning("Could not find anchor for ModRow transpiler - not modifying code");
                         return instr;
@@ -143,7 +143,7 @@ namespace DoctorVanGogh.ModSwitch {
                     // insert <code>else { GUI.contentColor = color; }</code>
                     instr.InsertRange(idxBlockEnd, new[] {
                                                              new CodeInstruction(OpCodes.Ldloc, localColor) {labels = new List<Label> {lblNoClick}},
-                                                             new CodeInstruction(OpCodes.Call, ModsConfig.miGuiSetContentColor),
+                                                             new CodeInstruction(OpCodes.Call, ModsConfigUI.miGuiSetContentColor),
                                                          });
 
                     // setup <code>else { ... }</code> branch label
@@ -152,12 +152,12 @@ namespace DoctorVanGogh.ModSwitch {
                     // insert <code>GUI.contentColor = color; if (Input.GetMouseButtonUp(1)) { DoContextMenu(mod); }</code>
                     instr.InsertRange(idxCheckboxLabeledSelectable + 2, new[] {
                                                                                   new CodeInstruction(OpCodes.Ldloc, localColor),
-                                                                                  new CodeInstruction(OpCodes.Call, ModsConfig.miGuiSetContentColor),
+                                                                                  new CodeInstruction(OpCodes.Call, ModsConfigUI.miGuiSetContentColor),
                                                                                   new CodeInstruction(OpCodes.Ldc_I4_1),
                                                                                   new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Input), nameof(Input.GetMouseButtonUp))),
                                                                                   new CodeInstruction(OpCodes.Brfalse, lblExistingClickCode),
                                                                                   new CodeInstruction(OpCodes.Ldarg_2),
-                                                                                  new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfig), nameof(ModsConfig.DoContextMenu))),
+                                                                                  new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfigUI), nameof(ModsConfigUI.DoContextMenu))),
                                                                                   new CodeInstruction(OpCodes.Br, lblBlockEnd),
                                                                               });
 
@@ -167,7 +167,7 @@ namespace DoctorVanGogh.ModSwitch {
                     // insert <code>Color color = Page_ModsConfig_DoModRow.SetGUIColorMod(mod);</code>
                     instr.InsertRange(idxCheckboxLabeledSelectable - 4, new[] {
                                                                                   new CodeInstruction(OpCodes.Ldarg_2),
-                                                                                  new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfig.Helpers), nameof(ModsConfig.Helpers.SetGUIColorMod))),
+                                                                                  new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfigUI.Helpers), nameof(ModsConfigUI.Helpers.SetGUIColorMod))),
                                                                                   new CodeInstruction(OpCodes.Stloc, localColor),
                                                                               });
 
@@ -194,10 +194,10 @@ namespace DoctorVanGogh.ModSwitch {
                      * 
                      * with
                      * 
-                     * ModsConfig.DrawContentSource(rect1, rowCAnonStorey428.mod.Source, clickAction, mod);
+                     * ModsConfigUI.DrawContentSource(rect1, rowCAnonStorey428.mod.Source, clickAction, mod);
                      * 
                      */
-                    instructions[idxAnchor].operand = AccessTools.Method(typeof(ModsConfig), nameof(ModsConfig.DrawContentSource));
+                    instructions[idxAnchor].operand = AccessTools.Method(typeof(ModsConfigUI), nameof(ModsConfigUI.DrawContentSource));
                     instructions.Insert(idxAnchor, new CodeInstruction(OpCodes.Ldarg_2));
 
                     return instructions;
@@ -233,7 +233,7 @@ namespace DoctorVanGogh.ModSwitch {
                  * 
                  * 		if (workshopItem == null)
                  * 		{
-                 * 		    ModsConfig.UpdateSteamTS(pfid, num2);
+                 * 		    ModsConfigUI.UpdateSteamTS(pfid, num2);
                  * 			workshopItem = new WorkshopItem_Mod();
                  * 		}
                  * 
@@ -244,7 +244,7 @@ namespace DoctorVanGogh.ModSwitch {
                     new [] {
                                new CodeInstruction(OpCodes.Ldarg_0), 
                                new CodeInstruction(OpCodes.Ldloc_2), 
-                               new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfig.Helpers), nameof(ModsConfig.Helpers.UpdateSteamTS))), 
+                               new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfigUI.Helpers), nameof(ModsConfigUI.Helpers.UpdateSteamTS))), 
                            }
                     );
 
