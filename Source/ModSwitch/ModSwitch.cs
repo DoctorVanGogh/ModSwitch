@@ -6,6 +6,7 @@ using System.Reflection;
 using Harmony;
 using UnityEngine;
 using Verse;
+using Verse.Steam;
 
 namespace DoctorVanGogh.ModSwitch {
 
@@ -24,7 +25,7 @@ namespace DoctorVanGogh.ModSwitch {
 
             Log.Message("Initialized ModSwitch patches...");
 
-            _settings = GetSettings<Settings>();
+            _settings = GetSettings<Settings>();            
         }
 
         public override string SettingsCategory() {
@@ -39,13 +40,10 @@ namespace DoctorVanGogh.ModSwitch {
             _settings.DoModsConfigWindowContents(bottom);
         }
 
-        public Color GetModColor(ModMetaData mod) {
-            return _settings.GetOrInsertAttributes(mod.Identifier)?.Color ?? Color.white;
-        }
 
-        public void SetModColor(ModMetaData mod, Color value) {
-            _settings.GetOrInsertAttributes(mod.Identifier).Color = value;
-        }
+        public ModAttributes this[string mod] => _settings.GetOrInsertAttributes(mod);
+        public ModAttributes this[ModMetaData mod] => this[mod.Identifier];
+
 
         public void MovePosition(ModMetaData mod, Position position) {
             List<ModMetaData> mods  = (List<ModMetaData>) fiModLister_mods.GetValue(null);
@@ -61,5 +59,6 @@ namespace DoctorVanGogh.ModSwitch {
                 }
             }
         }
+
     }
 }

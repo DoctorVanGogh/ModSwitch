@@ -9,6 +9,17 @@
 	<ModSwitch.Tip.Undo>Undo</ModSwitch.Tip.Undo>
 	<ModSwitch.Tip.Apply>Apply mod set</ModSwitch.Tip.Apply>
 
+	<ModSwitch.CreateNew>Create new</ModSwitch.CreateNew>
+	<ModSwitch.OverwritExisting>Overwrite existing...</ModSwitch.OverwritExisting>
+	<ModSwitch.OverwritExisting.Confirm><![CDATA[Really overwrite {0}?
+
+<i>(You can suppress this dialog by holding SHIFT when you choose this option.)</i>]]></ModSwitch.OverwritExisting.Confirm>
+
+	<ModSwitch.SetOrigin>Set Steam origin...</ModSwitch.SetOrigin>
+	<ModSwitch.SetOrigin.Confirm><![CDATA[Manually set the steam original of {0} to {1}?
+	
+<b>WARNING:</b> Setting a steam original source to incorrect values will lead to unexpected behavior should you ever sync the local copy to an updated steam version.]]></ModSwitch.SetOrigin.Confirm>
+
 	<ModSwitch.Import>Import</ModSwitch.Import>
 
 	<ModSwitch.ModSet.Mods>{0} items</ModSwitch.ModSet.Mods>
@@ -59,10 +70,30 @@
 	<ModSwitch.CopyLocal.Result.Copy>Copied mod {0} to {1}.</ModSwitch.CopyLocal.Result.Copy>>
 	<ModSwitch.CopyLocal.Result.Settings>Copied {0} settings file(s).</ModSwitch.CopyLocal.Result.Settings>>
 	<ModSwitch.CopyLocal.Result.Skipped>Skipped copying settings.</ModSwitch.CopyLocal.Result.Skipped>>
+	<ModSwitch.CopyLocal.Result.TimestampUnknown><![CDATA[<b>Warning</b>: Last upload time of the Steam original is unknown - sync support will be degraded.]]></ModSwitch.CopyLocal.Result.TimestampUnknown>
+
 
 	<ModSwitch.MoveTo>Move to...</ModSwitch.MoveTo>
 	<ModSwitch.MoveTo.Top>Top</ModSwitch.MoveTo.Top>
 	<ModSwitch.MoveTo.Bottom>Bottom</ModSwitch.MoveTo.Bottom>
+
+	<ModSwitch.OpenFolder>Open folder</ModSwitch.OpenFolder>
+
+	<ModSwitch.Sync>Sync with Steam original</ModSwitch.Sync>
+	<ModSwitch.Sync.Identical>identical</ModSwitch.Sync.Identical>
+	<ModSwitch.Sync.Message><![CDATA[The mod {0} will be updated to the current Steam version.
+
+  {1} - Steam upload date at (last) local copy
+  {2} - Steam upload date currently on Steam
+
+Do you want to keep your existing settings from the local copy or replace them with the version of Steam?]]></ModSwitch.Sync.Message>
+	<ModSwitch.Sync.UnknownTimestamp>Unknown</ModSwitch.Sync.UnknownTimestamp>
+	<ModSwitch.Sync.Choice.KeepSettings>Keep existing</ModSwitch.Sync.Choice.KeepSettings>		
+	<ModSwitch.Sync.Choice.CopySteam>Replace with Steam</ModSwitch.Sync.Choice.CopySteam>		
+
+	<ModSwitch.Search.Watermark>Search...</ModSwitch.Search.Watermark>
+
+	<ModSwitch.Source.SteamCopy>Local Steam copy</ModSwitch.Source.SteamCopy>
 
 
 </LanguageData>

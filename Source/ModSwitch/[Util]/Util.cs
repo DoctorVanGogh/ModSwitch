@@ -32,6 +32,13 @@ namespace DoctorVanGogh.ModSwitch {
             return $"<color=#{((byte)(color.r * 255)):X2}{((byte)(color.g * 255)):X2}{((byte)(color.b * 255)):X2}{((byte)(color.a * 255)):X2}>{text}</color>";
         }
 
+        public static DateTime UnixTimeStampToDateTime(double unixTimeStamp) {
+            // Unix timestamp is seconds past epoch
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dtDateTime;
+        }
+
         public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs) {
             // Get the subdirectories for the specified directory.
             DirectoryInfo dir = new DirectoryInfo(sourceDirName);

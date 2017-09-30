@@ -6,7 +6,7 @@ _A Rimworld mod manager_
 
 <p align="center"><img alt="Mod Switch" src="https://raw.githubusercontent.com/DoctorVanGogh/ModSwitch/master/About/preview.png" /></p>
 
-Allows you to save and switch between sets of active mods with one click. 
+Allows you to save and switch between sets of active mods with one click.
 
 Supports importing your sets from ModListBackup.
 

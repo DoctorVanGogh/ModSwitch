@@ -37,7 +37,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace <#= _namespace #> {
 <#				}
 #>
-    [GeneratedCode("DefGenerator.tt","0.1")]
+    [GeneratedCode("DefGenerator.tt","0.2")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public static partial class LanguageKeys {
@@ -52,7 +52,7 @@ namespace <#= _namespace #> {
 						foreach (XmlNode element in doc.SelectNodes(@"/*/*")) {
 #>
 			/// <summary>
-			/// Get's the translation key for '<em><#= element.InnerText ?? String.Empty#></em>'
+			/// Get's the translation key for '<em><#= System.Security.SecurityElement.Escape(element.InnerText ?? String.Empty).Replace("\r\n", "<br />")  #></em>'
 			/// </summary>
 			public const string <#= SanitizeIdentifier(element.Name) #> = "<#= element.Name #>";
 <#

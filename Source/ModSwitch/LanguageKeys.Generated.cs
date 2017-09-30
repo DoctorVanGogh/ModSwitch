@@ -11,7 +11,7 @@ using System.CodeDom.Compiler;
 using System.Diagnostics.CodeAnalysis;
 
 namespace DoctorVanGogh.ModSwitch {
-    [GeneratedCode("DefGenerator.tt","0.1")]
+    [GeneratedCode("DefGenerator.tt","0.2")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public static partial class LanguageKeys {
@@ -45,6 +45,26 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_Tip_Apply = "ModSwitch.Tip.Apply";
 			/// <summary>
+			/// Get's the translation key for '<em>Create new</em>'
+			/// </summary>
+			public const string @ModSwitch_CreateNew = "ModSwitch.CreateNew";
+			/// <summary>
+			/// Get's the translation key for '<em>Overwrite existing...</em>'
+			/// </summary>
+			public const string @ModSwitch_OverwritExisting = "ModSwitch.OverwritExisting";
+			/// <summary>
+			/// Get's the translation key for '<em>Really overwrite {0}?<br /><br />&lt;i&gt;(You can suppress this dialog by holding SHIFT when you choose this option.)&lt;/i&gt;</em>'
+			/// </summary>
+			public const string @ModSwitch_OverwritExisting_Confirm = "ModSwitch.OverwritExisting.Confirm";
+			/// <summary>
+			/// Get's the translation key for '<em>Set Steam origin...</em>'
+			/// </summary>
+			public const string @ModSwitch_SetOrigin = "ModSwitch.SetOrigin";
+			/// <summary>
+			/// Get's the translation key for '<em>Manually set the steam original of {0} to {1}?<br />	<br />&lt;b&gt;WARNING:&lt;/b&gt; Setting a steam original source to incorrect values will lead to unexpected behavior should you ever sync the local copy to an updated steam version.</em>'
+			/// </summary>
+			public const string @ModSwitch_SetOrigin_Confirm = "ModSwitch.SetOrigin.Confirm";
+			/// <summary>
 			/// Get's the translation key for '<em>Import</em>'
 			/// </summary>
 			public const string @ModSwitch_Import = "ModSwitch.Import";
@@ -77,7 +97,7 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_MissingMods_Choice_Ignore_Tip = "ModSwitch.MissingMods.Choice.Ignore.Tip";
 			/// <summary>
-			/// Get's the translation key for '<em>Cancel & Open workshop</em>'
+			/// Get's the translation key for '<em>Cancel &amp; Open workshop</em>'
 			/// </summary>
 			public const string @ModSwitch_MissingMods_Choice_Workshop = "ModSwitch.MissingMods.Choice.Workshop";
 			/// <summary>
@@ -193,6 +213,10 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_CopyLocal_Result_Skipped = "ModSwitch.CopyLocal.Result.Skipped";
 			/// <summary>
+			/// Get's the translation key for '<em>&lt;b&gt;Warning&lt;/b&gt;: Last upload time of the Steam original is unknown - sync support will be degraded.</em>'
+			/// </summary>
+			public const string @ModSwitch_CopyLocal_Result_TimestampUnknown = "ModSwitch.CopyLocal.Result.TimestampUnknown";
+			/// <summary>
 			/// Get's the translation key for '<em>Move to...</em>'
 			/// </summary>
 			public const string @ModSwitch_MoveTo = "ModSwitch.MoveTo";
@@ -204,6 +228,42 @@ namespace DoctorVanGogh.ModSwitch {
 			/// Get's the translation key for '<em>Bottom</em>'
 			/// </summary>
 			public const string @ModSwitch_MoveTo_Bottom = "ModSwitch.MoveTo.Bottom";
+			/// <summary>
+			/// Get's the translation key for '<em>Open folder</em>'
+			/// </summary>
+			public const string @ModSwitch_OpenFolder = "ModSwitch.OpenFolder";
+			/// <summary>
+			/// Get's the translation key for '<em>Sync with Steam original</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync = "ModSwitch.Sync";
+			/// <summary>
+			/// Get's the translation key for '<em>identical</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync_Identical = "ModSwitch.Sync.Identical";
+			/// <summary>
+			/// Get's the translation key for '<em>The mod {0} will be updated to the current Steam version.<br />  Steam upload date at (last) local copy:	{1}<br />  Steam upload date currently on Steam:		{2}<br /><br />Do you want to keep your existing settings from the local copy or replace them with the version of Steam?</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync_Message = "ModSwitch.Sync.Message";
+			/// <summary>
+			/// Get's the translation key for '<em>Unknown</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync_UnknownTimestamp = "ModSwitch.Sync.UnknownTimestamp";
+			/// <summary>
+			/// Get's the translation key for '<em>Keep existing</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync_Choice_KeepSettings = "ModSwitch.Sync.Choice.KeepSettings";
+			/// <summary>
+			/// Get's the translation key for '<em>Replace with Steam</em>'
+			/// </summary>
+			public const string @ModSwitch_Sync_Choice_CopySteam = "ModSwitch.Sync.Choice.CopySteam";
+			/// <summary>
+			/// Get's the translation key for '<em>Search...</em>'
+			/// </summary>
+			public const string @ModSwitch_Search_Watermark = "ModSwitch.Search.Watermark";
+			/// <summary>
+			/// Get's the translation key for '<em>Local Steam copy</em>'
+			/// </summary>
+			public const string @ModSwitch_Source_SteamCopy = "ModSwitch.Source.SteamCopy";
 		}
 	}
 }
