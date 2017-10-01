@@ -52,7 +52,7 @@ namespace <#= _namespace #> {
 						foreach (XmlNode element in doc.SelectNodes(@"/*/*")) {
 #>
 			/// <summary>
-			/// Get's the translation key for '<em><#= System.Security.SecurityElement.Escape(element.InnerText ?? String.Empty).Replace("\r\n", "<br />")  #></em>'
+			/// Gets the translation key for '<em><#= System.Security.SecurityElement.Escape(element.InnerText ?? String.Empty).Replace("\r\n", "<br />")  #></em>'
 			/// </summary>
 			public const string <#= SanitizeIdentifier(element.Name) #> = "<#= element.Name #>";
 <#
