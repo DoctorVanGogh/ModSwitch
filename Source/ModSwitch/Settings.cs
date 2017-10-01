@@ -137,9 +137,26 @@ namespace DoctorVanGogh.ModSwitch {
 
             string parent = Path.Combine(GenFilePaths.SaveDataFolderPath, "ModListBackup");
             Util.Trace($"Looking at {parent}");
+            IDictionary<int, string> names = null;
             if (Directory.Exists(parent)) {
+                // grab hugslibs settings for MLB
+                string hugs = Path.Combine(GenFilePaths.SaveDataFolderPath, "HugsLib");
+                if (Directory.Exists(hugs)) {
+                    var settings = Path.Combine(hugs, "ModSettings.xml");
+                    if (File.Exists(settings)) {
+                        XmlDocument doc = new XmlDocument();
+                        doc.Load(settings);
+
+                        names = doc.DocumentElement.SelectSingleNode(@"//ModListBackup/StateNames/text()")?.Value.Split('|').Select((v, i) => new {v, i}).ToDictionary(t => t.i+1, t => t.v);
+                    }
+                }
+
                 // import configs
                 var existing = Directory.GetFiles(parent, "*.rws");
+
+                if (names == null)
+                    names = new Dictionary<int, string>();
+
 
                 foreach (var mlbSet in existing) {
                     Util.Trace($"Reading {mlbSet}");
@@ -147,8 +164,18 @@ namespace DoctorVanGogh.ModSwitch {
                     XmlDocument doc = new XmlDocument();
                     doc.Load(mlbSet);
                     try {
+                        string name = Path.GetFileNameWithoutExtension(mlbSet);
+                        int idx;
+                        string backupName = null;
+
+                        if (Int32.TryParse(Path.GetFileNameWithoutExtension(name), out idx)) {
+                            names.TryGetValue(idx, out backupName);
+                        }
+                        if (String.IsNullOrEmpty(backupName))
+                            backupName = $"MLB '{name}'";
+
                         var set = new ModSet(this) {
-                                      Name = $"MLB '{Path.GetFileNameWithoutExtension(mlbSet)}'",
+                                      Name = backupName,
                                       // ReSharper disable PossibleNullReferenceException
                                       // ReSharper disable AssignNullToNotNullAttribute
                                       Mods = doc.DocumentElement.SelectNodes(@"//activeMods/li/text()").Cast<XmlNode>().Select(n => n.Value).ToList(),
@@ -168,38 +195,39 @@ namespace DoctorVanGogh.ModSwitch {
 
                 // import custom settings
                 string mods = Path.Combine(parent, "Mod");
-                foreach (var mod in Directory.GetDirectories(mods)) {
-                    Util.Trace($"Settings {mod}");
-                    var settings = Path.Combine(mod, "Settings.xml");
-                    if (File.Exists(settings)) {
-                        XmlDocument doc = new XmlDocument();
-                        doc.Load(settings);
+                if (Directory.Exists(mods))
+                    foreach (var mod in Directory.GetDirectories(mods)) {
+                        Util.Trace($"Settings {mod}");
+                        var settings = Path.Combine(mod, "Settings.xml");
+                        if (File.Exists(settings)) {
+                            XmlDocument doc = new XmlDocument();
+                            doc.Load(settings);
 
-                        ModAttributes attr;
-                        var key = Path.GetFileName(mod);
-                        if (!_lookup.TryGetValue(key, out attr)) _lookup[key] = attr = new ModAttributes { Key = key };
-                        var textColor = doc.DocumentElement.SelectSingleNode(@"//textColor");
-                        try {
-                            var mlb = new MLBAttributes {
-                                          altName = doc.DocumentElement.SelectSingleNode(@"//altName/text()")?.Value,
-                                          installName = doc.DocumentElement.SelectSingleNode(@"//installName/text()")?.Value,
-                                          color = textColor != null
-                                              ? new Color(
-                                                    float.Parse(textColor.SelectSingleNode("r/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
-                                                    float.Parse(textColor.SelectSingleNode("g/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
-                                                    float.Parse(textColor.SelectSingleNode("b/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
-                                                    float.Parse(textColor.SelectSingleNode("a/text()")?.Value ?? "1", CultureInfo.InvariantCulture)
-                                                )
-                                              : Color.white
-                                      };
-                            attr.attributes.Add(mlb);
-                            attr.Color = mlb.color;
-                        }
-                        catch (Exception e) {
-                            Util.Error(e);
+                            ModAttributes attr;
+                            var key = Path.GetFileName(mod);
+                            if (!_lookup.TryGetValue(key, out attr)) _lookup[key] = attr = new ModAttributes { Key = key };
+                            var textColor = doc.DocumentElement.SelectSingleNode(@"//textColor");
+                            try {
+                                var mlb = new MLBAttributes {
+                                              altName = doc.DocumentElement.SelectSingleNode(@"//altName/text()")?.Value,
+                                              installName = doc.DocumentElement.SelectSingleNode(@"//installName/text()")?.Value,
+                                              color = textColor != null
+                                                  ? new Color(
+                                                        float.Parse(textColor.SelectSingleNode("r/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
+                                                        float.Parse(textColor.SelectSingleNode("g/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
+                                                        float.Parse(textColor.SelectSingleNode("b/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
+                                                        float.Parse(textColor.SelectSingleNode("a/text()")?.Value ?? "1", CultureInfo.InvariantCulture)
+                                                    )
+                                                  : Color.white
+                                          };
+                                attr.attributes.Add(mlb);
+                                attr.Color = mlb.color;
+                            }
+                            catch (Exception e) {
+                                Util.Error(e);
+                            }
                         }
                     }
-                }
 
                 Attributes.AddRange(_lookup.Values);
             }
