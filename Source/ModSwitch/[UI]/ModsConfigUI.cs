@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Harmony;
+using RimWorld;
 using Steamworks;
 using UnityEngine;
 using Verse;
@@ -14,11 +15,14 @@ using Verse.Steam;
 
 namespace DoctorVanGogh.ModSwitch {
     public static class ModsConfigUI {
-        public static MethodInfo miCheckboxLabeledSelectable = AccessTools.Method(typeof(Widgets), nameof(Widgets.CheckboxLabeledSelectable));
-        public static MethodInfo miGuiSetContentColor = AccessTools.Property(typeof(GUI), nameof(GUI.color)).GetSetMethod(true);
+        public static readonly MethodInfo miCheckboxLabeledSelectable = AccessTools.Method(typeof(Widgets), nameof(Widgets.CheckboxLabeledSelectable));
+        public static readonly MethodInfo miGuiSetContentColor = AccessTools.Property(typeof(GUI), nameof(GUI.color)).GetSetMethod(true);
+
+        public static readonly FieldInfo fiPage_ModsConfig_ActiveModsWhenOpenedHash = AccessTools.Field(typeof(Page_ModsConfig), "activeModsWhenOpenedHash");
         private static readonly MethodInfo miGetModWithIdentifier = AccessTools.Method(typeof(ModLister), "GetModWithIdentifier");
 
         private static IDictionary<string, Color> _colorMap;
+        private static ModsChangeAction _changeAction = ModsChangeAction.Restart;
 
         public static IDictionary<string, Color> ColorMap => _colorMap ?? (_colorMap = new Dictionary<string, Color> {
                                                                                                                          {LanguageKeys.keyed.ModSwitch_Color_white.Translate(), Color.white},
@@ -31,6 +35,11 @@ namespace DoctorVanGogh.ModSwitch {
                                                                                                                          {LanguageKeys.keyed.ModSwitch_Color_cyan.Translate(), Color.cyan},
                                                                                                                          {LanguageKeys.keyed.ModSwitch_Color_yellow.Translate(), Color.yellow}
                                                                                                                      });
+
+        public static ModsChangeAction ChangeAction {
+            get { return _changeAction; }
+            set { _changeAction = value; }
+        }
 
         public static void DoContextMenu(ModMetaData mod) {
             var options = new List<FloatMenuOption>();
@@ -303,7 +312,29 @@ namespace DoctorVanGogh.ModSwitch {
             ).ToList();
         }
 
+        public enum ModsChangeAction {
+            Restart,
+            Ignore,
+            Query
+        }
 
+        public static void OnModsChanged() {
+            switch (_changeAction) {
+                case ModsChangeAction.Restart:
+                    Find.WindowStack.Add(new Dialog_MessageBox("ModsChanged".Translate(), null, GenCommandLine.Restart, null, null, null, false));
+                    break;
+                default:
+                case ModsChangeAction.Ignore:
+                    break;
+                case ModsChangeAction.Query:
+                    Find.WindowStack.Add(new Dialog_MessageBox("ModsChanged".Translate(), "Restart", GenCommandLine.Restart, "Defer", DeferRestart, null, false));
+                    break;
+            }
+        }
+
+        private static void DeferRestart() {
+            throw new NotImplementedException();
+        }
 
 
         public static class Helpers {

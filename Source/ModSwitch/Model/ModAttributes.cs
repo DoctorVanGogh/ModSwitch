@@ -41,6 +41,7 @@ namespace DoctorVanGogh.ModSwitch {
                     Color = attributes.OfType<MLBAttributes>().FirstOrDefault()?.color;
             }
         }
+
     }
 
     class MLBAttributes : IExposable {

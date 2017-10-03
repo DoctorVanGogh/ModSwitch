@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using Verse;
 
@@ -68,6 +71,12 @@ namespace DoctorVanGogh.ModSwitch {
                     string temppath = Path.Combine(destDirName, subdir.Name);
                     DirectoryCopy(subdir.FullName, temppath, copySubDirs);
                 }
+            }
+        }
+
+        public static void AddRange<TItem>(this ICollection<TItem> collection, IEnumerable<TItem> values) {
+            foreach (var value in values) {
+                collection.Add(value);
             }
         }
 

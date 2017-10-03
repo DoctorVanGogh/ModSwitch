@@ -206,6 +206,19 @@ namespace DoctorVanGogh.ModSwitch {
             }
         }
 
+        [HarmonyPatch(typeof(Page_ModsConfig), nameof(Page_ModsConfig.PostClose))]
+        public class Page_ModsConfig_PostClose {
+
+            // yeah, it's effectively a detour - sue me....
+            public static bool Prefix(Page_ModsConfig __instance) {
+                ModsConfig.Save();
+                if ((int) ModsConfigUI.fiPage_ModsConfig_ActiveModsWhenOpenedHash.GetValue(__instance) != ModLister.InstalledModsListHash(true)) {
+                    ModsConfigUI.OnModsChanged();
+                }
+                return false;
+            }
+        }
+
         [HarmonyPatch(typeof(WorkshopItem), nameof(WorkshopItem.MakeFrom))]
         public class WorkshopItem_MakeFrom {
 

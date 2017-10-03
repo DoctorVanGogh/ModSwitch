@@ -16,13 +16,12 @@ namespace DoctorVanGogh.ModSwitch {
         private static TipSignal? _tipSettings;
         private static TipSignal? _tipApply;
         private static TipSignal? _tipUndo;
-        private IDictionary<string, ModAttributes> _lookup;
 
         private Vector2 _scrollPosition;
 
         private ModSet _undo;
 
-        public List<ModAttributes> Attributes = new List<ModAttributes>();
+        public ModAttributesSet Attributes = new ModAttributesSet();
         public List<ModSet> Sets = new List<ModSet>();
 
         public static TipSignal TipSettings => (_tipSettings ?? (_tipSettings = new TipSignal(LanguageKeys.keyed.ModSwitch_Tip_Settings.Translate()))).Value;
@@ -33,27 +32,20 @@ namespace DoctorVanGogh.ModSwitch {
 
         public static TipSignal TipUndo => (_tipUndo ?? (_tipUndo = new TipSignal(LanguageKeys.keyed.ModSwitch_Tip_Undo.Translate()))).Value;
 
-        public Settings() {
-            _lookup = Attributes.ToDictionary(ma => ma.Key);
+        public Settings() {           
         }
 
         public override void ExposeData() {
             Scribe_Collections.Look(ref Sets, false, @"sets", LookMode.Undefined, this);
-            Scribe_Collections.Look(ref Attributes, false, @"attributes");
-
-            if (Scribe.mode == LoadSaveMode.LoadingVars) InitLookup();
+            Scribe_Custom.Look<ModAttributesSet, ModAttributes>(ref Attributes, false, @"attributes");
         }
 
-        private void InitLookup() {
-            _lookup = Attributes.ToDictionary(ma => ma.Key);
-        }
 
         internal ModAttributes GetOrInsertAttributes(string key) {
             ModAttributes result;
-            if (!_lookup.TryGetValue(key, out result)) {
+            if (!Attributes.TryGetValue(key, out result)) {
                 result = new ModAttributes { Key = key };
-                Attributes.Add(result);
-                _lookup[key] = result;
+                Attributes.Add(result);               
             }
             return result;
         }
@@ -133,7 +125,6 @@ namespace DoctorVanGogh.ModSwitch {
                 Attributes.Clear();
                 Sets.Clear();                
             }
-            InitLookup();
 
             string parent = Path.Combine(GenFilePaths.SaveDataFolderPath, "ModListBackup");
             Util.Trace($"Looking at {parent}");
@@ -205,7 +196,8 @@ namespace DoctorVanGogh.ModSwitch {
 
                             ModAttributes attr;
                             var key = Path.GetFileName(mod);
-                            if (!_lookup.TryGetValue(key, out attr)) _lookup[key] = attr = new ModAttributes { Key = key };
+                            if (!Attributes.TryGetValue(key, out attr))
+                                Attributes.Add(attr = new ModAttributes { Key = key });
                             var textColor = doc.DocumentElement.SelectSingleNode(@"//textColor");
                             try {
                                 var mlb = new MLBAttributes {
@@ -228,8 +220,6 @@ namespace DoctorVanGogh.ModSwitch {
                             }
                         }
                     }
-
-                Attributes.AddRange(_lookup.Values);
             }
 
             Mod.WriteSettings();
@@ -261,32 +251,33 @@ namespace DoctorVanGogh.ModSwitch {
                                                                                          ))),
                                                                                  new FloatMenuOption(
                                                                                      LanguageKeys.keyed.ModSwitch_OverwritExisting.Translate(),
-                                                                                     () => Find.WindowStack.Add(
-                                                                                         new FloatMenu(Sets.Select(
-                                                                                                           ms => new FloatMenuOption(
-                                                                                                               ms.Name,
-                                                                                                               () => {
-                                                                                                                   if (Input.GetKey(KeyCode.LeftShift) ||
-                                                                                                                       Input.GetKey(KeyCode.RightShift)
-                                                                                                                   ) {
-                                                                                                                       OverwriteMod(ms);
-                                                                                                                   }
-                                                                                                                   else {
-                                                                                                                       Find.WindowStack.Add(
-                                                                                                                           Dialog_MessageBox.CreateConfirmation(
-                                                                                                                               LanguageKeys
-                                                                                                                                   .keyed.ModSwitch_OverwritExisting_Confirm
-                                                                                                                                   .Translate(ms.Name),
-                                                                                                                               () => OverwriteMod(ms),
-                                                                                                                               true,
-                                                                                                                               LanguageKeys.keyed.ModSwitch_Confirmation_Title
-                                                                                                                                           .Translate()
-                                                                                                                           ));
-                                                                                                                   }
-                                                                                                               })
-
-                                                                                                       ).ToList()))
-                                                                                 )
+                                                                                     () => {
+                                                                                         if (Sets.Count > 0)
+                                                                                             Find.WindowStack.Add(
+                                                                                                 new FloatMenu(Sets.Select(
+                                                                                                                   ms => new FloatMenuOption(
+                                                                                                                       ms.Name,
+                                                                                                                       () => {
+                                                                                                                           if (Input.GetKey(KeyCode.LeftShift) ||
+                                                                                                                               Input.GetKey(KeyCode.RightShift)
+                                                                                                                           ) {
+                                                                                                                               OverwriteMod(ms);
+                                                                                                                           }
+                                                                                                                           else {
+                                                                                                                               Find.WindowStack.Add(
+                                                                                                                                   Dialog_MessageBox.CreateConfirmation(
+                                                                                                                                       LanguageKeys
+                                                                                                                                           .keyed.ModSwitch_OverwritExisting_Confirm
+                                                                                                                                           .Translate(ms.Name),
+                                                                                                                                       () => OverwriteMod(ms),
+                                                                                                                                       true,
+                                                                                                                                       LanguageKeys.keyed.ModSwitch_Confirmation_Title
+                                                                                                                                                   .Translate()
+                                                                                                                                   ));
+                                                                                                                           }
+                                                                                                                       })
+                                                                                                               ).ToList()));
+                                                                                     })
                                                                              }));
             }
             var rctUndo = new Rect(target.x + 2 * (30f + 8f), target.y, 30f, 30f);
@@ -298,9 +289,7 @@ namespace DoctorVanGogh.ModSwitch {
 
             var rctSettings = new Rect(350f - 30f, target.y, 30f, 30f);
             if (ExtraWidgets.ButtonImage(rctSettings, Assets.Settings, false, TipSettings, rctSettings.ContractedBy(4))) {
-                var settings = new Dialog_ModSettings();
-                AccessTools.Field(typeof(Dialog_ModSettings), @"selMod").SetValue(settings, Mod);
-                Find.WindowStack.Add(settings);
+                Find.WindowStack.Add(new Dialog_ModsConfigSettings(Mod));
             }
         }
 

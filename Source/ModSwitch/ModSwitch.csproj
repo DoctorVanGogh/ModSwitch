@@ -63,15 +63,19 @@
       <DependentUpon>LanguageKeys.Generated.tt</DependentUpon>
     </Compile>
     <Compile Include="Model\ModAttributes.cs" />
+    <Compile Include="Model\ModAttributesSet.cs" />
     <Compile Include="Model\ModSet.cs" />
     <Compile Include="ModSwitch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="[UI]\Assets.cs" />
     <Compile Include="[UI]\Dialog_MissingMods.cs" />
+    <Compile Include="[UI]\Dialog_ModsConfigSettings.cs" />
     <Compile Include="[UI]\Dialog_SetText.cs" />
     <Compile Include="[UI]\ModsConfigUI.cs" />
+    <Compile Include="[UI]\Page_ModsConfigReopened.cs" />
     <Compile Include="[Util]\Position.cs" />
+    <Compile Include="[Util]\Scribe.cs" />
     <Compile Include="[Util]\Util.cs" />
     <Compile Include="[Patches]\Patches.cs" />
     <Compile Include="[Util]\Linq.cs" />
