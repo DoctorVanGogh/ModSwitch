@@ -1,3 +1,13 @@
+# Version 1.3
+
+- New option: Import ModSet from savegame
+- Support sorting/reordering ModSets though Drag & Drop in Settings
+- Defered restarts when active Mods have changed (actual new/load game still forces a restart)
+- Restore version mismatch hint in ModConfig (Mod coloring does hide vanilla coloring for outdated mods)
+- Improved ModListBackup import: Import backup *names* too
+- Fix rare potential error on MLB import
+- Fix error with 'overwrite' option for new ModSets when no ModSets exist
+
 # Version 1.2
 
 - Adds a search bar to the mod list
