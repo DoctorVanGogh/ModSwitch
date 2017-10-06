@@ -241,7 +241,7 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_Sync_Identical = "ModSwitch.Sync.Identical";
 			/// <summary>
-			/// Get's the translation key for '<em>The mod {0} will be updated to the current Steam version.<br />  Steam upload date at (last) local copy:	{1}<br />  Steam upload date currently on Steam:		{2}<br /><br />Do you want to keep your existing settings from the local copy or replace them with the version of Steam?</em>'
+			/// Get's the translation key for '<em>The mod {0} will be updated to the current Steam version.<br /><br />  {1} - Steam upload date at (last) local copy<br />  {2} - Steam upload date currently on Steam<br /><br />Do you want to keep your existing settings from the local copy or replace them with the version of Steam?</em>'
 			/// </summary>
 			public const string @ModSwitch_Sync_Message = "ModSwitch.Sync.Message";
 			/// <summary>
@@ -264,6 +264,14 @@ namespace DoctorVanGogh.ModSwitch {
 			/// Get's the translation key for '<em>Local Steam copy</em>'
 			/// </summary>
 			public const string @ModSwitch_Source_SteamCopy = "ModSwitch.Source.SteamCopy";
+			/// <summary>
+			/// Get's the translation key for '<em>Restart</em>'
+			/// </summary>
+			public const string @ModSwitch_RestartRequired_Restart = "ModSwitch.RestartRequired.Restart";
+			/// <summary>
+			/// Get's the translation key for '<em>Later</em>'
+			/// </summary>
+			public const string @ModSwitch_RestartRequired_Defer = "ModSwitch.RestartRequired.Defer";
 		}
 	}
 }

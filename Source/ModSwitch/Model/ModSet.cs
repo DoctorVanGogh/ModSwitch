@@ -79,20 +79,14 @@ namespace DoctorVanGogh.ModSwitch {
             var height = rect.height;
             var buttonSize = height - 2*padding;
 
+            ReorderableWidget.Reorderable(reorderableGroup, rect);
+
             var leftColumnsWidth = rect.width - 8*padding - 2*buttonSize;
 
             var left = new Rect(rect.x, rect.y + padding, leftColumnsWidth*0.6f - padding, buttonSize);
             Widgets.Label(left, Name);
 
             var right = new Rect(rect.x + leftColumnsWidth*0.6f + 3*padding, rect.y + padding, leftColumnsWidth*0.4f, buttonSize);
-
-            ReorderableWidget.Reorderable(reorderableGroup, right);
-
-            Rect dragHash = new Rect(right.x, right.y, buttonSize, buttonSize);
-            GUI.DrawTexture(dragHash, Assets.DragHash);
-            TooltipHandler.TipRegion(dragHash, TipDrag);
-
-            right = new Rect(right.x + buttonSize + padding, right.y, right.width - buttonSize - padding, right.height);
 
             Widgets.Label(right, LanguageKeys.keyed.ModSwitch_ModSet_Mods.Translate(Mods.Count));
             TooltipHandler.TipRegion(right, Tip);

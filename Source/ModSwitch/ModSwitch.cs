@@ -28,6 +28,8 @@ namespace DoctorVanGogh.ModSwitch {
             _settings = GetSettings<Settings>();            
         }
 
+        public static bool IsRestartDefered;
+
         public override string SettingsCategory() {
             return LanguageKeys.keyed.ModSwitch.Translate();
         }

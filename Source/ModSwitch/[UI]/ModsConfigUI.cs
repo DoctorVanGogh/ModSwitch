@@ -22,7 +22,17 @@ namespace DoctorVanGogh.ModSwitch {
         private static readonly MethodInfo miGetModWithIdentifier = AccessTools.Method(typeof(ModLister), "GetModWithIdentifier");
 
         private static IDictionary<string, Color> _colorMap;
-        private static ModsChangeAction _changeAction = ModsChangeAction.Restart;
+        private static ModsChangeAction _changeAction = ModsChangeAction.Query;
+
+        public static Action restartRequiredHandler = RestartRequiredHandler;
+
+        private static void RestartRequiredHandler() {
+            Find.WindowStack.Add(
+                new Dialog_MessageBox("ModsChanged".Translate(), null, GenCommandLine.Restart, null, null, null, false) {
+                                                                                                                            doCloseX = true
+                                                                                                                        }
+            );
+        }
 
         public static IDictionary<string, Color> ColorMap => _colorMap ?? (_colorMap = new Dictionary<string, Color> {
                                                                                                                          {LanguageKeys.keyed.ModSwitch_Color_white.Translate(), Color.white},
@@ -327,13 +337,23 @@ namespace DoctorVanGogh.ModSwitch {
                 case ModsChangeAction.Ignore:
                     break;
                 case ModsChangeAction.Query:
-                    Find.WindowStack.Add(new Dialog_MessageBox("ModsChanged".Translate(), "Restart", GenCommandLine.Restart, "Defer", DeferRestart, null, false));
+                    if (!ModSwitch.IsRestartDefered) {
+                        // dont need to ask if restart is already defered
+                        Find.WindowStack.Add(new Dialog_MessageBox(
+                            "ModsChanged".Translate(), 
+                            LanguageKeys.keyed.ModSwitch_RestartRequired_Restart.Translate(), 
+                            GenCommandLine.Restart,
+                            LanguageKeys.keyed.ModSwitch_RestartRequired_Defer.Translate(),
+                            DeferRestart, 
+                            null, 
+                            true));
+                    }
                     break;
             }
         }
 
         private static void DeferRestart() {
-            throw new NotImplementedException();
+            ModSwitch.IsRestartDefered = true;
         }
 
 

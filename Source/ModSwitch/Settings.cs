@@ -289,7 +289,7 @@ namespace DoctorVanGogh.ModSwitch {
 
             var rctSettings = new Rect(350f - 30f, target.y, 30f, 30f);
             if (ExtraWidgets.ButtonImage(rctSettings, Assets.Settings, false, TipSettings, rctSettings.ContractedBy(4))) {
-                Find.WindowStack.Add(new Dialog_ModsConfigSettings(Mod));
+                Find.WindowStack.Add(new Dialog_ModsSettings_Custom(Mod));
             }
         }
 

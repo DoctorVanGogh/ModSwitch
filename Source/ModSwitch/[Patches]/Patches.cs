@@ -264,5 +264,92 @@ namespace DoctorVanGogh.ModSwitch {
                 return instructions;
             }
         }
+
+        [HarmonyPatch(typeof(MainMenuDrawer), nameof(MainMenuDrawer.DoMainMenuControls))]
+        public class MainMenuDrawer_DoMainMenuControls {
+
+            private static readonly ConstructorInfo ciNewListableOption = AccessTools.Constructor(typeof(ListableOption), new[] {typeof(string), typeof(Action), typeof(string)});
+            private static readonly FieldInfo fiModSwitch_IsRestartDefered = AccessTools.Field(typeof(ModSwitch), nameof(ModSwitch.IsRestartDefered));
+            private static readonly FieldInfo fiModSwitchUI_RestartRequiredHandler = AccessTools.Field(typeof(ModsConfigUI), nameof(ModsConfigUI.restartRequiredHandler));
+
+
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr, ILGenerator ilGen) {
+                List<CodeInstruction> instructions = new List<CodeInstruction>(instr);
+
+                // yes, we are iterating the list three times... dont care
+                if (!InjectDeferedRestartHint(instructions, ilGen, @"Tutorial"))
+                    return instructions;
+                if (!InjectDeferedRestartHint(instructions, ilGen, @"NewColony"))
+                    return instructions;
+                if (!InjectDeferedRestartHint(instructions, ilGen, @"LoadGame"))
+                    return instructions;
+
+                
+
+                return instructions;
+            }
+
+            /// <summary>
+            /// Transforms the closest following sequence after <see cref="OpCodes.Ldstr"/> <paramref name="anchor"/> of
+            /// <pre>
+            /// ldsfld       [dontcare]
+            /// [dontcare]       
+            /// ...
+            /// newobj       instance void Verse.ListableOption::.ctor(string, class [System.Core]System.Action, string)
+            /// </pre>
+            /// into
+            /// <pre>
+            /// ldsfld       [dontcare]
+            /// ldsfld       ModSwitch.IsRestartDefered                 ; new
+            /// brfalse      *lblPostCheck*                             ; new
+            /// pop                                                     ; new, hacky but simple way to kill the loaded custom action from stack
+            /// ldsfld       ModsConfigUI.restartRequiredHandler        ; replace with 'restart required' action
+            /// lblPostCheck:                                           ; new, injected branch label
+            /// [dontcare]       
+            /// ...
+            /// newobj       instance void Verse.ListableOption::.ctor(string, class [System.Core]System.Action, string)
+            /// </pre>
+            /// </summary>
+            private static bool InjectDeferedRestartHint(List<CodeInstruction> instructions, ILGenerator ilGen, string anchor) {
+
+                var idxNewColony = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Ldstr && ci.operand as string == anchor);
+                if (idxNewColony == -1) {
+                    Util.Warning($"Could not find DoMainMenuControls {anchor} anchor - not injecting code");
+                    return false;
+                }
+
+                int idxAddNewColonyOption = instructions.FindIndex(idxNewColony, ci => ci.opcode == OpCodes.Newobj && ci.operand == ciNewListableOption);
+                if (idxAddNewColonyOption == -1) {
+                    Util.Warning($"Could not find DoMainMenuControls {anchor} ListOption constructor - not injecting code");
+                    return false;
+                }
+
+                int idxNewColonyAction = instructions.FindLastIndex(idxAddNewColonyOption, idxAddNewColonyOption - idxNewColony, ci => ci.opcode == OpCodes.Ldsfld);
+                if (idxNewColonyAction == -1) {
+                    Util.Warning($"Could not find DoMainMenuControls {anchor} action field - not injecting code");
+                    return false;
+                }
+
+                var lblPostCheck = ilGen.DefineLabel();
+
+                var ciPostAction = instructions[idxNewColonyAction + 1];
+                if (ciPostAction.labels == null)
+                    ciPostAction.labels = new List<Label>();
+
+                ciPostAction.labels.Add(lblPostCheck);
+
+                instructions.InsertRange(
+                    idxNewColonyAction + 1,
+                    new[] {
+                              new CodeInstruction(OpCodes.Ldsfld, fiModSwitch_IsRestartDefered),
+                              new CodeInstruction(OpCodes.Brfalse, lblPostCheck),
+                              new CodeInstruction(OpCodes.Pop),
+                              new CodeInstruction(OpCodes.Ldsfld, fiModSwitchUI_RestartRequiredHandler),
+                          }
+                );
+
+                return true;
+            }
+        }
     }
 }

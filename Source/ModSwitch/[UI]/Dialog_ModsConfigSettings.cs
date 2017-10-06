@@ -4,11 +4,11 @@ using RimWorld;
 using Verse;
 
 namespace DoctorVanGogh.ModSwitch {
-    class Dialog_ModsConfigSettings : Dialog_ModSettings {
+    class Dialog_ModsSettings_Custom : Dialog_ModSettings {
         private Mod _mod;
         private int _initialHash;
 
-        public Dialog_ModsConfigSettings(Mod mod) {
+        public Dialog_ModsSettings_Custom(Mod mod) {
             _mod = mod;
         }
 
@@ -24,7 +24,7 @@ namespace DoctorVanGogh.ModSwitch {
         public override void PreClose() {
             base.PreClose();
             ModsConfigUI.ChangeAction = ModsConfigUI.ModsChangeAction.Query;
-            Find.WindowStack.Add(new Page_ModsConfigReopened(_initialHash));
+            Find.WindowStack.Add(new Page_ModsConfig_Custom(_initialHash));
         }
     }
 }
