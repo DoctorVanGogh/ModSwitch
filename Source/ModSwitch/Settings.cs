@@ -56,20 +56,37 @@ namespace DoctorVanGogh.ModSwitch {
                                     };
             list.Begin(rect);
 
-            if (list.ButtonTextLabeled(LanguageKeys.keyed.ModSwitch_Import.Translate(), "ModListBackup"))
-                Find.WindowStack.Add(new Dialog_MessageBox(
-                                         LanguageKeys.keyed.ModSwitch_Import_Text.Translate(),
-                                         LanguageKeys.keyed.ModSwitch_Import_Choice_Replace.Translate(),
-                                         () => ImportModListBackup(true),
-                                         LanguageKeys.keyed.ModSwitch_Import_Choice_Append.Translate(),
-                                         () => ImportModListBackup(false),
-                                         LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate(),
-                                         true
-                                     ) {
-                                         absorbInputAroundWindow = true,
-                                         closeOnEscapeKey = true,
-                                         doCloseX = true
-                                     });
+            var left = list.GetRect(30f).LeftHalf();
+
+            if (Widgets.ButtonText(left, LanguageKeys.keyed.ModSwitch_Import.Translate(), true, false, true))
+                Find.WindowStack.Add(
+                    new FloatMenu(
+                        new List<FloatMenuOption> {
+                                                      new FloatMenuOption(
+                                                          LanguageKeys.keyed.ModSwitch_Import_Savegame.Translate(),
+                                                          () => Find.WindowStack.Add(
+                                                              new FloatMenu(
+                                                                  GenFilePaths.AllSavedGameFiles
+                                                                              .Select(fi => new FloatMenuOption(fi.Name, () => ImportFromSave(fi)))
+                                                                              .ToList())
+                                                          )),
+                                                      new FloatMenuOption(
+                                                          @"ModListBackup",
+                                                          () => Find.WindowStack.Add(new Dialog_MessageBox(
+                                                                                         LanguageKeys.keyed.ModSwitch_Import_Text.Translate(),
+                                                                                         LanguageKeys.keyed.ModSwitch_Import_Choice_Replace.Translate(),
+                                                                                         () => ImportModListBackup(true),
+                                                                                         LanguageKeys.keyed.ModSwitch_Import_Choice_Append.Translate(),
+                                                                                         () => ImportModListBackup(false),
+                                                                                         LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate(),
+                                                                                         true
+                                                                                     ) {
+                                                                                           absorbInputAroundWindow = true,
+                                                                                           closeOnEscapeKey = true,
+                                                                                           doCloseX = true
+                                                                                       }))
+                                                  }));
+                
 
 #if DEBUG
             if (list.ButtonTextLabeled("Debug", "ListExisting")) {
@@ -108,6 +125,35 @@ namespace DoctorVanGogh.ModSwitch {
             Widgets.EndScrollView();
 
             list.End();
+        }
+
+        private void ImportFromSave(FileInfo fi) {
+            Scribe.loader.InitLoadingMetaHeaderOnly(fi.FullName);
+            try {
+                ScribeMetaHeaderUtility.LoadGameDataHeader(ScribeMetaHeaderUtility.ScribeHeaderMode.Map, false);
+                Scribe.loader.FinalizeLoading();
+
+                int suffix = 0;
+                string name = fi.Name;
+                while (this.Sets.Any(ms => ms.Name == name)) {
+                    name = $"{fi.Name}_{++suffix}";
+                }
+                Sets.Add(new ModSet(this) {
+                                              Name = name,
+                                              BuildNumber = new Version(VersionControl.VersionStringWithoutRev(ScribeMetaHeaderUtility.loadedGameVersion)).Build,
+                                              Mods = new List<string>(ScribeMetaHeaderUtility.loadedModIdsList)
+                                          });
+                Mod.WriteSettings();
+            } catch (Exception ex) {
+                Log.Warning(string.Concat(new object[]
+                                          {
+                                              "Exception loading ",
+                                              fi.FullName,
+                                              ": ",
+                                              ex
+                                          }));
+                Scribe.ForceStop();
+            }
         }
 
         private void ReorderModSet(int @from, int to) {

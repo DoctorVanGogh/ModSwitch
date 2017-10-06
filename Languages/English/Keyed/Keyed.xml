@@ -21,6 +21,7 @@
 <b>WARNING:</b> Setting a steam original source to incorrect values will lead to unexpected behavior should you ever sync the local copy to an updated steam version.]]></ModSwitch.SetOrigin.Confirm>
 
 	<ModSwitch.Import>Import</ModSwitch.Import>
+	<ModSwitch.Import.Savegame>Savegame</ModSwitch.Import.Savegame>
 
 	<ModSwitch.ModSet.Mods>{0} items</ModSwitch.ModSet.Mods>
 
