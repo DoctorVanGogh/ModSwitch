@@ -208,7 +208,8 @@ namespace DoctorVanGogh.ModSwitch {
             Find.WindowStack.Add(new FloatMenu(options));
         }
         public static void DrawContentSource(Rect r, ContentSource source, Action clickAction, ModMetaData mod) {
-            if (String.IsNullOrEmpty(LoadedModManager.GetMod<ModSwitch>()[mod].SteamOrigin)) {                
+
+            if (String.IsNullOrEmpty(LoadedModManager.GetMod<ModSwitch>()[mod].SteamOrigin)) {                         
                 ContentSourceUtility.DrawContentSource(r, source, 
                     source == ContentSource.LocalFolder
                     ? (clickAction ?? (Action)(() => Process.Start(mod.RootDir.FullName)))
@@ -222,6 +223,10 @@ namespace DoctorVanGogh.ModSwitch {
                 if (Widgets.ButtonInvisible(rect, false)) {
                     Process.Start(mod.RootDir.FullName);
                 }
+            }            
+            if (!mod.VersionCompatible) {
+                Rect r2 = new Rect(r.x +4f, r.y + r.height /2f -12f +4f, 20f, 20f);
+                GUI.DrawTexture(r2, Assets.WarningSmall);
             }
         }
 

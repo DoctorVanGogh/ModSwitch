@@ -15,6 +15,7 @@ namespace DoctorVanGogh.ModSwitch {
         public static readonly Texture2D White;
         public static readonly Texture2D SteamCopy;
         public static readonly Texture2D DragHash;
+        public static readonly Texture2D WarningSmall;
 
         static Assets() {
             Edit = ContentFinder<Texture2D>.Get("UI/Edit", true);
@@ -27,6 +28,7 @@ namespace DoctorVanGogh.ModSwitch {
             White = ContentFinder<Texture2D>.Get("UI/White", true);
             SteamCopy = ContentFinder<Texture2D>.Get("UI/ContentSources/SteamCopy", true);
             DragHash = ContentFinder<Texture2D>.Get("UI/Buttons/DragHash", true);
+            WarningSmall = ContentFinder<Texture2D>.Get("UI/Warning-small", true);
         }
 
 
