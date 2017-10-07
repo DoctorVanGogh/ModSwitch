@@ -5,8 +5,8 @@ using Verse;
 
 namespace DoctorVanGogh.ModSwitch {
     internal class Dialog_ModsSettings_Custom : Dialog_ModSettings {
-        private int _initialHash;
         private readonly Mod _mod;
+        private int _initialHash;
 
         public Dialog_ModsSettings_Custom(Mod mod) {
             _mod = mod;
@@ -19,7 +19,7 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         public override void PreOpen() {
-            var modsConfig = Find.WindowStack.Windows.OfType<Page_ModsConfig>().FirstOrDefault();
+            Page_ModsConfig modsConfig = Find.WindowStack.Windows.OfType<Page_ModsConfig>().FirstOrDefault();
             _initialHash = (int) ModsConfigUI.fiPage_ModsConfig_ActiveModsWhenOpenedHash.GetValue(modsConfig);
             ModsConfigUI.ChangeAction = ModsConfigUI.ModsChangeAction.Ignore;
             modsConfig.Close();

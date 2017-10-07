@@ -19,8 +19,11 @@ namespace DoctorVanGogh.ModSwitch {
                     const float offset = ModsConfigUI.Search.buttonSize + 2 * ModsConfigUI.Search.buttonsInset;
 
                     ModsConfigUI.Search.DoSearchBlock(
-                        new Rect(r.x + ModsConfigUI.Search.buttonsInset, r.y + ModsConfigUI.Search.buttonsInset, r.width - 2 * ModsConfigUI.Search.buttonsInset,
-                                 ModsConfigUI.Search.buttonSize),
+                        new Rect(
+                            r.x + ModsConfigUI.Search.buttonsInset,
+                            r.y + ModsConfigUI.Search.buttonsInset,
+                            r.width - 2 * ModsConfigUI.Search.buttonsInset,
+                            ModsConfigUI.Search.buttonSize),
                         LanguageKeys.keyed.ModSwitch_Search_Watermark.Translate());
 
                     return new Rect(r.x, r.y + offset, r.width, r.height - offset);
@@ -28,9 +31,9 @@ namespace DoctorVanGogh.ModSwitch {
 
                 // inject searchBox on top and shrink scroll list by required space
                 public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr) {
-                    var instructions = new List<CodeInstruction>(instr);
+                    List<CodeInstruction> instructions = new List<CodeInstruction>(instr);
 
-                    var idxAnchor = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == AccessTools.Method(typeof(Widgets), nameof(Widgets.BeginScrollView)));
+                    int idxAnchor = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == AccessTools.Method(typeof(Widgets), nameof(Widgets.BeginScrollView)));
                     if (idxAnchor == -1) {
                         Util.Error("Could not find Page_ModsConfig.DoWindowContents transpiler anchor - not injecting code");
                         return instructions;
@@ -58,10 +61,10 @@ namespace DoctorVanGogh.ModSwitch {
         [HarmonyPatch(typeof(Page_ModsConfig), nameof(Page_ModsConfig.PreOpen))]
         public class Page_ModsConfig_PreOpen {
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr) {
-                var instructions = new List<CodeInstruction>(instr);
+                List<CodeInstruction> instructions = new List<CodeInstruction>(instr);
 
-                var miTarget = AccessTools.Method(typeof(ModLister), @"RebuildModList");
-                var idxAnchor = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == miTarget);
+                MethodInfo miTarget = AccessTools.Method(typeof(ModLister), @"RebuildModList");
+                int idxAnchor = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == miTarget);
                 if (idxAnchor == -1) {
                     Util.Warning("Could not find Page_ModsConfig.PreOpen transpiler anchor - not injecting code.");
                     return instructions;
@@ -86,15 +89,15 @@ namespace DoctorVanGogh.ModSwitch {
             public class InjectRightClickMenu {
                 // inject right click menu on mod rows
                 public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen) {
-                    var instr = new List<CodeInstruction>(instructions);
+                    List<CodeInstruction> instr = new List<CodeInstruction>(instructions);
 
-                    var idxCheckboxLabeledSelectable = instr.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == ModsConfigUI.miCheckboxLabeledSelectable);
+                    int idxCheckboxLabeledSelectable = instr.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == ModsConfigUI.miCheckboxLabeledSelectable);
                     if (idxCheckboxLabeledSelectable == -1) {
                         Util.Warning("Could not find anchor for ModRow transpiler - not modifying code");
                         return instr;
                     }
-                    var lblBlockEnd = (Label) instr[idxCheckboxLabeledSelectable + 1].operand;
-                    var idxBlockEnd = instr.FindIndex(idxCheckboxLabeledSelectable + 1, ci => ci.labels.Contains(lblBlockEnd));
+                    Label lblBlockEnd = (Label) instr[idxCheckboxLabeledSelectable + 1].operand;
+                    int idxBlockEnd = instr.FindIndex(idxCheckboxLabeledSelectable + 1, ci => ci.labels.Contains(lblBlockEnd));
                     if (idxBlockEnd == -1) {
                         Util.Warning("Could not find end Label for ModRow transpiler change - not modifying code");
                         return instr;
@@ -124,44 +127,51 @@ namespace DoctorVanGogh.ModSwitch {
                      *  <code>
                      */
 
-                    var localColor = ilGen.DeclareLocal(typeof(Color));
-                    var lblExistingClickCode = ilGen.DefineLabel();
-                    var lblNoClick = ilGen.DefineLabel();
+                    LocalBuilder localColor = ilGen.DeclareLocal(typeof(Color));
+                    Label lblExistingClickCode = ilGen.DefineLabel();
+                    Label lblNoClick = ilGen.DefineLabel();
 
                     // insert changes in REVERSE order to preserve indices
 
 
                     // insert <code>else { GUI.contentColor = color; }</code>
-                    instr.InsertRange(idxBlockEnd, new[] {
-                                                             new CodeInstruction(OpCodes.Ldloc, localColor) {labels = new List<Label> {lblNoClick}},
-                                                             new CodeInstruction(OpCodes.Call, ModsConfigUI.miGuiSetContentColor)
-                                                         });
+                    instr.InsertRange(
+                        idxBlockEnd,
+                        new[] {
+                                  new CodeInstruction(OpCodes.Ldloc, localColor) {labels = new List<Label> {lblNoClick}},
+                                  new CodeInstruction(OpCodes.Call, ModsConfigUI.miGuiSetContentColor)
+                              });
 
                     // setup <code>else { ... }</code> branch label
                     instr[idxCheckboxLabeledSelectable + 2].labels.Add(lblExistingClickCode);
 
                     // insert <code>GUI.contentColor = color; if (Input.GetMouseButtonUp(1)) { DoContextMenu(mod); }</code>
-                    instr.InsertRange(idxCheckboxLabeledSelectable + 2, new[] {
-                                                                                  new CodeInstruction(OpCodes.Ldloc, localColor),
-                                                                                  new CodeInstruction(OpCodes.Call, ModsConfigUI.miGuiSetContentColor),
-                                                                                  new CodeInstruction(OpCodes.Ldc_I4_1),
-                                                                                  new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Input), nameof(Input.GetMouseButtonUp))),
-                                                                                  new CodeInstruction(OpCodes.Brfalse, lblExistingClickCode),
-                                                                                  new CodeInstruction(OpCodes.Ldarg_2),
-                                                                                  new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfigUI), nameof(ModsConfigUI.DoContextMenu))),
-                                                                                  new CodeInstruction(OpCodes.Br, lblBlockEnd)
-                                                                              });
+                    instr.InsertRange(
+                        idxCheckboxLabeledSelectable + 2,
+                        new[] {
+                                  new CodeInstruction(OpCodes.Ldloc, localColor),
+                                  new CodeInstruction(OpCodes.Call, ModsConfigUI.miGuiSetContentColor),
+                                  new CodeInstruction(OpCodes.Ldc_I4_1),
+                                  new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Input), nameof(Input.GetMouseButtonUp))),
+                                  new CodeInstruction(OpCodes.Brfalse, lblExistingClickCode),
+                                  new CodeInstruction(OpCodes.Ldarg_2),
+                                  new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfigUI), nameof(ModsConfigUI.DoContextMenu))),
+                                  new CodeInstruction(OpCodes.Br, lblBlockEnd)
+                              });
 
                     // setup modified jump
                     instr[idxCheckboxLabeledSelectable + 1].operand = lblNoClick;
 
                     // insert <code>Color color = Page_ModsConfig_DoModRow.SetGUIColorMod(mod);</code>
-                    instr.InsertRange(idxCheckboxLabeledSelectable - 4, new[] {
-                                                                                  new CodeInstruction(OpCodes.Ldarg_2),
-                                                                                  new CodeInstruction(
-                                                                                      OpCodes.Call, AccessTools.Method(typeof(ModsConfigUI.Helpers), nameof(ModsConfigUI.Helpers.SetGUIColorMod))),
-                                                                                  new CodeInstruction(OpCodes.Stloc, localColor)
-                                                                              });
+                    instr.InsertRange(
+                        idxCheckboxLabeledSelectable - 4,
+                        new[] {
+                                  new CodeInstruction(OpCodes.Ldarg_2),
+                                  new CodeInstruction(
+                                      OpCodes.Call,
+                                      AccessTools.Method(typeof(ModsConfigUI.Helpers), nameof(ModsConfigUI.Helpers.SetGUIColorMod))),
+                                  new CodeInstruction(OpCodes.Stloc, localColor)
+                              });
 
 
                     return instr;
@@ -171,11 +181,11 @@ namespace DoctorVanGogh.ModSwitch {
             [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow", new[] {typeof(Listing_Standard), typeof(ModMetaData), typeof(int), typeof(int)})]
             public class InjectCustomContentSourceDraw {
                 public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr) {
-                    var instructions = new List<CodeInstruction>(instr);
+                    List<CodeInstruction> instructions = new List<CodeInstruction>(instr);
 
-                    var miTarget = AccessTools.Method(typeof(ContentSourceUtility), nameof(ContentSourceUtility.DrawContentSource));
+                    MethodInfo miTarget = AccessTools.Method(typeof(ContentSourceUtility), nameof(ContentSourceUtility.DrawContentSource));
 
-                    var idxAnchor = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == miTarget);
+                    int idxAnchor = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == miTarget);
                     if (idxAnchor == -1) {
                         Util.Error("Could not find DrawContentSource transpiler anchor - not injecting code.");
                         return instructions;
@@ -202,7 +212,8 @@ namespace DoctorVanGogh.ModSwitch {
             // yeah, it's effectively a detour - sue me....
             public static bool Prefix(Page_ModsConfig __instance) {
                 ModsConfig.Save();
-                if ((int) ModsConfigUI.fiPage_ModsConfig_ActiveModsWhenOpenedHash.GetValue(__instance) != ModLister.InstalledModsListHash(true)) ModsConfigUI.OnModsChanged();
+                if ((int) ModsConfigUI.fiPage_ModsConfig_ActiveModsWhenOpenedHash.GetValue(__instance) != ModLister.InstalledModsListHash(true))
+                    ModsConfigUI.OnModsChanged();
                 return false;
             }
         }
@@ -211,11 +222,11 @@ namespace DoctorVanGogh.ModSwitch {
         public class WorkshopItem_MakeFrom {
             // extract lastupdate timestamps from steam queries (vanilla just ignores values)
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr) {
-                var instructions = new List<CodeInstruction>(instr);
+                List<CodeInstruction> instructions = new List<CodeInstruction>(instr);
 
-                var ciTarget = AccessTools.Constructor(typeof(WorkshopItem_Mod));
+                ConstructorInfo ciTarget = AccessTools.Constructor(typeof(WorkshopItem_Mod));
 
-                var idxAnchor = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Newobj && ci.operand == ciTarget);
+                int idxAnchor = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Newobj && ci.operand == ciTarget);
 
                 if (-1 == idxAnchor) {
                     Util.Warning("Could not find WorkshopItem.MakeFrom transpiler anchor - not injecting code");
@@ -281,27 +292,27 @@ namespace DoctorVanGogh.ModSwitch {
             ///     </pre>
             /// </summary>
             private static bool InjectDeferedRestartHint(List<CodeInstruction> instructions, ILGenerator ilGen, string anchor) {
-                var idxNewColony = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Ldstr && ci.operand as string == anchor);
+                int idxNewColony = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Ldstr && ci.operand as string == anchor);
                 if (idxNewColony == -1) {
                     Util.Warning($"Could not find DoMainMenuControls {anchor} anchor - not injecting code");
                     return false;
                 }
 
-                var idxAddNewColonyOption = instructions.FindIndex(idxNewColony, ci => ci.opcode == OpCodes.Newobj && ci.operand == ciNewListableOption);
+                int idxAddNewColonyOption = instructions.FindIndex(idxNewColony, ci => ci.opcode == OpCodes.Newobj && ci.operand == ciNewListableOption);
                 if (idxAddNewColonyOption == -1) {
                     Util.Warning($"Could not find DoMainMenuControls {anchor} ListOption constructor - not injecting code");
                     return false;
                 }
 
-                var idxNewColonyAction = instructions.FindLastIndex(idxAddNewColonyOption, idxAddNewColonyOption - idxNewColony, ci => ci.opcode == OpCodes.Ldsfld);
+                int idxNewColonyAction = instructions.FindLastIndex(idxAddNewColonyOption, idxAddNewColonyOption - idxNewColony, ci => ci.opcode == OpCodes.Ldsfld);
                 if (idxNewColonyAction == -1) {
                     Util.Warning($"Could not find DoMainMenuControls {anchor} action field - not injecting code");
                     return false;
                 }
 
-                var lblPostCheck = ilGen.DefineLabel();
+                Label lblPostCheck = ilGen.DefineLabel();
 
-                var ciPostAction = instructions[idxNewColonyAction + 1];
+                CodeInstruction ciPostAction = instructions[idxNewColonyAction + 1];
                 if (ciPostAction.labels == null)
                     ciPostAction.labels = new List<Label>();
 
@@ -322,7 +333,7 @@ namespace DoctorVanGogh.ModSwitch {
 
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr, ILGenerator ilGen) {
-                var instructions = new List<CodeInstruction>(instr);
+                List<CodeInstruction> instructions = new List<CodeInstruction>(instr);
 
                 // yes, we are iterating the list three times... dont care
                 if (!InjectDeferedRestartHint(instructions, ilGen, @"Tutorial"))

@@ -41,8 +41,8 @@ namespace DoctorVanGogh.ModSwitch {
                 : dangerState.Value
                     ? new Color(1f, 0.3f, 0.35f)
                     : new Color(0.35f, 1f, 0.3f);
-            var buttonWidth = (inRect.width - (buttonCount - 1) * buttonSpacing) / buttonCount;
-            var rect = new Rect((index - 1) * (buttonWidth + buttonSpacing), inRect.height - ButtonHeight, buttonWidth, ButtonHeight);
+            float buttonWidth = (inRect.width - (buttonCount - 1) * buttonSpacing) / buttonCount;
+            Rect rect = new Rect((index - 1) * (buttonWidth + buttonSpacing), inRect.height - ButtonHeight, buttonWidth, ButtonHeight);
             if (tooltip != null)
                 TooltipHandler.TipRegion(rect, new TipSignal(tooltip));
             if (Widgets.ButtonText(rect, label, true, false, true)) {
@@ -52,37 +52,40 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         public override void DoWindowContents(Rect inRect) {
-            var verticalPos = inRect.y;
+            float verticalPos = inRect.y;
 
             Text.Font = GameFont.Medium;
             Widgets.Label(new Rect(0f, verticalPos, inRect.width, TitleHeight), LanguageKeys.keyed.ModSwitch_MissingMods_Title.Translate());
             verticalPos += TitleHeight;
 
             Text.Font = GameFont.Small;
-            var outRect = new Rect(inRect.x, verticalPos, inRect.width, inRect.height - ButtonHeight - 5f - verticalPos);
-            var width = outRect.width - 16f;
-            var viewRect = new Rect(0f, 0f, width, Text.CalcHeight(text, width));
+            Rect outRect = new Rect(inRect.x, verticalPos, inRect.width, inRect.height - ButtonHeight - 5f - verticalPos);
+            float width = outRect.width - 16f;
+            Rect viewRect = new Rect(0f, 0f, width, Text.CalcHeight(text, width));
             Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
             Widgets.Label(new Rect(0f, 0f, viewRect.width, viewRect.height), text);
             Widgets.EndScrollView();
 
-            AddButton(inRect,
-                      1,
-                      LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Ignore.Translate(),
-                      _ignore,
-                      LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Ignore_Tip.Translate());
-            AddButton(inRect,
-                      2,
-                      LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Workshop.Translate(),
-                      _workshop,
-                      LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Workshop_Tip.Translate(),
-                      false);
-            AddButton(inRect,
-                      3,
-                      LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Remove.Translate(),
-                      _remove,
-                      LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Remove_Tip.Translate(),
-                      true);
+            AddButton(
+                inRect,
+                1,
+                LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Ignore.Translate(),
+                _ignore,
+                LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Ignore_Tip.Translate());
+            AddButton(
+                inRect,
+                2,
+                LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Workshop.Translate(),
+                _workshop,
+                LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Workshop_Tip.Translate(),
+                false);
+            AddButton(
+                inRect,
+                3,
+                LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Remove.Translate(),
+                _remove,
+                LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Remove_Tip.Translate(),
+                true);
         }
     }
 }

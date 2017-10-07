@@ -16,16 +16,19 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         public static bool ButtonImage(Rect butRect, Texture2D tex, bool doMouseoverSound = false, TipSignal? tipSignal = null, Rect? texRect = null) {
-            var atlas = ButtonBGAtlas;
+            Texture2D atlas = ButtonBGAtlas;
             if (Mouse.IsOver(butRect)) {
                 atlas = ButtonBGAtlasMouseover;
-                if (Input.GetMouseButton(0)) atlas = ButtonBGAtlasClick;
+                if (Input.GetMouseButton(0))
+                    atlas = ButtonBGAtlasClick;
             }
-            var result = Widgets.ButtonImage(butRect, atlas);
-            if (doMouseoverSound) MouseoverSounds.DoRegion(butRect);
+            bool result = Widgets.ButtonImage(butRect, atlas);
+            if (doMouseoverSound)
+                MouseoverSounds.DoRegion(butRect);
             GUI.DrawTexture(texRect ?? butRect, tex);
 
-            if (tipSignal != null) TooltipHandler.TipRegion(butRect, tipSignal.Value);
+            if (tipSignal != null)
+                TooltipHandler.TipRegion(butRect, tipSignal.Value);
             return result;
         }
     }

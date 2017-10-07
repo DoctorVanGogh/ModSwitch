@@ -12,16 +12,16 @@ namespace DoctorVanGogh.ModSwitch {
             Func<IEnumerable<TA>, IEnumerable<TB>, TKey, TResult> projection,
             IEqualityComparer<TKey> cmp = null) {
             cmp = cmp ?? EqualityComparer<TKey>.Default;
-            var alookup = a.ToLookup(selectKeyA, cmp);
-            var blookup = b.ToLookup(selectKeyB, cmp);
+            ILookup<TKey, TA> alookup = a.ToLookup(selectKeyA, cmp);
+            ILookup<TKey, TB> blookup = b.ToLookup(selectKeyB, cmp);
 
-            var keys = new HashSet<TKey>(alookup.Select(p => p.Key), cmp);
+            HashSet<TKey> keys = new HashSet<TKey>(alookup.Select(p => p.Key), cmp);
             keys.UnionWith(blookup.Select(p => p.Key));
 
-            var join = from key in keys
-                       let xa = alookup[key]
-                       let xb = blookup[key]
-                       select projection(xa, xb, key);
+            IEnumerable<TResult> join = from key in keys
+                                        let xa = alookup[key]
+                                        let xb = blookup[key]
+                                        select projection(xa, xb, key);
 
             return join;
         }
@@ -36,16 +36,16 @@ namespace DoctorVanGogh.ModSwitch {
             TB defaultB = default(TB),
             IEqualityComparer<TKey> cmp = null) {
             cmp = cmp ?? EqualityComparer<TKey>.Default;
-            var alookup = a.ToLookup(selectKeyA, cmp);
-            var blookup = b.ToLookup(selectKeyB, cmp);
+            ILookup<TKey, TA> alookup = a.ToLookup(selectKeyA, cmp);
+            ILookup<TKey, TB> blookup = b.ToLookup(selectKeyB, cmp);
 
-            var keys = new HashSet<TKey>(alookup.Select(p => p.Key), cmp);
+            HashSet<TKey> keys = new HashSet<TKey>(alookup.Select(p => p.Key), cmp);
             keys.UnionWith(blookup.Select(p => p.Key));
 
-            var join = from key in keys
-                       from xa in alookup[key].DefaultIfEmpty(defaultA)
-                       from xb in blookup[key].DefaultIfEmpty(defaultB)
-                       select projection(xa, xb, key);
+            IEnumerable<TResult> join = from key in keys
+                                        from xa in alookup[key].DefaultIfEmpty(defaultA)
+                                        from xb in blookup[key].DefaultIfEmpty(defaultB)
+                                        select projection(xa, xb, key);
 
             return join;
         }

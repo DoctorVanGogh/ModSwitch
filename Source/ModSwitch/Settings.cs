@@ -35,71 +35,81 @@ namespace DoctorVanGogh.ModSwitch {
         public void DoModsConfigWindowContents(Rect target) {
             target.x += 30f;
 
-            var rctApply = new Rect(target.x, target.y, 30f, 30f);
+            Rect rctApply = new Rect(target.x, target.y, 30f, 30f);
             if (ExtraWidgets.ButtonImage(rctApply, Assets.Apply, false, TipApply, rctApply.ContractedBy(4)))
                 if (Sets.Count != 0)
-                    Find.WindowStack.Add(new FloatMenu(Sets.Select(ms => new FloatMenuOption(ms.Name, () => {
-                                                                                                          _undo = ModSet.FromCurrent("undo", this);
-                                                                                                          ms.Apply();
-                                                                                                      })).ToList()));
-            var rctNew = new Rect(target.x + 30f + 8f, target.y, 30f, 30f);
+                    Find.WindowStack.Add(
+                        new FloatMenu(
+                            Sets.Select(
+                                    ms => new FloatMenuOption(
+                                        ms.Name,
+                                        () => {
+                                            _undo = ModSet.FromCurrent("undo", this);
+                                            ms.Apply();
+                                        }))
+                                .ToList()));
+            Rect rctNew = new Rect(target.x + 30f + 8f, target.y, 30f, 30f);
             if (ExtraWidgets.ButtonImage(rctNew, Assets.Extract, false, TipCreateNew, rctNew.ContractedBy(4)))
-                Find.WindowStack.Add(new FloatMenu(new List<FloatMenuOption> {
-                                                                                 new FloatMenuOption(
-                                                                                     LanguageKeys.keyed.ModSwitch_CreateNew.Translate(),
-                                                                                     () => Find.WindowStack.Add(
-                                                                                         new Dialog_SetText(
-                                                                                             s => {
-                                                                                                 Sets.Add(ModSet.FromCurrent(s, this));
-                                                                                                 Mod.WriteSettings();
-                                                                                             },
-                                                                                             LanguageKeys.keyed.ModSwitch_Create_DefaultName.Translate()
-                                                                                         ))),
-                                                                                 new FloatMenuOption(
-                                                                                     LanguageKeys.keyed.ModSwitch_OverwritExisting.Translate(),
-                                                                                     () => {
-                                                                                         if (Sets.Count > 0)
-                                                                                             Find.WindowStack.Add(
-                                                                                                 new FloatMenu(Sets.Select(
-                                                                                                                   ms => new FloatMenuOption(
-                                                                                                                       ms.Name,
-                                                                                                                       () => {
-                                                                                                                           if (Input.GetKey(KeyCode.LeftShift) ||
-                                                                                                                               Input.GetKey(KeyCode.RightShift)
-                                                                                                                           ) OverwriteMod(ms);
-                                                                                                                           else
-                                                                                                                               Find.WindowStack.Add(
-                                                                                                                                   Dialog_MessageBox.CreateConfirmation(
-                                                                                                                                       LanguageKeys
-                                                                                                                                           .keyed.ModSwitch_OverwritExisting_Confirm
-                                                                                                                                           .Translate(ms.Name),
-                                                                                                                                       () => OverwriteMod(ms),
-                                                                                                                                       true,
-                                                                                                                                       LanguageKeys.keyed.ModSwitch_Confirmation_Title
-                                                                                                                                                   .Translate()
-                                                                                                                                   ));
-                                                                                                                       })
-                                                                                                               ).ToList()));
-                                                                                     })
-                                                                             }));
-            var rctUndo = new Rect(target.x + 2 * (30f + 8f), target.y, 30f, 30f);
+                Find.WindowStack.Add(
+                    new FloatMenu(
+                        new List<FloatMenuOption> {
+                                                      new FloatMenuOption(
+                                                          LanguageKeys.keyed.ModSwitch_CreateNew.Translate(),
+                                                          () => Find.WindowStack.Add(
+                                                              new Dialog_SetText(
+                                                                  s => {
+                                                                      Sets.Add(ModSet.FromCurrent(s, this));
+                                                                      Mod.WriteSettings();
+                                                                  },
+                                                                  LanguageKeys.keyed.ModSwitch_Create_DefaultName.Translate()
+                                                              ))),
+                                                      new FloatMenuOption(
+                                                          LanguageKeys.keyed.ModSwitch_OverwritExisting.Translate(),
+                                                          () => {
+                                                              if (Sets.Count > 0)
+                                                                  Find.WindowStack.Add(
+                                                                      new FloatMenu(
+                                                                          Sets.Select(
+                                                                                  ms => new FloatMenuOption(
+                                                                                      ms.Name,
+                                                                                      () => {
+                                                                                          if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)
+                                                                                          )
+                                                                                              OverwriteMod(ms);
+                                                                                          else
+                                                                                              Find.WindowStack.Add(
+                                                                                                  Dialog_MessageBox.CreateConfirmation(
+                                                                                                      LanguageKeys.keyed.ModSwitch_OverwritExisting_Confirm
+                                                                                                                  .Translate(ms.Name),
+                                                                                                      () => OverwriteMod(ms),
+                                                                                                      true,
+                                                                                                      LanguageKeys.keyed.ModSwitch_Confirmation_Title
+                                                                                                                  .Translate()
+                                                                                                  ));
+                                                                                      })
+                                                                              )
+                                                                              .ToList()));
+                                                          })
+                                                  }));
+            Rect rctUndo = new Rect(target.x + 2 * (30f + 8f), target.y, 30f, 30f);
             if (_undo != null)
                 if (ExtraWidgets.ButtonImage(rctUndo, Assets.Undo, false, TipUndo, rctUndo.ContractedBy(4))) {
                     _undo.Apply();
                     _undo = null;
                 }
 
-            var rctSettings = new Rect(350f - 30f, target.y, 30f, 30f);
-            if (ExtraWidgets.ButtonImage(rctSettings, Assets.Settings, false, TipSettings, rctSettings.ContractedBy(4))) Find.WindowStack.Add(new Dialog_ModsSettings_Custom(Mod));
+            Rect rctSettings = new Rect(350f - 30f, target.y, 30f, 30f);
+            if (ExtraWidgets.ButtonImage(rctSettings, Assets.Settings, false, TipSettings, rctSettings.ContractedBy(4)))
+                Find.WindowStack.Add(new Dialog_ModsSettings_Custom(Mod));
         }
 
         public void DoWindowContents(Rect rect) {
-            var list = new Listing_Standard(GameFont.Small) {
-                                                                ColumnWidth = rect.width
-                                                            };
+            Listing_Standard list = new Listing_Standard(GameFont.Small) {
+                                                                             ColumnWidth = rect.width
+                                                                         };
             list.Begin(rect);
 
-            var left = list.GetRect(30f).LeftHalf();
+            Rect left = list.GetRect(30f).LeftHalf();
 
             if (Widgets.ButtonText(left, LanguageKeys.keyed.ModSwitch_Import.Translate(), true, false, true))
                 Find.WindowStack.Add(
@@ -115,19 +125,20 @@ namespace DoctorVanGogh.ModSwitch {
                                                           )),
                                                       new FloatMenuOption(
                                                           @"ModListBackup",
-                                                          () => Find.WindowStack.Add(new Dialog_MessageBox(
-                                                                                         LanguageKeys.keyed.ModSwitch_Import_Text.Translate(),
-                                                                                         LanguageKeys.keyed.ModSwitch_Import_Choice_Replace.Translate(),
-                                                                                         () => ImportModListBackup(true),
-                                                                                         LanguageKeys.keyed.ModSwitch_Import_Choice_Append.Translate(),
-                                                                                         () => ImportModListBackup(false),
-                                                                                         LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate(),
-                                                                                         true
-                                                                                     ) {
-                                                                                           absorbInputAroundWindow = true,
-                                                                                           closeOnEscapeKey = true,
-                                                                                           doCloseX = true
-                                                                                       }))
+                                                          () => Find.WindowStack.Add(
+                                                              new Dialog_MessageBox(
+                                                                  LanguageKeys.keyed.ModSwitch_Import_Text.Translate(),
+                                                                  LanguageKeys.keyed.ModSwitch_Import_Choice_Replace.Translate(),
+                                                                  () => ImportModListBackup(true),
+                                                                  LanguageKeys.keyed.ModSwitch_Import_Choice_Append.Translate(),
+                                                                  () => ImportModListBackup(false),
+                                                                  LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate(),
+                                                                  true
+                                                              ) {
+                                                                    absorbInputAroundWindow = true,
+                                                                    closeOnEscapeKey = true,
+                                                                    doCloseX = true
+                                                                }))
                                                   }));
 
 
@@ -143,23 +154,24 @@ namespace DoctorVanGogh.ModSwitch {
             const float lineHeight = 30f;
             const float gapSize = 4f;
 
-            var r = list.GetRect(rect.height - list.CurHeight);
+            Rect r = list.GetRect(rect.height - list.CurHeight);
 
-            var count = Sets.Count;
+            int count = Sets.Count;
 
             Widgets.BeginScrollView(r, ref _scrollPosition, new Rect(0, 0, r.width - scrollbarSize, count * (lineHeight + gapSize)));
-            var position = new Vector2();
+            Vector2 position = new Vector2();
 
-            var reorderableGroup = ReorderableWidget.NewGroup((from, to) => {
-                                                                  ReorderModSet(from, to);
-                                                                  SoundDefOf.TickHigh.PlayOneShotOnCamera(null);
-                                                              });
+            int reorderableGroup = ReorderableWidget.NewGroup(
+                (from, to) => {
+                    ReorderModSet(from, to);
+                    SoundDefOf.TickHigh.PlayOneShotOnCamera(null);
+                });
 
             // render each row
-            foreach (var entry in Sets) {
+            foreach (ModSet entry in Sets) {
                 position.y = position.y + gapSize;
 
-                var line = new Rect(0, position.y, r.width - scrollbarSize, lineHeight);
+                Rect line = new Rect(0, position.y, r.width - scrollbarSize, lineHeight);
 
                 entry.DoWindowContents(line, reorderableGroup);
                 position.y += lineHeight;
@@ -181,17 +193,18 @@ namespace DoctorVanGogh.ModSwitch {
                 ScribeMetaHeaderUtility.LoadGameDataHeader(ScribeMetaHeaderUtility.ScribeHeaderMode.Map, false);
                 Scribe.loader.FinalizeLoading();
 
-                var suffix = 0;
-                var name = fi.Name;
-                while (Sets.Any(ms => ms.Name == name)) name = $"{fi.Name}_{++suffix}";
-                Sets.Add(new ModSet(this) {
-                                              Name = name,
-                                              BuildNumber = new Version(VersionControl.VersionStringWithoutRev(ScribeMetaHeaderUtility.loadedGameVersion)).Build,
-                                              Mods = new List<string>(ScribeMetaHeaderUtility.loadedModIdsList)
-                                          });
+                int suffix = 0;
+                string name = fi.Name;
+                while (Sets.Any(ms => ms.Name == name))
+                    name = $"{fi.Name}_{++suffix}";
+                Sets.Add(
+                    new ModSet(this) {
+                                         Name = name,
+                                         BuildNumber = new Version(VersionControl.VersionStringWithoutRev(ScribeMetaHeaderUtility.loadedGameVersion)).Build,
+                                         Mods = new List<string>(ScribeMetaHeaderUtility.loadedModIdsList)
+                                     });
                 Mod.WriteSettings();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 Log.Warning(string.Concat("Exception loading ", fi.FullName, ": ", ex));
                 Scribe.ForceStop();
             }
@@ -203,16 +216,16 @@ namespace DoctorVanGogh.ModSwitch {
                 Sets.Clear();
             }
 
-            var parent = Path.Combine(GenFilePaths.SaveDataFolderPath, "ModListBackup");
+            string parent = Path.Combine(GenFilePaths.SaveDataFolderPath, "ModListBackup");
             Util.Trace($"Looking at {parent}");
             IDictionary<int, string> names = null;
             if (Directory.Exists(parent)) {
                 // grab hugslibs settings for MLB
-                var hugs = Path.Combine(GenFilePaths.SaveDataFolderPath, "HugsLib");
+                string hugs = Path.Combine(GenFilePaths.SaveDataFolderPath, "HugsLib");
                 if (Directory.Exists(hugs)) {
-                    var settings = Path.Combine(hugs, "ModSettings.xml");
+                    string settings = Path.Combine(hugs, "ModSettings.xml");
                     if (File.Exists(settings)) {
-                        var doc = new XmlDocument();
+                        XmlDocument doc = new XmlDocument();
                         doc.Load(settings);
 
                         names = doc.DocumentElement.SelectSingleNode(@"//ModListBackup/StateNames/text()")?.Value.Split('|').Select((v, i) => new {v, i}).ToDictionary(t => t.i + 1, t => t.v);
@@ -220,39 +233,39 @@ namespace DoctorVanGogh.ModSwitch {
                 }
 
                 // import configs
-                var existing = Directory.GetFiles(parent, "*.rws");
+                string[] existing = Directory.GetFiles(parent, "*.rws");
 
                 if (names == null)
                     names = new Dictionary<int, string>();
 
 
-                foreach (var mlbSet in existing) {
+                foreach (string mlbSet in existing) {
                     Util.Trace($"Reading {mlbSet}");
 
-                    var doc = new XmlDocument();
+                    XmlDocument doc = new XmlDocument();
                     doc.Load(mlbSet);
                     try {
-                        var name = Path.GetFileNameWithoutExtension(mlbSet);
+                        string name = Path.GetFileNameWithoutExtension(mlbSet);
                         int idx;
                         string backupName = null;
 
-                        if (int.TryParse(Path.GetFileNameWithoutExtension(name), out idx)) names.TryGetValue(idx, out backupName);
+                        if (int.TryParse(Path.GetFileNameWithoutExtension(name), out idx))
+                            names.TryGetValue(idx, out backupName);
                         if (string.IsNullOrEmpty(backupName))
                             backupName = $"MLB '{name}'";
 
-                        var set = new ModSet(this) {
-                                                       Name = backupName,
-                                                       // ReSharper disable PossibleNullReferenceException
-                                                       // ReSharper disable AssignNullToNotNullAttribute
-                                                       Mods = doc.DocumentElement.SelectNodes(@"//activeMods/li/text()").Cast<XmlNode>().Select(n => n.Value).ToList(),
-                                                       BuildNumber = int.Parse(doc.DocumentElement.SelectSingleNode(@"//buildNumber/text()").Value, CultureInfo.InvariantCulture)
-                                                       // ReSharper restore AssignNullToNotNullAttribute
-                                                       // ReSharper restore PossibleNullReferenceException
-                                                   };
+                        ModSet set = new ModSet(this) {
+                                                          Name = backupName,
+                                                          // ReSharper disable PossibleNullReferenceException
+                                                          // ReSharper disable AssignNullToNotNullAttribute
+                                                          Mods = doc.DocumentElement.SelectNodes(@"//activeMods/li/text()").Cast<XmlNode>().Select(n => n.Value).ToList(),
+                                                          BuildNumber = int.Parse(doc.DocumentElement.SelectSingleNode(@"//buildNumber/text()").Value, CultureInfo.InvariantCulture)
+                                                          // ReSharper restore AssignNullToNotNullAttribute
+                                                          // ReSharper restore PossibleNullReferenceException
+                                                      };
                         Util.Trace($"Imported {set.Name}: {set}");
                         Sets.Add(set);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         Util.Error(e);
                     }
                 }
@@ -260,37 +273,36 @@ namespace DoctorVanGogh.ModSwitch {
                 Util.Trace($"Importing settings");
 
                 // import custom settings
-                var mods = Path.Combine(parent, "Mod");
+                string mods = Path.Combine(parent, "Mod");
                 if (Directory.Exists(mods))
-                    foreach (var mod in Directory.GetDirectories(mods)) {
+                    foreach (string mod in Directory.GetDirectories(mods)) {
                         Util.Trace($"Settings {mod}");
-                        var settings = Path.Combine(mod, "Settings.xml");
+                        string settings = Path.Combine(mod, "Settings.xml");
                         if (File.Exists(settings)) {
-                            var doc = new XmlDocument();
+                            XmlDocument doc = new XmlDocument();
                             doc.Load(settings);
 
                             ModAttributes attr;
-                            var key = Path.GetFileName(mod);
+                            string key = Path.GetFileName(mod);
                             if (!Attributes.TryGetValue(key, out attr))
                                 Attributes.Add(attr = new ModAttributes {Key = key});
-                            var textColor = doc.DocumentElement.SelectSingleNode(@"//textColor");
+                            XmlNode textColor = doc.DocumentElement.SelectSingleNode(@"//textColor");
                             try {
-                                var mlb = new MLBAttributes {
-                                                                altName = doc.DocumentElement.SelectSingleNode(@"//altName/text()")?.Value,
-                                                                installName = doc.DocumentElement.SelectSingleNode(@"//installName/text()")?.Value,
-                                                                color = textColor != null
-                                                                    ? new Color(
-                                                                        float.Parse(textColor.SelectSingleNode("r/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
-                                                                        float.Parse(textColor.SelectSingleNode("g/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
-                                                                        float.Parse(textColor.SelectSingleNode("b/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
-                                                                        float.Parse(textColor.SelectSingleNode("a/text()")?.Value ?? "1", CultureInfo.InvariantCulture)
-                                                                    )
-                                                                    : Color.white
-                                                            };
+                                MLBAttributes mlb = new MLBAttributes {
+                                                                          altName = doc.DocumentElement.SelectSingleNode(@"//altName/text()")?.Value,
+                                                                          installName = doc.DocumentElement.SelectSingleNode(@"//installName/text()")?.Value,
+                                                                          color = textColor != null
+                                                                              ? new Color(
+                                                                                  float.Parse(textColor.SelectSingleNode("r/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
+                                                                                  float.Parse(textColor.SelectSingleNode("g/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
+                                                                                  float.Parse(textColor.SelectSingleNode("b/text()")?.Value ?? "1", CultureInfo.InvariantCulture),
+                                                                                  float.Parse(textColor.SelectSingleNode("a/text()")?.Value ?? "1", CultureInfo.InvariantCulture)
+                                                                              )
+                                                                              : Color.white
+                                                                      };
                                 attr.attributes.Add(mlb);
                                 attr.Color = mlb.color;
-                            }
-                            catch (Exception e) {
+                            } catch (Exception e) {
                                 Util.Error(e);
                             }
                         }
@@ -301,15 +313,16 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         private void OverwriteMod(ModSet ms) {
-            var idx = Sets.IndexOf(ms);
+            int idx = Sets.IndexOf(ms);
             Sets[idx] = ModSet.FromCurrent(ms.Name, this);
             Mod.WriteSettings();
         }
 
         private void ReorderModSet(int from, int to) {
-            if (from == to) return;
+            if (from == to)
+                return;
 
-            var item = Sets[from];
+            ModSet item = Sets[from];
             Sets.RemoveAt(from);
             Sets.Insert(to, item);
         }

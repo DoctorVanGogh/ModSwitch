@@ -14,8 +14,8 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         public ModSwitch(ModContentPack content) : base(content) {
-            var harmony = HarmonyInstance.Create("DoctorVanGogh.ModSwitch");
-            var assembly = typeof(ModSwitch).Assembly;
+            HarmonyInstance harmony = HarmonyInstance.Create("DoctorVanGogh.ModSwitch");
+            Assembly assembly = typeof(ModSwitch).Assembly;
             harmony.PatchAll(assembly);
 
             Log.Message($"ModSwitch {assembly.GetName().Version} - initialized patches...");

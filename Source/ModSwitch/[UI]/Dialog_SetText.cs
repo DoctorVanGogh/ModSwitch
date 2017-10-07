@@ -28,15 +28,16 @@ namespace DoctorVanGogh.ModSwitch {
 
         public override void DoWindowContents(Rect inRect) {
             Text.Font = GameFont.Small;
-            var flag = false;
+            bool flag = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return) {
                 flag = true;
                 Event.current.Use();
             }
-            var text = Widgets.TextField(new Rect(0f, 15f, inRect.width, 35f), _inputText);
-            if (text.Length < MaxNameLength) _inputText = text;
+            string text = Widgets.TextField(new Rect(0f, 15f, inRect.width, 35f), _inputText);
+            if (text.Length < MaxNameLength)
+                _inputText = text;
 
-            var acceptanceReport = NameIsValid(_inputText);
+            AcceptanceReport acceptanceReport = NameIsValid(_inputText);
             if (!acceptanceReport.Accepted) {
                 GUI.color = Color.red;
                 Widgets.Label(new Rect(15f, inRect.y + 35f + 15f + 5f, inRect.width - 15f - 15f, inRect.height + (35f + 15f + 5f) * 2), acceptanceReport.Reason);
@@ -53,7 +54,7 @@ namespace DoctorVanGogh.ModSwitch {
         protected virtual AcceptanceReport NameIsValid(string name) {
             if (string.IsNullOrEmpty(name))
                 return false;
-            var reason = _checkName?.Invoke(name);
+            string reason = _checkName?.Invoke(name);
             if (!string.IsNullOrEmpty(reason))
                 return reason;
             return true;

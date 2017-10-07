@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -30,8 +31,8 @@ namespace DoctorVanGogh.ModSwitch {
         public string Name = string.Empty;
 
         static ModSet() {
-            var tModsConfig = typeof(ModsConfig);
-            var tModsConfigData = AccessTools.Inner(tModsConfig, @"ModsConfigData");
+            Type tModsConfig = typeof(ModsConfig);
+            Type tModsConfigData = AccessTools.Inner(tModsConfig, @"ModsConfigData");
             fiModsConfigData_activeMods = AccessTools.Field(tModsConfigData, @"activeMods");
             fiModsConfigData_buildNumber = AccessTools.Field(tModsConfigData, @"buildNumber");
             fiModsConfig_data = AccessTools.Field(tModsConfig, @"data");
@@ -61,10 +62,11 @@ namespace DoctorVanGogh.ModSwitch {
         public void Apply() {
             // mix installed and set mods
             var tmp = Mods
-                .Select((m, idx) => new {
-                                            id = m,
-                                            Index = idx
-                                        })
+                .Select(
+                    (m, idx) => new {
+                                        id = m,
+                                        Index = idx
+                                    })
                 .FullOuterJoin(
                     ModLister.AllInstalledMods,
                     t => t.id,
@@ -78,21 +80,23 @@ namespace DoctorVanGogh.ModSwitch {
 
             // partition by install status
             var notInstalled = tmp.Where(t => t.InstalledIdentifier == null).ToArray();
-            var installedMods = tmp.Where(t => t.SetIndex != null && t.InstalledIdentifier != null).OrderBy(t => t.SetIndex).Select(t => t.Key);
+            IEnumerable<string> installedMods = tmp.Where(t => t.SetIndex != null && t.InstalledIdentifier != null).OrderBy(t => t.SetIndex).Select(t => t.Key);
 
             if (notInstalled.Length != 0) {
                 var missing = notInstalled
-                    .Select(t => new {
-                                         t.Key,
-                                         IsSteam = rgxSteamModId.IsMatch(t.Key)
-                                     })
+                    .Select(
+                        t => new {
+                                     t.Key,
+                                     IsSteam = rgxSteamModId.IsMatch(t.Key)
+                                 })
                     .OrderBy(t => t.Key)
                     .ToArray();
 
-                var sb = new StringBuilder(LanguageKeys.keyed.ModSwitch_MissingMods.Translate(Name));
+                StringBuilder sb = new StringBuilder(LanguageKeys.keyed.ModSwitch_MissingMods.Translate(Name));
                 sb.AppendLine();
                 sb.AppendLine();
-                foreach (var item in missing) sb.AppendLine(item.IsSteam ? $" - [Steam] {item.Key}" : $" - {item.Key}");
+                foreach (var item in missing)
+                    sb.AppendLine(item.IsSteam ? $" - [Steam] {item.Key}" : $" - {item.Key}");
 
                 Find.WindowStack.Add(
                     new Dialog_MissingMods(
@@ -100,7 +104,8 @@ namespace DoctorVanGogh.ModSwitch {
                         () => ApplyMods(installedMods),
                         () => {
                             // dont know how to open multiple tabs in steam overlay right now - just pop urls to browser ;)
-                            foreach (var mod in missing.Where(t => t.IsSteam)) Process.Start($"http://steamcommunity.com/sharedfiles/filedetails/?id={mod.Key}");
+                            foreach (var mod in missing.Where(t => t.IsSteam))
+                                Process.Start($"http://steamcommunity.com/sharedfiles/filedetails/?id={mod.Key}");
                         },
                         () => {
                             Mods.RemoveAll(s => notInstalled.Any(ni => ni.Key == s));
@@ -108,8 +113,7 @@ namespace DoctorVanGogh.ModSwitch {
                             ApplyMods(installedMods);
                         }
                     ));
-            }
-            else {
+            } else {
                 ApplyMods(installedMods);
             }
         }
@@ -119,34 +123,35 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         private string Colorize(string modId) {
-            var color = _owner.Attributes[modId].Color;
+            Color? color = _owner.Attributes[modId].Color;
             return color != null
                 ? modId.Colorize(color.Value)
                 : modId;
         }
 
         public void Delete() {
-            if (_owner.Sets.Remove(this)) _owner.Mod.WriteSettings();
+            if (_owner.Sets.Remove(this))
+                _owner.Mod.WriteSettings();
         }
 
         public void DoWindowContents(Rect rect, int reorderableGroup) {
             const float padding = 2f;
-            var height = rect.height;
-            var buttonSize = height - 2 * padding;
+            float height = rect.height;
+            float buttonSize = height - 2 * padding;
 
             ReorderableWidget.Reorderable(reorderableGroup, rect);
 
-            var leftColumnsWidth = rect.width - 8 * padding - 2 * buttonSize;
+            float leftColumnsWidth = rect.width - 8 * padding - 2 * buttonSize;
 
-            var left = new Rect(rect.x, rect.y + padding, leftColumnsWidth * 0.6f - padding, buttonSize);
+            Rect left = new Rect(rect.x, rect.y + padding, leftColumnsWidth * 0.6f - padding, buttonSize);
             Widgets.Label(left, Name);
 
-            var right = new Rect(rect.x + leftColumnsWidth * 0.6f + 3 * padding, rect.y + padding, leftColumnsWidth * 0.4f, buttonSize);
+            Rect right = new Rect(rect.x + leftColumnsWidth * 0.6f + 3 * padding, rect.y + padding, leftColumnsWidth * 0.4f, buttonSize);
 
             Widgets.Label(right, LanguageKeys.keyed.ModSwitch_ModSet_Mods.Translate(Mods.Count));
             TooltipHandler.TipRegion(right, Tip);
 
-            var rctRename = new Rect(rect.x + leftColumnsWidth + 5 * padding, rect.y + padding, buttonSize, buttonSize);
+            Rect rctRename = new Rect(rect.x + leftColumnsWidth + 5 * padding, rect.y + padding, buttonSize, buttonSize);
 
             if (ExtraWidgets.ButtonImage(rctRename, Assets.Edit, false, TipRename, rctRename.ContractedBy(4)))
                 Find.WindowStack.Add(
@@ -158,7 +163,7 @@ namespace DoctorVanGogh.ModSwitch {
                         Name)
                 );
 
-            var rctDelete = new Rect(rect.x + leftColumnsWidth + 7 * padding + buttonSize, rect.y + padding, buttonSize, buttonSize);
+            Rect rctDelete = new Rect(rect.x + leftColumnsWidth + 7 * padding + buttonSize, rect.y + padding, buttonSize, buttonSize);
 
 
             if (ExtraWidgets.ButtonImage(rctDelete, Assets.Delete, false, TipDelete, rctDelete.ContractedBy(4)))
@@ -172,7 +177,7 @@ namespace DoctorVanGogh.ModSwitch {
 
 
         public static ModSet FromCurrent(string name, Settings owner) {
-            var modsConfigData = fiModsConfig_data.GetValue(null);
+            object modsConfigData = fiModsConfig_data.GetValue(null);
 
             return new ModSet(owner) {
                                          Name = name,
