@@ -3,30 +3,25 @@ using UnityEngine;
 using Verse;
 
 namespace DoctorVanGogh.ModSwitch {
-
-
     public class Dialog_MissingMods : Window {
-
         private const float TitleHeight = 42f;
         private const float ButtonHeight = 35f;
 
         private const float buttonCount = 3f;
         private const float buttonSpacing = 20f;
-
-        public string text;
-        public Action defaultAction;
-        private readonly Action _workshop;
+        private readonly Action _ignore;
         private readonly Action _remove;
+        private readonly Action _workshop;
+        private float creationRealTime = -1f;
+        public Action defaultAction;
 
         private Vector2 scrollPosition = Vector2.zero;
-        private float creationRealTime = -1f;
-        private readonly Action _ignore;
 
-        public override Vector2 InitialSize => new Vector2(640f, 460f);
+        public string text;
 
         public Dialog_MissingMods(string text, Action ignore, Action workshop, Action remove) {
             this.text = text;
-            this.defaultAction = ignore;
+            defaultAction = ignore;
             _ignore = ignore;
             _workshop = workshop;
             _remove = remove;
@@ -38,11 +33,13 @@ namespace DoctorVanGogh.ModSwitch {
             onlyOneOfTypeAllowed = false;
         }
 
+        public override Vector2 InitialSize => new Vector2(640f, 460f);
+
         private void AddButton(Rect inRect, int index, string label, Action action, string tooltip = null, bool? dangerState = null) {
             GUI.color = dangerState == null
                 ? Color.white
-                : dangerState.Value 
-                    ? new Color(1f, 0.3f, 0.35f) 
+                : dangerState.Value
+                    ? new Color(1f, 0.3f, 0.35f)
                     : new Color(0.35f, 1f, 0.3f);
             var buttonWidth = (inRect.width - (buttonCount - 1) * buttonSpacing) / buttonCount;
             var rect = new Rect((index - 1) * (buttonWidth + buttonSpacing), inRect.height - ButtonHeight, buttonWidth, ButtonHeight);
@@ -58,7 +55,7 @@ namespace DoctorVanGogh.ModSwitch {
             var verticalPos = inRect.y;
 
             Text.Font = GameFont.Medium;
-            Widgets.Label( new Rect(0f, verticalPos, inRect.width, TitleHeight), LanguageKeys.keyed.ModSwitch_MissingMods_Title.Translate());
+            Widgets.Label(new Rect(0f, verticalPos, inRect.width, TitleHeight), LanguageKeys.keyed.ModSwitch_MissingMods_Title.Translate());
             verticalPos += TitleHeight;
 
             Text.Font = GameFont.Small;

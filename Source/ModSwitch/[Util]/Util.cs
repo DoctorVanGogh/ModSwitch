@@ -1,25 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using UnityEngine;
-using Verse;
 
 namespace DoctorVanGogh.ModSwitch {
-    static class Util {
-        [Conditional("TRACE")]
-        public static void Trace(string s) {
-            Log(s);
+    internal static class Util {
+        public static void AddRange<TItem>(this ICollection<TItem> collection, IEnumerable<TItem> values) {
+            foreach (var value in values) collection.Add(value);
         }
 
-        public static void Warning(string s) {
-            Verse.Log.Warning($"[ModSwitch]: {s}");
+        public static string Colorize(this string text, Color color) {
+            return $"<color=#{(byte) (color.r * 255):X2}{(byte) (color.g * 255):X2}{(byte) (color.b * 255):X2}{(byte) (color.a * 255):X2}>{text}</color>";
+        }
+
+        public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs) {
+            // Get the subdirectories for the specified directory.
+            var dir = new DirectoryInfo(sourceDirName);
+
+            if (!dir.Exists)
+                throw new DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourceDirName);
+
+            var dirs = dir.GetDirectories();
+            // If the destination directory doesn't exist, create it.
+            if (!Directory.Exists(destDirName)) Directory.CreateDirectory(destDirName);
+
+            // Get the files in the directory and copy them to the new location.
+            var files = dir.GetFiles();
+            foreach (var file in files) {
+                var temppath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(temppath, false);
+            }
+
+            // If copying subdirectories, copy them and their contents to new location.
+            if (copySubDirs)
+                foreach (var subdir in dirs) {
+                    var temppath = Path.Combine(destDirName, subdir.Name);
+                    DirectoryCopy(subdir.FullName, temppath, copySubDirs);
+                }
         }
 
         public static void Error(string s) {
             Verse.Log.Error($"[ModSwitch]: {s}");
+        }
+
+        public static void Error(Exception e) {
+            Error(e.ToString());
         }
 
 
@@ -27,58 +55,20 @@ namespace DoctorVanGogh.ModSwitch {
             Verse.Log.Message($"[ModSwitch]: {s}");
         }
 
-        public static void Error(Exception e) {
-            Error(e.ToString());
-        }
-
-        public static string Colorize(this string text, Color color) {
-            return $"<color=#{((byte)(color.r * 255)):X2}{((byte)(color.g * 255)):X2}{((byte)(color.b * 255)):X2}{((byte)(color.a * 255)):X2}>{text}</color>";
+        [Conditional("TRACE")]
+        public static void Trace(string s) {
+            Log(s);
         }
 
         public static DateTime UnixTimeStampToDateTime(double unixTimeStamp) {
             // Unix timestamp is seconds past epoch
-            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            var dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
             return dtDateTime;
         }
 
-        public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs) {
-            // Get the subdirectories for the specified directory.
-            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
-
-            if (!dir.Exists) {
-                throw new DirectoryNotFoundException(
-                    "Source directory does not exist or could not be found: "
-                    + sourceDirName);
-            }
-
-            DirectoryInfo[] dirs = dir.GetDirectories();
-            // If the destination directory doesn't exist, create it.
-            if (!Directory.Exists(destDirName)) {
-                Directory.CreateDirectory(destDirName);
-            }
-
-            // Get the files in the directory and copy them to the new location.
-            FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files) {
-                string temppath = Path.Combine(destDirName, file.Name);
-                file.CopyTo(temppath, false);
-            }
-
-            // If copying subdirectories, copy them and their contents to new location.
-            if (copySubDirs) {
-                foreach (DirectoryInfo subdir in dirs) {
-                    string temppath = Path.Combine(destDirName, subdir.Name);
-                    DirectoryCopy(subdir.FullName, temppath, copySubDirs);
-                }
-            }
+        public static void Warning(string s) {
+            Verse.Log.Warning($"[ModSwitch]: {s}");
         }
-
-        public static void AddRange<TItem>(this ICollection<TItem> collection, IEnumerable<TItem> values) {
-            foreach (var value in values) {
-                collection.Add(value);
-            }
-        }
-
     }
 }

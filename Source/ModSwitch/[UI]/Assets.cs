@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Verse;
+
 // ReSharper disable RedundantArgumentDefaultValue
 
 namespace DoctorVanGogh.ModSwitch {
@@ -30,7 +31,5 @@ namespace DoctorVanGogh.ModSwitch {
             DragHash = ContentFinder<Texture2D>.Get("UI/Buttons/DragHash", true);
             WarningSmall = ContentFinder<Texture2D>.Get("UI/Warning-small", true);
         }
-
-
     }
 }

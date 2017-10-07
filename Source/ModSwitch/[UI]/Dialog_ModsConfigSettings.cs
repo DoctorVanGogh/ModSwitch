@@ -4,12 +4,18 @@ using RimWorld;
 using Verse;
 
 namespace DoctorVanGogh.ModSwitch {
-    class Dialog_ModsSettings_Custom : Dialog_ModSettings {
-        private Mod _mod;
+    internal class Dialog_ModsSettings_Custom : Dialog_ModSettings {
         private int _initialHash;
+        private readonly Mod _mod;
 
         public Dialog_ModsSettings_Custom(Mod mod) {
             _mod = mod;
+        }
+
+        public override void PreClose() {
+            base.PreClose();
+            ModsConfigUI.ChangeAction = ModsConfigUI.ModsChangeAction.Query;
+            Find.WindowStack.Add(new Page_ModsConfig_Custom(_initialHash));
         }
 
         public override void PreOpen() {
@@ -19,12 +25,6 @@ namespace DoctorVanGogh.ModSwitch {
             modsConfig.Close();
             base.PreOpen();
             AccessTools.Field(typeof(Dialog_ModSettings), @"selMod").SetValue(this, _mod);
-        }
-
-        public override void PreClose() {
-            base.PreClose();
-            ModsConfigUI.ChangeAction = ModsConfigUI.ModsChangeAction.Query;
-            Find.WindowStack.Add(new Page_ModsConfig_Custom(_initialHash));
         }
     }
 }

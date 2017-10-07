@@ -15,6 +15,12 @@ using Verse.Steam;
 
 namespace DoctorVanGogh.ModSwitch {
     public static class ModsConfigUI {
+        public enum ModsChangeAction {
+            Restart,
+            Ignore,
+            Query
+        }
+
         public static readonly MethodInfo miCheckboxLabeledSelectable = AccessTools.Method(typeof(Widgets), nameof(Widgets.CheckboxLabeledSelectable));
         public static readonly MethodInfo miGuiSetContentColor = AccessTools.Property(typeof(GUI), nameof(GUI.color)).GetSetMethod(true);
 
@@ -22,17 +28,8 @@ namespace DoctorVanGogh.ModSwitch {
         private static readonly MethodInfo miGetModWithIdentifier = AccessTools.Method(typeof(ModLister), "GetModWithIdentifier");
 
         private static IDictionary<string, Color> _colorMap;
-        private static ModsChangeAction _changeAction = ModsChangeAction.Query;
 
         public static Action restartRequiredHandler = RestartRequiredHandler;
-
-        private static void RestartRequiredHandler() {
-            Find.WindowStack.Add(
-                new Dialog_MessageBox("ModsChanged".Translate(), null, GenCommandLine.Restart, null, null, null, false) {
-                                                                                                                            doCloseX = true
-                                                                                                                        }
-            );
-        }
 
         public static IDictionary<string, Color> ColorMap => _colorMap ?? (_colorMap = new Dictionary<string, Color> {
                                                                                                                          {LanguageKeys.keyed.ModSwitch_Color_white.Translate(), Color.white},
@@ -46,204 +43,7 @@ namespace DoctorVanGogh.ModSwitch {
                                                                                                                          {LanguageKeys.keyed.ModSwitch_Color_yellow.Translate(), Color.yellow}
                                                                                                                      });
 
-        public static ModsChangeAction ChangeAction {
-            get { return _changeAction; }
-            set { _changeAction = value; }
-        }
-
-        public static void DoContextMenu(ModMetaData mod) {
-            var options = new List<FloatMenuOption>();
-
-            if (mod.OnSteamWorkshop) {
-                if (SteamAPI.IsSteamRunning())
-                    options.Add(
-                        new FloatMenuOption(
-                            LanguageKeys.keyed.ModSwitch_CopyLocal.Translate(),
-                            () => {
-                                Find.WindowStack.Add(new Dialog_SetText(
-                                                         name => {
-                                                             var log = new StringBuilder();
-                                                             CopyModLocal(mod, name, log);
-                                                             UpdateSteamAttributes(name, mod, log);
-                                                             Helpers.RebuildModsList();
-                                                             ShowLog(log, LanguageKeys.keyed.ModSwitch_CopyLocal.Translate());
-                                                         },
-                                                         $"{mod.Name}",
-                                                         name => {
-                                                             var targetDirectory = Path.Combine(GenFilePaths.CoreModsFolderPath, name);
-                                                             if (Path.GetInvalidPathChars().Any(name.Contains)) return LanguageKeys.keyed.ModSwitch_Error_InvalidChars.Translate();
-                                                             if (Directory.Exists(targetDirectory))
-                                                                 return LanguageKeys.keyed.ModSwitch_Error_TargetExists.Translate();
-
-                                                             // walk target path up to root, check we are under 'CoreModsFolderPath' - no '..\..\' shenanigans to break out of mods jail
-                                                             var modsRoot = new DirectoryInfo(GenFilePaths.CoreModsFolderPath);
-                                                             for (DirectoryInfo current = new DirectoryInfo(targetDirectory);
-                                                                  current?.FullName != current?.Root.FullName;
-                                                                  current = current.Parent) {
-                                                                 if (current.FullName == modsRoot.FullName)
-                                                                     return null;
-                                                             }
-
-                                                             return LanguageKeys.keyed.ModSwitch_Error_NotValid.Translate();
-                                                         }
-                                                     ));
-                            }));
-                else
-                    options.Add(
-                        new FloatMenuOption(Helpers.ExplainError(
-                                                LanguageKeys.keyed.ModSwitch_CopyLocal.Translate(),
-                                                LanguageKeys.keyed.ModSwitch_Error_SteamNotRunning.Translate()),
-                                            null));
-            }
-            else {
-                options.Add(new FloatMenuOption(
-                                LanguageKeys.keyed.ModSwitch_OpenFolder.Translate(),
-                                () => Process.Start(mod.RootDir.FullName)
-                            ));
-                var ms = LoadedModManager.GetMod<ModSwitch>();
-                var localAttributes = ms[mod];
-
-                if (localAttributes.SteamOrigin != null) {
-                    var tsSteam = ms[localAttributes.SteamOrigin].LastUpdateTS;
-                    var tsCopy = localAttributes.SteamOriginTS;
-
-                    var label = LanguageKeys.keyed.ModSwitch_Sync.Translate();
-
-                    var option = new FloatMenuOption();
-                    if (tsCopy != null && tsCopy == tsSteam) {
-                        option.Label = Helpers.ExplainError(label, LanguageKeys.keyed.ModSwitch_Sync_Identical.Translate());
-                    } else {
-                        option.Label = label;
-                        option.action = () => {
-                            Find.WindowStack.Add(
-                                new Dialog_MessageBox(
-                                    LanguageKeys.keyed.ModSwitch_Sync_Message.Translate(
-                                        mod.Identifier, Helpers.WrapTimestamp(tsCopy), Helpers.WrapTimestamp(tsSteam)
-                                    ),
-                                    LanguageKeys.keyed.ModSwitch_Sync_Choice_KeepSettings.Translate(),
-                                    () => {
-                                        SyncSteam(mod, localAttributes.SteamOrigin, false);
-                                    },
-                                    LanguageKeys.keyed.ModSwitch_Sync_Choice_CopySteam.Translate(),
-                                    () => {
-                                        SyncSteam(mod, localAttributes.SteamOrigin, true);
-                                    },
-                                    LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate(),
-                                    false) {
-                                    doCloseX = true,
-                                    closeOnEscapeKey = true
-                                });
-                        };
-                    }
-                    options.Add(option);
-                } else {
-                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
-                        if (SteamAPI.IsSteamRunning()) {
-                            var installed = ModLister.AllInstalledMods.ToArray();
-
-                            if (installed.Length > 0)
-                                options.Add(new FloatMenuOption(
-                                                LanguageKeys.keyed.ModSwitch_SetOrigin.Translate(),
-                                                () => Find.WindowStack.Add(
-                                                    new FloatMenu(
-                                                        installed
-                                                            .Where(mmd => mmd.OnSteamWorkshop)
-                                                            .Select(mmd => new FloatMenuOption(
-                                                                        mmd.Name,
-                                                                        () => Find.WindowStack.Add(
-                                                                            Dialog_MessageBox.CreateConfirmation(
-                                                                                LanguageKeys.keyed.ModSwitch_SetOrigin_Confirm.Translate(mod.Name, mmd.Name),
-                                                                                () => {
-                                                                                    var attributes = ms[mod.Identifier];
-                                                                                    attributes.SteamOrigin = mmd.Identifier;
-                                                                                    Helpers.RebuildModsList();
-                                                                                },
-                                                                                true,
-                                                                                LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate()
-                                                                            )
-                                                                        )))
-                                                            .ToList()
-
-                                                    ))
-                                            ));
-                        }
-                        else {
-                            options.Add(
-                                new FloatMenuOption(
-                                    Helpers.ExplainError(
-                                        LanguageKeys.keyed.ModSwitch_SetOrigin.Translate(),
-                                        LanguageKeys.keyed.ModSwitch_Error_SteamNotRunning.Translate()
-                                    ),
-                                    null));
-                        }
-                    }
-                }
-            }
-
-            /*options.Add(new FloatMenuOption(
-                                LanguageKeys.keyed.ModSwitch_MoveTo.Translate(),
-                                () => {
-                                    Find.WindowStack.Add(
-                                        new FloatMenu(new List<FloatMenuOption> {
-                                                                                    new FloatMenuOption(
-                                                                                        LanguageKeys.keyed.ModSwitch_MoveTo_Top.Translate(),
-                                                                                        () => {
-                                                                                            LoadedModManager.GetMod<ModSwitch>().MovePosition(mod, Position.Top);
-                                                                                        }),
-                                                                                    new FloatMenuOption(
-                                                                                        LanguageKeys.keyed.ModSwitch_MoveTo_Bottom.Translate(),
-                                                                                        () => {
-                                                                                            LoadedModManager.GetMod<ModSwitch>().MovePosition(mod, Position.Bottom);
-                                                                                        })
-                                                                                }));
-                                }
-                            ));*/
-
-            options.Add(
-                new FloatMenuOption(
-                    LanguageKeys.keyed.ModSwitch_Color.Translate(),
-                    () => { Find.WindowStack.Add(new FloatMenu(CreateColorizationOptions(mod))); }));
-
-
-            Find.WindowStack.Add(new FloatMenu(options));
-        }
-        public static void DrawContentSource(Rect r, ContentSource source, Action clickAction, ModMetaData mod) {
-
-            if (String.IsNullOrEmpty(LoadedModManager.GetMod<ModSwitch>()[mod].SteamOrigin)) {                         
-                ContentSourceUtility.DrawContentSource(r, source, 
-                    source == ContentSource.LocalFolder
-                    ? (clickAction ?? (Action)(() => Process.Start(mod.RootDir.FullName)))
-                    : clickAction);
-            } else {
-                var rect = new Rect(r.x, r.y + r.height / 2f - 12f, 24f, 24f);
-                GUI.DrawTexture(rect, Assets.SteamCopy);
-                Widgets.DrawHighlightIfMouseover(rect);
-
-                TooltipHandler.TipRegion(rect, () => "Source".Translate() + ": " + LanguageKeys.keyed.ModSwitch_Source_SteamCopy.Translate() , (int)(r.x + r.y * 56161f));
-                if (Widgets.ButtonInvisible(rect, false)) {
-                    Process.Start(mod.RootDir.FullName);
-                }
-            }            
-            if (!mod.VersionCompatible) {
-                Rect r2 = new Rect(r.x +4f, r.y + r.height /2f -12f +4f, 20f, 20f);
-                GUI.DrawTexture(r2, Assets.WarningSmall);
-            }
-        }
-
-        private static void SyncSteam(ModMetaData mod, string steamId, bool forceCopySettings) {
-            var log = new StringBuilder();
-            var mdOriginal = Helpers.GetMetadata(steamId);
-            CopyModLocal(mdOriginal, mod.Identifier, log, forceCopySettings, true);
-            UpdateSteamAttributes(mod.Identifier, mdOriginal, log);
-            Helpers.RebuildModsList();
-            ShowLog(log, LanguageKeys.keyed.ModSwitch_Sync.Translate());
-        }
-
-        private static void ShowLog(StringBuilder log, string title) {
-            Find.WindowStack.Add(new Dialog_MessageBox(log.ToString()) {
-                                                                           title = title
-                                                                       });
-        }
+        public static ModsChangeAction ChangeAction { get; set; } = ModsChangeAction.Query;
 
         private static void CopyModLocal(ModMetaData mod, string name, StringBuilder log, bool? forceCopySettings = null, bool deleteExisting = false) {
             var targetDirectory = Path.Combine(GenFilePaths.CoreModsFolderPath, name);
@@ -303,14 +103,231 @@ namespace DoctorVanGogh.ModSwitch {
             }
         }
 
+        private static List<FloatMenuOption> CreateColorizationOptions(ModMetaData mod) {
+            return ColorMap.Select(kvp => new FloatMenuOption(
+                                       $@"{kvp.Key.Colorize(kvp.Value)} ({kvp.Key})",
+                                       () => LoadedModManager.GetMod<ModSwitch>().CustomSettings.Attributes[mod].Color = kvp.Value)
+            ).ToList();
+        }
+
+        private static void DeferRestart() {
+            ModSwitch.IsRestartDefered = true;
+        }
+
+        public static void DoContextMenu(ModMetaData mod) {
+            var options = new List<FloatMenuOption>();
+
+            if (mod.OnSteamWorkshop) {
+                if (SteamAPI.IsSteamRunning())
+                    options.Add(
+                        new FloatMenuOption(
+                            LanguageKeys.keyed.ModSwitch_CopyLocal.Translate(),
+                            () => {
+                                Find.WindowStack.Add(new Dialog_SetText(
+                                                         name => {
+                                                             var log = new StringBuilder();
+                                                             CopyModLocal(mod, name, log);
+                                                             UpdateSteamAttributes(name, mod, log);
+                                                             Helpers.RebuildModsList();
+                                                             ShowLog(log, LanguageKeys.keyed.ModSwitch_CopyLocal.Translate());
+                                                         },
+                                                         $"{mod.Name}",
+                                                         name => {
+                                                             var targetDirectory = Path.Combine(GenFilePaths.CoreModsFolderPath, name);
+                                                             if (Path.GetInvalidPathChars().Any(name.Contains)) return LanguageKeys.keyed.ModSwitch_Error_InvalidChars.Translate();
+                                                             if (Directory.Exists(targetDirectory))
+                                                                 return LanguageKeys.keyed.ModSwitch_Error_TargetExists.Translate();
+
+                                                             // walk target path up to root, check we are under 'CoreModsFolderPath' - no '..\..\' shenanigans to break out of mods jail
+                                                             var modsRoot = new DirectoryInfo(GenFilePaths.CoreModsFolderPath);
+                                                             for (var current = new DirectoryInfo(targetDirectory);
+                                                                  current?.FullName != current?.Root.FullName;
+                                                                  current = current.Parent)
+                                                                 if (current.FullName == modsRoot.FullName)
+                                                                     return null;
+
+                                                             return LanguageKeys.keyed.ModSwitch_Error_NotValid.Translate();
+                                                         }
+                                                     ));
+                            }));
+                else
+                    options.Add(
+                        new FloatMenuOption(Helpers.ExplainError(
+                                                LanguageKeys.keyed.ModSwitch_CopyLocal.Translate(),
+                                                LanguageKeys.keyed.ModSwitch_Error_SteamNotRunning.Translate()),
+                                            null));
+            }
+            else {
+                options.Add(new FloatMenuOption(
+                                LanguageKeys.keyed.ModSwitch_OpenFolder.Translate(),
+                                () => Process.Start(mod.RootDir.FullName)
+                            ));
+                var ms = LoadedModManager.GetMod<ModSwitch>();
+                var localAttributes = ms.CustomSettings.Attributes[mod];
+
+                if (localAttributes.SteamOrigin != null) {
+                    var tsSteam = ms.CustomSettings.Attributes[localAttributes.SteamOrigin].LastUpdateTS;
+                    var tsCopy = localAttributes.SteamOriginTS;
+
+                    var label = LanguageKeys.keyed.ModSwitch_Sync.Translate();
+
+                    var option = new FloatMenuOption();
+                    if (tsCopy != null && tsCopy == tsSteam) {
+                        option.Label = Helpers.ExplainError(label, LanguageKeys.keyed.ModSwitch_Sync_Identical.Translate());
+                    }
+                    else {
+                        option.Label = label;
+                        option.action = () => {
+                                            Find.WindowStack.Add(
+                                                new Dialog_MessageBox(
+                                                    LanguageKeys.keyed.ModSwitch_Sync_Message.Translate(
+                                                        mod.Identifier, Helpers.WrapTimestamp(tsCopy), Helpers.WrapTimestamp(tsSteam)
+                                                    ),
+                                                    LanguageKeys.keyed.ModSwitch_Sync_Choice_KeepSettings.Translate(),
+                                                    () => { SyncSteam(mod, localAttributes.SteamOrigin, false); },
+                                                    LanguageKeys.keyed.ModSwitch_Sync_Choice_CopySteam.Translate(),
+                                                    () => { SyncSteam(mod, localAttributes.SteamOrigin, true); },
+                                                    LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate(),
+                                                    false) {
+                                                               doCloseX = true,
+                                                               closeOnEscapeKey = true
+                                                           });
+                                        };
+                    }
+                    options.Add(option);
+                }
+                else {
+                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                        if (SteamAPI.IsSteamRunning()) {
+                            var installed = ModLister.AllInstalledMods.ToArray();
+
+                            if (installed.Length > 0)
+                                options.Add(new FloatMenuOption(
+                                                LanguageKeys.keyed.ModSwitch_SetOrigin.Translate(),
+                                                () => Find.WindowStack.Add(
+                                                    new FloatMenu(
+                                                        installed
+                                                            .Where(mmd => mmd.OnSteamWorkshop)
+                                                            .Select(mmd => new FloatMenuOption(
+                                                                        mmd.Name,
+                                                                        () => Find.WindowStack.Add(
+                                                                            Dialog_MessageBox.CreateConfirmation(
+                                                                                LanguageKeys.keyed.ModSwitch_SetOrigin_Confirm.Translate(mod.Name, mmd.Name),
+                                                                                () => {
+                                                                                    var attributes = ms.CustomSettings.Attributes[mod.Identifier];
+                                                                                    attributes.SteamOrigin = mmd.Identifier;
+                                                                                    Helpers.RebuildModsList();
+                                                                                },
+                                                                                true,
+                                                                                LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate()
+                                                                            )
+                                                                        )))
+                                                            .ToList()
+                                                    ))
+                                            ));
+                        }
+                        else {
+                            options.Add(
+                                new FloatMenuOption(
+                                    Helpers.ExplainError(
+                                        LanguageKeys.keyed.ModSwitch_SetOrigin.Translate(),
+                                        LanguageKeys.keyed.ModSwitch_Error_SteamNotRunning.Translate()
+                                    ),
+                                    null));
+                        }
+                }
+            }
+
+            options.Add(
+                new FloatMenuOption(
+                    LanguageKeys.keyed.ModSwitch_Color.Translate(),
+                    () => { Find.WindowStack.Add(new FloatMenu(CreateColorizationOptions(mod))); }));
+
+
+            Find.WindowStack.Add(new FloatMenu(options));
+        }
+
+        public static void DrawContentSource(Rect r, ContentSource source, Action clickAction, ModMetaData mod) {
+            if (string.IsNullOrEmpty(LoadedModManager.GetMod<ModSwitch>().CustomSettings.Attributes[mod].SteamOrigin)) {
+                ContentSourceUtility.DrawContentSource(r, source,
+                                                       source == ContentSource.LocalFolder
+                                                           ? (clickAction ?? (() => Process.Start(mod.RootDir.FullName)))
+                                                           : clickAction);
+            }
+            else {
+                var rect = new Rect(r.x, r.y + r.height / 2f - 12f, 24f, 24f);
+                GUI.DrawTexture(rect, Assets.SteamCopy);
+                Widgets.DrawHighlightIfMouseover(rect);
+
+                TooltipHandler.TipRegion(rect, () => "Source".Translate() + ": " + LanguageKeys.keyed.ModSwitch_Source_SteamCopy.Translate(), (int) (r.x + r.y * 56161f));
+                if (Widgets.ButtonInvisible(rect, false)) Process.Start(mod.RootDir.FullName);
+            }
+            if (!mod.VersionCompatible) {
+                var r2 = new Rect(r.x + 4f, r.y + r.height / 2f - 12f + 4f, 20f, 20f);
+                GUI.DrawTexture(r2, Assets.WarningSmall);
+            }
+        }
+
+        public static void OnModsChanged() {
+            switch (ChangeAction) {
+                case ModsChangeAction.Restart:
+                    Find.WindowStack.Add(new Dialog_MessageBox("ModsChanged".Translate(), null, GenCommandLine.Restart, null, null, null, false));
+                    break;
+                default:
+                case ModsChangeAction.Ignore:
+                    break;
+                case ModsChangeAction.Query:
+                    if (!ModSwitch.IsRestartDefered)
+                        Find.WindowStack.Add(new Dialog_MessageBox(
+                                                 "ModsChanged".Translate(),
+                                                 LanguageKeys.keyed.ModSwitch_RestartRequired_Restart.Translate(),
+                                                 GenCommandLine.Restart,
+                                                 LanguageKeys.keyed.ModSwitch_RestartRequired_Defer.Translate(),
+                                                 DeferRestart,
+                                                 null,
+                                                 true));
+                    break;
+            }
+        }
+
+        private static void RestartRequiredHandler() {
+            Find.WindowStack.Add(
+                new Dialog_MessageBox(
+                    "ModsChanged".Translate(),
+                    null,
+                    GenCommandLine.Restart,
+                    null,
+                    null,
+                    null,
+                    false) {
+                               doCloseX = true
+                           }
+            );
+        }
+
+        private static void ShowLog(StringBuilder log, string title) {
+            Find.WindowStack.Add(new Dialog_MessageBox(log.ToString()) {
+                                                                           title = title
+                                                                       });
+        }
+
+        private static void SyncSteam(ModMetaData mod, string steamId, bool forceCopySettings) {
+            var log = new StringBuilder();
+            var mdOriginal = Helpers.GetMetadata(steamId);
+            CopyModLocal(mdOriginal, mod.Identifier, log, forceCopySettings, true);
+            UpdateSteamAttributes(mod.Identifier, mdOriginal, log);
+            Helpers.RebuildModsList();
+            ShowLog(log, LanguageKeys.keyed.ModSwitch_Sync.Translate());
+        }
+
         private static void UpdateSteamAttributes(string name, ModMetaData original, StringBuilder log) {
             if (!original.OnSteamWorkshop)
                 throw new ArgumentException();
 
             var ms = LoadedModManager.GetMod<ModSwitch>();
-            var attributes = ms[name];
+            var attributes = ms.CustomSettings.Attributes[name];
             attributes.SteamOrigin = original.Identifier;
-            attributes.SteamOriginTS = ms[original].LastUpdateTS;
+            attributes.SteamOriginTS = ms.CustomSettings.Attributes[original].LastUpdateTS;
 
             if (attributes.SteamOriginTS == null) {
                 log.AppendLine();
@@ -320,79 +337,38 @@ namespace DoctorVanGogh.ModSwitch {
             ms.WriteSettings();
         }
 
-        private static List<FloatMenuOption> CreateColorizationOptions(ModMetaData mod) {
-            return ColorMap.Select(kvp => new FloatMenuOption(
-                                       $@"{kvp.Key.Colorize(kvp.Value)} ({kvp.Key})",
-                                       () => LoadedModManager.GetMod<ModSwitch>()[mod].Color = kvp.Value)
-            ).ToList();
-        }
-
-        public enum ModsChangeAction {
-            Restart,
-            Ignore,
-            Query
-        }
-
-        public static void OnModsChanged() {
-            switch (_changeAction) {
-                case ModsChangeAction.Restart:
-                    Find.WindowStack.Add(new Dialog_MessageBox("ModsChanged".Translate(), null, GenCommandLine.Restart, null, null, null, false));
-                    break;
-                default:
-                case ModsChangeAction.Ignore:
-                    break;
-                case ModsChangeAction.Query:
-                    if (!ModSwitch.IsRestartDefered) {
-                        // dont need to ask if restart is already defered
-                        Find.WindowStack.Add(new Dialog_MessageBox(
-                            "ModsChanged".Translate(), 
-                            LanguageKeys.keyed.ModSwitch_RestartRequired_Restart.Translate(), 
-                            GenCommandLine.Restart,
-                            LanguageKeys.keyed.ModSwitch_RestartRequired_Defer.Translate(),
-                            DeferRestart, 
-                            null, 
-                            true));
-                    }
-                    break;
-            }
-        }
-
-        private static void DeferRestart() {
-            ModSwitch.IsRestartDefered = true;
-        }
-
 
         public static class Helpers {
-            public static string WrapTimestamp(long? timestamp) {
-                return timestamp != null ? Util.UnixTimeStampToDateTime(timestamp.Value).ToString("g") : $"<i>{LanguageKeys.keyed.ModSwitch_Sync_UnknownTimestamp.Translate()}</i>";
-            }
-
             public static string ExplainError(string label, string error) {
                 return $"{label} *{error}*";
-            }
-
-            public static ModMetaData GetMetadata(string identifier) {
-                return (ModMetaData) miGetModWithIdentifier.Invoke(null, new[] {identifier});
             }
 
             public static void ForceSteamWorkshopRequery() {
                 AccessTools.Method(typeof(WorkshopItems), @"RebuildItemsList").Invoke(null, null);
             }
 
-            public static void RebuildModsList() {
-                AccessTools.Method(typeof(ModLister), @"RebuildModList").Invoke(null, null);
+            public static ModMetaData GetMetadata(string identifier) {
+                return (ModMetaData) miGetModWithIdentifier.Invoke(null, new[] {identifier});
             }
 
-            public static void UpdateSteamTS(PublishedFileId_t pfid, uint ts) {
-                LoadedModManager.GetMod<ModSwitch>()[pfid.ToString()].LastUpdateTS = ts;
+            public static void RebuildModsList() {
+                AccessTools.Method(typeof(ModLister), @"RebuildModList").Invoke(null, null);
             }
 
             public static Color SetGUIColorMod(ModMetaData mod) {
                 var current = GUI.contentColor;
 
-                GUI.color = LoadedModManager.GetMod<ModSwitch>()[mod].Color ?? Color.white;
+                GUI.color = LoadedModManager.GetMod<ModSwitch>().CustomSettings.Attributes[mod].Color ?? Color.white;
 
                 return current;
+            }
+
+            public static void UpdateSteamTS(PublishedFileId_t pfid, uint ts) {
+                LoadedModManager.GetMod<ModSwitch>().CustomSettings.Attributes[pfid.ToString()].LastUpdateTS = ts;
+            }
+
+            public static string WrapTimestamp(long? timestamp) {
+                return timestamp != null ? Util.UnixTimeStampToDateTime(timestamp.Value).ToString("g") : $"<i>{LanguageKeys.keyed.ModSwitch_Sync_UnknownTimestamp.Translate()}</i>";
             }
         }
 

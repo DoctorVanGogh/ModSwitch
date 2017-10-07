@@ -1,10 +1,8 @@
-﻿using RimWorld;
-using UnityEngine;
+﻿using UnityEngine;
 using Verse;
 using Verse.Sound;
 
 namespace DoctorVanGogh.ModSwitch {
-
     [StaticConstructorOnStartup]
     public static class ExtraWidgets {
         public static readonly Texture2D ButtonBGAtlas;
@@ -18,7 +16,7 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         public static bool ButtonImage(Rect butRect, Texture2D tex, bool doMouseoverSound = false, TipSignal? tipSignal = null, Rect? texRect = null) {
-            Texture2D atlas = ButtonBGAtlas;
+            var atlas = ButtonBGAtlas;
             if (Mouse.IsOver(butRect)) {
                 atlas = ButtonBGAtlasMouseover;
                 if (Input.GetMouseButton(0)) atlas = ButtonBGAtlasClick;
