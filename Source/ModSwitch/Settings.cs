@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -136,7 +137,7 @@ namespace DoctorVanGogh.ModSwitch {
                                                                   true
                                                               ) {
                                                                     absorbInputAroundWindow = true,
-                                                                    closeOnEscapeKey = true,
+                                                                    closeOnClickedOutside = true,
                                                                     doCloseX = true
                                                                 }))
                                                   }));
@@ -164,8 +165,9 @@ namespace DoctorVanGogh.ModSwitch {
             int reorderableGroup = ReorderableWidget.NewGroup(
                 (from, to) => {
                     ReorderModSet(from, to);
-                    SoundDefOf.TickHigh.PlayOneShotOnCamera(null);
-                });
+                    SoundDefOf.DragSlider.PlayOneShotOnCamera(null);
+                },
+               ReorderableDirection.Vertical );
 
             // render each row
             foreach (ModSet entry in Sets) {

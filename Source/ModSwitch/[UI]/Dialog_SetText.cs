@@ -15,7 +15,7 @@ namespace DoctorVanGogh.ModSwitch {
 
             forcePause = true;
             doCloseX = true;
-            closeOnEscapeKey = true;
+            closeOnClickedOutside = true;
             absorbInputAroundWindow = true;
             closeOnClickedOutside = true;
 
