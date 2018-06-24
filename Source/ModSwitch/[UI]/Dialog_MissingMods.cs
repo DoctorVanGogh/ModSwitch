@@ -28,7 +28,7 @@ namespace DoctorVanGogh.ModSwitch {
 
             forcePause = true;
             absorbInputAroundWindow = true;
-            closeOnEscapeKey = false;
+            closeOnClickedOutside = false;
             creationRealTime = RealTime.LastRealTime;
             onlyOneOfTypeAllowed = false;
         }

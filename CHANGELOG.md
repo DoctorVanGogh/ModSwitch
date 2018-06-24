@@ -1,3 +1,7 @@
+# Version 1.5
+
+- Built for Rimworld 1.0
+
 # Version 1.3
 
 - New option: Import ModSet from savegame

@@ -182,7 +182,7 @@ namespace DoctorVanGogh.ModSwitch {
 
                     string label = LanguageKeys.keyed.ModSwitch_Sync.Translate();
 
-                    FloatMenuOption option = new FloatMenuOption();
+                    FloatMenuOption option = new FloatMenuOption(null, null);
                     if (tsCopy != null && tsCopy == tsSteam) {
                         option.Label = Helpers.ExplainError(label, LanguageKeys.keyed.ModSwitch_Sync_Identical.Translate());
                     } else {
@@ -202,7 +202,7 @@ namespace DoctorVanGogh.ModSwitch {
                                                     LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate(),
                                                     false) {
                                                                doCloseX = true,
-                                                               closeOnEscapeKey = true
+                                                               closeOnClickedOutside = true
                                                            });
                                         };
                     }
