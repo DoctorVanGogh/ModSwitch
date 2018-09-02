@@ -1,6 +1,6 @@
 # Version 1.5
 
-- Built for Rimworld 1.0
+- Built for Rimworld A19
 
 # Version 1.3
 

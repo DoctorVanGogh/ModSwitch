@@ -1,4 +1,4 @@
-[![RimWorld 1.0 unstable](https://img.shields.io/badge/RimWorld-1.0%20unstable-yellow.svg)](http://rimworldgame.com/) [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![RimWorld A19](https://img.shields.io/badge/RimWorld-A19-yellow.svg)](http://rimworldgame.com/) [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 # ModSwitch
 
