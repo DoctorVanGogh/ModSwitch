@@ -1,3 +1,7 @@
+# Version 1.5.1
+
+- Upgrade Harmony to 1.2.01
+
 # Version 1.5
 
 - Built for Rimworld A19
