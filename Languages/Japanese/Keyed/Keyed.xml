@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <ModSwitch>ModSwitch</ModSwitch>
+
+  <ModSwitch.Tip.Create>現在のMODセットを保存</ModSwitch.Tip.Create>
+  <ModSwitch.Tip.Delete>削除</ModSwitch.Tip.Delete>
+  <ModSwitch.Tip.Rename>改名</ModSwitch.Tip.Rename>
+  <ModSwitch.Tip.Settings>設定</ModSwitch.Tip.Settings>
+  <ModSwitch.Tip.Undo>元に戻す</ModSwitch.Tip.Undo>
+  <ModSwitch.Tip.Apply>MODセット適用</ModSwitch.Tip.Apply>
+
+  <ModSwitch.CreateNew>新規作成</ModSwitch.CreateNew>
+  <ModSwitch.OverwritExisting>上書きします...</ModSwitch.OverwritExisting>
+  <ModSwitch.OverwritExisting.Confirm><![CDATA[{0}を本当に上書きしますか?
+
+<i>(このオプションを選択したときにSHIFTを押し続けると、このダイアログは表示されません。)</i>]]></ModSwitch.OverwritExisting.Confirm>
+
+  <ModSwitch.SetOrigin>Steamオリジナルを設定...</ModSwitch.SetOrigin>
+  <ModSwitch.SetOrigin.Confirm><![CDATA[Steamオリジナルの{0}を手動で{1}に設定しますか?
+	
+<b>警告:</b> Steamオリジナルのソースを間違った値に設定すると、予期しない結果につながります。ローカルコピーされたMODを更新されたSteamバージョンに同期する必要があります。]]></ModSwitch.SetOrigin.Confirm>
+
+  <ModSwitch.Import>インポート</ModSwitch.Import>
+  <ModSwitch.Import.Savegame>セーブゲーム</ModSwitch.Import.Savegame>
+
+  <ModSwitch.ModSet.Mods>{0}アイテム</ModSwitch.ModSet.Mods>
+
+  <ModSwitch.ModSet.ConfirmDelete>本当に{0}を削除しますか？</ModSwitch.ModSet.ConfirmDelete>
+
+  <ModSwitch.Confirmation.Title>確認が必要</ModSwitch.Confirmation.Title>
+
+  <ModSwitch.MissingMods.Title>不足しているMOD</ModSwitch.MissingMods.Title>
+  <ModSwitch.MissingMods>{0}の一部のMODは現在インストールされていません:</ModSwitch.MissingMods>
+  <ModSwitch.MissingMods.Choice.Ignore>無視する</ModSwitch.MissingMods.Choice.Ignore>
+  <ModSwitch.MissingMods.Choice.Ignore.Tip>不足しているMODを無視します。</ModSwitch.MissingMods.Choice.Ignore.Tip>
+  <ModSwitch.MissingMods.Choice.Workshop>中止してワークショップを開く</ModSwitch.MissingMods.Choice.Workshop>
+  <ModSwitch.MissingMods.Choice.Workshop.Tip>このままMODセットを適用しないでください。代わりにSteamワークショップから該当するModを入手してみてください。それらのMODは、削除されていて利用できないかもしれません。</ModSwitch.MissingMods.Choice.Workshop.Tip>
+  <ModSwitch.MissingMods.Choice.Remove>セットから削除</ModSwitch.MissingMods.Choice.Remove>
+  <ModSwitch.MissingMods.Choice.Remove.Tip>不足しているMODを保存したMODセットから削除します。</ModSwitch.MissingMods.Choice.Remove.Tip>
+
+  <ModSwitch.Create.DefaultName>新規MODセット</ModSwitch.Create.DefaultName>
+
+  <ModSwitch.Import.Text>インポートしたセットを追加するか、既存のMODセットをすべて置き換えますか？</ModSwitch.Import.Text>
+  <ModSwitch.Import.Choice.Replace>置き換え</ModSwitch.Import.Choice.Replace>
+  <ModSwitch.Import.Choice.Append>追加</ModSwitch.Import.Choice.Append>
+
+  <ModSwitch.Color>色...</ModSwitch.Color>
+
+  <ModSwitch.Color.white>白</ModSwitch.Color.white>
+  <ModSwitch.Color.black>黒</ModSwitch.Color.black>
+  <ModSwitch.Color.gray>灰</ModSwitch.Color.gray>
+  <ModSwitch.Color.red>赤</ModSwitch.Color.red>
+  <ModSwitch.Color.green>緑</ModSwitch.Color.green>
+  <ModSwitch.Color.blue>青</ModSwitch.Color.blue>
+  <ModSwitch.Color.magenta>赤紫</ModSwitch.Color.magenta>
+  <ModSwitch.Color.cyan>青緑</ModSwitch.Color.cyan>
+  <ModSwitch.Color.yellow>黄</ModSwitch.Color.yellow>
+
+  <ModSwitch.CopyLocal>ローカルコピーを作成する</ModSwitch.CopyLocal>
+
+  <ModSwitch.Error.SteamNotRunning>スチームが現在稼働していないか、利用不可能</ModSwitch.Error.SteamNotRunning>
+
+  <ModSwitch.ExistingSettings>新しい名前{0}でMODセットが保存されています。既存のセットを上書きするか、セットのコピーをスキップすることができます。</ModSwitch.ExistingSettings>
+  <ModSwitch.ExistingSettings.Choice.Overwrite>上書き</ModSwitch.ExistingSettings.Choice.Overwrite>
+  <ModSwitch.ExistingSettings.Choice.Skip>スキップ</ModSwitch.ExistingSettings.Choice.Skip>
+
+  <ModSwitch.Error.InvalidChars>無効な文字が含まれています</ModSwitch.Error.InvalidChars>
+  <ModSwitch.Error.TargetExists>その名前は既に存在します</ModSwitch.Error.TargetExists>
+  <ModSwitch.Error.NotValid>有効なMODパスではありません</ModSwitch.Error.NotValid>
+
+  <ModSwitch.CopyLocal.Result.Copy>{0}から{1}へコピーされました。</ModSwitch.CopyLocal.Result.Copy>&gt;
+  <ModSwitch.CopyLocal.Result.Settings>{0}の設定ファイルがコピーされました。</ModSwitch.CopyLocal.Result.Settings>&gt;
+  <ModSwitch.CopyLocal.Result.Skipped>設定のコピーをスキップしました。</ModSwitch.CopyLocal.Result.Skipped>&gt;
+  <ModSwitch.CopyLocal.Result.TimestampUnknown><![CDATA[<b>警告</b>: SteamオリジナルMODの最終アップロード時間が不明です-同期サポートが低下します。]]></ModSwitch.CopyLocal.Result.TimestampUnknown>
+
+
+  <ModSwitch.MoveTo>移動する...</ModSwitch.MoveTo>
+  <ModSwitch.MoveTo.Top>上</ModSwitch.MoveTo.Top>
+  <ModSwitch.MoveTo.Bottom>下</ModSwitch.MoveTo.Bottom>
+
+  <ModSwitch.OpenFolder>フォルダを開く</ModSwitch.OpenFolder>
+
+  <ModSwitch.Sync>Steamオリジナルとの同期</ModSwitch.Sync>
+  <ModSwitch.Sync.Identical>同じです</ModSwitch.Sync.Identical>
+  <ModSwitch.Sync.Message><![CDATA[MOD:{0}は現在のSteamバージョンに更新されます。
+
+  {1} - ローカルコピー側のSteamワークショップ最終更新日
+  {2} - 現在のSteamワークショップ最終更新日
+
+ローカルコピー側にある既存の設定を維持しますか？それともSteamの最終バージョンに置き換えますか？]]></ModSwitch.Sync.Message>
+  <ModSwitch.Sync.UnknownTimestamp>更新日不明</ModSwitch.Sync.UnknownTimestamp>
+  <ModSwitch.Sync.Choice.KeepSettings>既存を維持</ModSwitch.Sync.Choice.KeepSettings>
+  <ModSwitch.Sync.Choice.CopySteam>SteamVerと置き換える</ModSwitch.Sync.Choice.CopySteam>
+
+  <ModSwitch.Search.Watermark>検索...</ModSwitch.Search.Watermark>
+
+  <ModSwitch.Source.SteamCopy>Steamのローカルコピー</ModSwitch.Source.SteamCopy>
+
+  <ModSwitch.RestartRequired.Restart>再起動</ModSwitch.RestartRequired.Restart>
+  <ModSwitch.RestartRequired.Defer>後で</ModSwitch.RestartRequired.Defer>
+
+</LanguageData>
