@@ -99,4 +99,5 @@ Do you want to keep your existing settings from the local copy or replace them w
 	<ModSwitch.RestartRequired.Restart>Restart</ModSwitch.RestartRequired.Restart>
 	<ModSwitch.RestartRequired.Defer>Later</ModSwitch.RestartRequired.Defer>
 
+	<ModSwitch.TreeView.Active>Active</ModSwitch.TreeView.Active>
 </LanguageData>
