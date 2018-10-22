@@ -1,3 +1,7 @@
+# Version 1.6.0
+
+- Added mods grouping by target rimworld version
+
 # Version 1.5.2
 
 - Added japanese translation by Proxyer
