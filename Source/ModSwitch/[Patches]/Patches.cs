@@ -79,9 +79,7 @@ namespace DoctorVanGogh.ModSwitch {
             [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow", new[] {typeof(Listing_Standard), typeof(ModMetaData), typeof(int), typeof(int)})]
             public class SupressNonMatchingFilteredRows {
                 public static bool Prefix(ModMetaData mod) {
-                    if (ModsConfigUI.Search.searchTerm != string.Empty)
-                        return mod.Name.IndexOf(ModsConfigUI.Search.searchTerm, StringComparison.CurrentCultureIgnoreCase) != -1;
-                    return true;
+                    return ModsConfigUI.Search.MatchCriteria(mod.Name) || ModsConfigUI.Search.MatchCriteria(mod.TargetVersion);
                 }
             }
 
@@ -345,6 +343,444 @@ namespace DoctorVanGogh.ModSwitch {
 
 
                 return instructions;
+            }
+        }
+
+        /// <summary>
+        /// Bunch of patches providing Tree View of mods, grouped by version
+        /// 
+        /// Add tree view to mod list in Page_ModsConfig.
+        /// The expected layout should look like:
+        ///     - RimWorld 1.0
+        ///         Core
+        ///         HugsLib
+        ///     + RimWorld B19
+        /// </summary>
+        public static class VersionTreeViewPatches
+        {
+            /// <summary>
+            /// Surround original iteration of DoModRow with version tree nodes.
+            /// </summary>
+            [HarmonyPatch(typeof(Page_ModsConfig), nameof(Page_ModsConfig.DoWindowContents))]
+            public static class VersionIterationLoop
+            {
+                /* ===Code Instruction Lookup===
+                 * 
+                 * ==Original fragment==
+                 * foreach (ModMetaData current in this.ModsInListOrder())
+                 * {
+                 *      this.DoModRow(listing_Standard, current, num2, reorderableGroup);
+                 *      num2++;
+                 * }
+                 * 
+                 * ==Decomplied ILCode==
+                 * ldarg.0 |  | no labels
+                 * call | IEnumerable`1 ModsInListOrder() | no labels
+                 * callvirt | IEnumerator`1 GetEnumerator() | no labels
+                 * stloc.s | System.Collections.Generic.IEnumerator`1[Verse.ModMetaData] (12) | no labels
+                 * br | Label 4 | no labels
+                 * ldloc.s | System.Collections.Generic.IEnumerator`1[Verse.ModMetaData] (12) | Label 5
+                 * callvirt | Verse.ModMetaData get_Current() | no labels
+                 * stloc.s | Verse.ModMetaData (11) | no labels
+                 * 
+                 * ldarg.0 |  | no labels
+                 * ldloc.s | Verse.Listing_Standard (8) | no labels
+                 * ldloc.s | Verse.ModMetaData (11) | no labels
+                 * ldloc.s | System.Int32 (10) | no labels
+                 * ldloc.s | System.Int32 (9) | no labels
+                 * call | Void DoModRow(Verse.Listing_Standard, Verse.ModMetaData, Int32, Int32) | no labels
+                 * ldloc.s | System.Int32 (10) | no labels
+                 * ldc.i4.1 |  | no labels
+                 * add |  | no labels
+                 * stloc.s | System.Int32 (10) | no labels
+                 * 
+                 * ldloc.s | System.Collections.Generic.IEnumerator`1[Verse.ModMetaData] (12) | Label 4 
+                 * callvirt | Boolean MoveNext() | no labels
+                 * brtrue | Label 5 | no labels
+                 * leave | Label 6 | no labels
+                 * ldloc.s | System.Collections.Generic.IEnumerator`1[Verse.ModMetaData] (12) | no labels
+                 * brfalse | Label 7 | no labels
+                 * ldloc.s | System.Collections.Generic.IEnumerator`1[Verse.ModMetaData] (12) | no labels
+                 * callvirt | Void Dispose() | no labels
+                 * endfinally |  | Label 7
+                 * 
+                 * call | Int32 get_DownloadingItemsCount() | Label 6 //<- next code instruction with label to branch
+                 */
+
+                public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr, ILGenerator ilGen)
+                {
+                    List<CodeInstruction> instructions = new List<CodeInstruction>(instr);
+
+                    int dummy;
+                    int startIndex, endIndex;
+                    int doModRowIndex;
+
+                    #region Find start of "foreach (ModMetaData current in this.ModsInListOrder()"
+                    OpCode[] opCodes1 =
+                    {
+                        OpCodes.Ldarg_0,
+                        OpCodes.Call,
+                        OpCodes.Callvirt,
+                        OpCodes.Stloc_S,
+                        OpCodes.Br,
+                    };
+                    string[] operands1 =
+                    {
+                        "",
+                        "IEnumerable`1 ModsInListOrder()",
+                        "IEnumerator`1 GetEnumerator()",
+                        "System.Collections.Generic.IEnumerator`1[Verse.ModMetaData]",
+                        "System.Reflection.Emit.Label",
+                    };
+                    if (!HarmonyHelper.FindFragment(instructions, opCodes1, operands1, out startIndex, out dummy))
+                        throw new Exception("Didn't find \"foreach (ModMetaData current in this.ModsInListOrder())\" fragment");
+                    #endregion
+
+                    #region Find end of foreach
+                    OpCode[] opCodes2 =
+                    {
+                        OpCodes.Ldloc_S,
+                        OpCodes.Callvirt,
+                        OpCodes.Brtrue,
+                        OpCodes.Leave,
+                        OpCodes.Ldloc_S,
+                        OpCodes.Brfalse,
+                        OpCodes.Ldloc_S,
+                        OpCodes.Callvirt,
+                        OpCodes.Endfinally,
+                    };
+                    string[] operands2 =
+                    {
+                        "System.Collections.Generic.IEnumerator`1[Verse.ModMetaData",
+                        "Boolean MoveNext()",
+                        "System.Reflection.Emit.Label",
+                        "System.Reflection.Emit.Label",
+                        "System.Collections.Generic.IEnumerator`1[Verse.ModMetaData]",
+                        "System.Reflection.Emit.Label",
+                        "System.Collections.Generic.IEnumerator`1[Verse.ModMetaData]",
+                        "Void Dispose()",
+                        "",
+                    };
+                    if (!HarmonyHelper.FindFragment(instructions, opCodes2, operands2, out dummy, out endIndex))
+                        throw new Exception("Didn't find \"foreach (ModMetaData current in this.ModsInListOrder())\" fragment");
+                    #endregion
+
+                    #region Find "this.DoModRow(listing_Standard, current, num2, reorderableGroup);"
+                    OpCode[] opCodes3 =
+                    {
+                        OpCodes.Ldarg_0,
+                        OpCodes.Ldloc_S,
+                        OpCodes.Ldloc_S,
+                        OpCodes.Ldloc_S,
+                        OpCodes.Ldloc_S,
+                        OpCodes.Call,
+                    };
+                    string[] operands3 =
+                    {
+                        "",
+                        "Verse.Listing_Standard",
+                        "Verse.ModMetaData",
+                        "System.Int32",
+                        "System.Int32",
+                        "Void DoModRow(Verse.Listing_Standard, Verse.ModMetaData, Int32, Int32)",
+                    };
+                    if (!HarmonyHelper.FindFragment(instructions, opCodes3, operands3, out dummy, out doModRowIndex))
+                        throw new Exception("Didn't find \"this.DoModRow(listing_Standard, current, num2, reorderableGroup);\" fragment");
+                    #endregion
+
+                    var listing_standard = instructions[doModRowIndex - 4].operand;
+                    var num2 = instructions[doModRowIndex - 2].operand;
+                    var reorderableGroup = instructions[doModRowIndex - 1].operand;
+
+                    for (int i = startIndex; i <= endIndex; i++)
+                        instructions.RemoveAt(startIndex);
+
+                    int index = startIndex;
+                    instructions.Insert(index++, new CodeInstruction(OpCodes.Ldarg_0));
+                    instructions.Insert(index++, new CodeInstruction(OpCodes.Ldloc_S, listing_standard));
+                    instructions.Insert(index++, new CodeInstruction(OpCodes.Ldloc_S, num2));
+                    instructions.Insert(index++, new CodeInstruction(OpCodes.Ldloc_S, reorderableGroup));
+                    instructions.Insert(index++, new CodeInstruction(OpCodes.Call, typeof(VersionIterationLoop).GetMethod(nameof(NewFragment))));
+                    instructions.Insert(index++, new CodeInstruction(OpCodes.Stloc_S, num2));
+
+                    return instructions;
+                }
+
+                /// <summary>
+                /// New fragment, replacing old one (foreach loop)
+                /// </summary>
+                /// <returns>new num2 value</returns>
+                public static int NewFragment(Page_ModsConfig page, Listing_Standard listing_Standard, int num2, int reorderableGroup)
+                {
+                    InitVersionContainers(page);
+
+                    #region Loaded Mods
+                    if (VersionContainerMatchingSearchCriteria("ModSwitch.TreeView.Active".Translate(), LoadedModsContainer))
+                    {
+                        var rect = listing_Standard.GetRect(26f);
+                        DrawVersionContainer(rect, "ModSwitch.TreeView.Active".Translate(), LoadedModsContainer);
+                        if (!LoadedModsContainer.Collapsed)
+                        {
+                            DrawModsEntries(listing_Standard, LoadedModsContainer.Mods, page, reorderableGroup);
+                        }
+                    }
+                    #endregion
+
+                    #region Other Mods
+                    var versionInOrder = new List<string>(VersionDictonary.Keys);
+                    versionInOrder.Sort(new Comparison<string>((x, y) => CompareVersion(y, x)));
+                    foreach (var version in versionInOrder)
+                    {
+                        if (!VersionContainerMatchingSearchCriteria(version, VersionDictonary[version]))
+                            continue;
+                        var rect = listing_Standard.GetRect(26f);
+                        DrawVersionContainer(rect, version, VersionDictonary[version]);
+                        if (!VersionDictonary[version].Collapsed)
+                        {
+                            DrawModsEntries(listing_Standard, VersionDictonary[version].Mods, page, reorderableGroup);
+                        }
+                    }
+                    #endregion
+
+                    return num2;
+                }
+
+                private static void DrawVersionContainer(Rect bounds, string label, VersionContainer container)
+                {
+                    float height = Text.CurFontStyle.lineHeight;
+                    Rect textureRect = new Rect(bounds.xMin, bounds.yMin + 2, height, height);
+                    Rect labelRect = new Rect(bounds.xMin + height + 5, bounds.yMin, bounds.width - height, bounds.height);
+
+                    Texture texture;
+                    if (container.Collapsed)
+                        texture = Assets.Collapsed;
+                    else
+                        texture = Assets.Expanded;
+
+                    //Widgets.DrawHighlight(rect);
+                    Widgets.Label(labelRect, label);
+                    Widgets.DrawTextureFitted(textureRect, texture, 1.0f);
+
+                    if (Widgets.ButtonInvisible(bounds, false))
+                        container.Collapsed = !container.Collapsed;
+                }
+
+                private static void DrawModsEntries(Listing_Standard listing_Standard, List<ModMetaData> mods, Page_ModsConfig page, int reorderableGroup)
+                {
+                    int gap = 30;
+                    GUI.BeginGroup(new Rect(gap, 0, listing_Standard.ColumnWidth, listing_Standard.CurHeight + 26f * mods.Count));
+                    listing_Standard.ColumnWidth -= gap;
+                    for (int i = 0; i < mods.Count; i++)
+                    {
+                        var doModRow = typeof(Page_ModsConfig).GetMethod("DoModRow", BindingFlags.NonPublic | BindingFlags.Instance);
+                        doModRow.Invoke(page, new object[] { listing_Standard, mods[i], i, reorderableGroup });
+                    }
+                    listing_Standard.ColumnWidth += gap;
+                    GUI.EndGroup();
+                }
+
+                private class VersionContainer
+                {
+                    public List<ModMetaData> Mods { get; set; }
+                    public bool Collapsed { get; set; }
+                    public VersionContainer() { Mods = new List<ModMetaData>(); Collapsed = true; }
+                }
+
+                private static void InitVersionContainers(Page_ModsConfig page)
+                {
+                    if (LoadedModsContainer == null)
+                        LoadedModsContainer = new VersionContainer() { Collapsed = false };
+                    else
+                        LoadedModsContainer.Mods.Clear();
+                    if (VersionDictonary == null)
+                        VersionDictonary = new Dictionary<string, VersionContainer>();
+                    else
+                        foreach (var version in VersionDictonary.Keys)
+                            VersionDictonary[version].Mods.Clear();
+
+
+                    var modsInListOrder = typeof(Page_ModsConfig).GetMethod("ModsInListOrder", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(page, new object[] { }) as IEnumerable<ModMetaData>;
+
+                    foreach (ModMetaData current in modsInListOrder)
+                    {
+                        if (current.Active)
+                        {
+                            LoadedModsContainer.Mods.Add(current);
+                        }
+                        else
+                        {
+                            string version = HarmonyHelper.ShortVerisonString(current.TargetVersion);
+                            if (!VersionDictonary.ContainsKey(version))
+                                VersionDictonary.Add(version, new VersionContainer());
+                            VersionDictonary[version].Mods.Add(current);
+                        }
+                    }
+                }
+
+                private static bool VersionContainerMatchingSearchCriteria(string name, VersionContainer container)
+                {
+                    if (ModsConfigUI.Search.searchTerm != null && !ModsConfigUI.Search.MatchCriteria(name))
+                    {
+                        // Find at least one matching item
+                        foreach (var mod in container.Mods)
+                            // It can match custom version like 1.0.13
+                            if (ModsConfigUI.Search.MatchCriteria(mod.Name) || ModsConfigUI.Search.MatchCriteria(mod.TargetVersion))
+                                return true;
+
+                        return false;
+                    }
+                    return true;
+                }
+
+                private static int CompareVersion(string x, string y)
+                {
+                    var xFragments = x.Split('.');
+                    var yFragments = y.Split('.');
+
+                    for (int i = 0; i < xFragments.Length || i < yFragments.Length; i++)
+                    {
+                        if (i == xFragments.Length)
+                            return -1;
+                        if (i == yFragments.Length)
+                            return 1;
+
+                        try
+                        {
+                            int xValue = int.Parse(xFragments[i]);
+                            int yValue = int.Parse(yFragments[i]);
+                            if (xValue != yValue)
+                                return xValue - yValue;
+                        }
+                        catch (FormatException e) { }
+                    }
+                    return 0;
+                }
+
+                private static VersionContainer LoadedModsContainer { get; set; }
+
+                private static Dictionary<string, VersionContainer> VersionDictonary { get; set; }
+            }
+
+            /// <summary>
+            /// This patch extend scroll view height, due to additional VersionContainers labels
+            /// It need to add 26 pixels for every VersionContainer label
+            /// </summary>
+            [HarmonyPatch(typeof(Page_ModsConfig), nameof(Page_ModsConfig.DoWindowContents))]
+            public static class ExpandScrollViewHeight
+            {
+                /* ===Code Instruction Lookup===
+                 * 
+                 * ==Original fragment==
+                 * float height = (float)ModLister.AllInstalledMods.Count<ModMetaData>() * 26f + 8f;
+                 * 
+                 * ==Decompiled ILCode==
+                 * call | IEnumerable`1 get_AllInstalledMods() | no labels
+                 * call | Int32 Count[ModMetaData](IEnumerable`1) | no labels
+                 * conv.r4 |  | no labels
+                 * ldc.r4 | 26 | no labels
+                 * mul |  | no labels
+                 * ldc.r4 | 8 | no labels
+                 * add |  | no labels
+                 * stloc.s | System.Single (5) | no labels
+                 * 
+                 */
+
+                public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr, ILGenerator ilGen)
+                {
+                    List<CodeInstruction> instructions = new List<CodeInstruction>(instr);
+
+                    int dummy, endIndex;
+
+                    #region Find end of "float height = (float)ModLister.AllInstalledMods.Count<ModMetaData>() * 26f + 8f;"
+                    OpCode[] opCodes1 =
+                    {
+                        OpCodes.Call,
+                        OpCodes.Call,
+                        OpCodes.Conv_R4,
+                        OpCodes.Ldc_R4,
+                        OpCodes.Mul,
+                        OpCodes.Ldc_R4,
+                        OpCodes.Add,
+                        OpCodes.Stloc_S,
+                    };
+                    string[] operands1 =
+                    {
+                        "IEnumerable`1 get_AllInstalledMods()",
+                        "Int32 Count[ModMetaData](IEnumerable`1)",
+                        "",
+                        "26",
+                        "",
+                        "8",
+                        "",
+                        "System.Single",
+                    };
+                    if (!HarmonyHelper.FindFragment(instructions, opCodes1, operands1, out dummy, out endIndex))
+                        throw new Exception("Didn't find \"foreach (ModMetaData current in this.ModsInListOrder())\" fragment");
+                    #endregion
+
+                    var height = instructions[endIndex].operand;
+
+                    int index = endIndex + 1;
+                    instructions.Insert(index++, new CodeInstruction(OpCodes.Ldloc_S, height));
+                    instructions.Insert(index++, new CodeInstruction(OpCodes.Call, typeof(ExpandScrollViewHeight).GetMethod(nameof(GetHeightToAdd))));
+                    instructions.Insert(index++, new CodeInstruction(OpCodes.Add));
+                    instructions.Insert(index++, new CodeInstruction(OpCodes.Stloc_S, height));
+
+                    return instructions;
+                }
+
+                public static float GetHeightToAdd()
+                {
+                    var versions = new List<string>();
+                    foreach (var mod in ModLister.AllInstalledMods)
+                    {
+                        string version = HarmonyHelper.ShortVerisonString(mod.TargetVersion);
+                        if (!versions.Contains(version))
+                            versions.Add(version);
+                    }
+
+                    return 26f * versions.Count;
+                }
+            }
+
+            public static class HarmonyHelper
+            {
+                public static bool FindFragment(List<CodeInstruction> instructions, OpCode[] opCodes, String[] operands, out int startIndex, out int endIndex)
+                {
+                    if (opCodes.Length != operands.Length)
+                        throw new Exception("Arguments does not match requirments");
+
+                    int step = 0;
+                    int finalStep = opCodes.Length;
+                    for (int i = 0; i < instructions.Count; i++)
+                    {
+                        var instr = instructions[i];
+
+                        bool matchingOpCodes = instr.opcode == opCodes[step];
+                        bool noOperands = instr.operand == null || string.IsNullOrEmpty(operands[step]);
+                        bool matchingOperands = instr.operand != null && instr.operand.ToString().Contains(operands[step]);
+
+                        if (matchingOpCodes && (noOperands || matchingOperands))
+                            step++;
+                        else
+                            step = 0;
+
+                        if (step == finalStep)
+                        {
+                            startIndex = i - step + 1;
+                            endIndex = i;
+                            return true;
+                        }
+                    }
+                    startIndex = -1;
+                    endIndex = -1;
+                    return false;
+                }
+
+                public static string ShortVerisonString(string targetVersion)
+                {
+                    return VersionControl.MajorFromVersionString(targetVersion).ToString() + "." + VersionControl.MinorFromVersionString(targetVersion).ToString();
+                }
             }
         }
     }

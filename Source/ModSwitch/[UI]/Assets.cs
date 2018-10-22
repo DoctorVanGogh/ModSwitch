@@ -18,6 +18,8 @@ namespace DoctorVanGogh.ModSwitch {
         public static readonly Texture2D DragHash;
         public static readonly Texture2D WarningSmall;
         public static readonly Texture2D Debug;
+        public static readonly Texture2D Collapsed;
+        public static readonly Texture2D Expanded;
 
         static Assets() {
             Edit = ContentFinder<Texture2D>.Get("UI/Edit", true);
@@ -32,6 +34,8 @@ namespace DoctorVanGogh.ModSwitch {
             SteamCopy = ContentFinder<Texture2D>.Get("UI/ContentSources/SteamCopy", true);
             DragHash = ContentFinder<Texture2D>.Get("UI/Buttons/DragHash", true);
             WarningSmall = ContentFinder<Texture2D>.Get("UI/Warning-small", true);
+            Collapsed = ContentFinder<Texture2D>.Get("UI/Buttons/Dev/Reveal", true);
+            Expanded = ContentFinder<Texture2D>.Get("UI/Buttons/Dev/Collapse", true);
         }
     }
 }
