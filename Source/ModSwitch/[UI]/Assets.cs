@@ -34,8 +34,8 @@ namespace DoctorVanGogh.ModSwitch {
             SteamCopy = ContentFinder<Texture2D>.Get("UI/ContentSources/SteamCopy", true);
             DragHash = ContentFinder<Texture2D>.Get("UI/Buttons/DragHash", true);
             WarningSmall = ContentFinder<Texture2D>.Get("UI/Warning-small", true);
-            Collapsed = ContentFinder<Texture2D>.Get("UI/Collapsed", true);
-            Expanded = ContentFinder<Texture2D>.Get("UI/Expanded", true);
+            Collapsed = ContentFinder<Texture2D>.Get("UI/Buttons/Dev/Reveal", true);
+            Expanded = ContentFinder<Texture2D>.Get("UI/Buttons/Dev/Collapse", true);
         }
     }
 }

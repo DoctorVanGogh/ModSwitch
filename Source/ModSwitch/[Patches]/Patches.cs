@@ -79,9 +79,7 @@ namespace DoctorVanGogh.ModSwitch {
             [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow", new[] {typeof(Listing_Standard), typeof(ModMetaData), typeof(int), typeof(int)})]
             public class SupressNonMatchingFilteredRows {
                 public static bool Prefix(ModMetaData mod) {
-                    if (ModsConfigUI.Search.searchTerm != string.Empty)
-                        return mod.Name.IndexOf(ModsConfigUI.Search.searchTerm, StringComparison.CurrentCultureIgnoreCase) != -1;
-                    return true;
+                    return ModsConfigUI.Search.MatchCriteria(mod.Name) || ModsConfigUI.Search.MatchCriteria(mod.TargetVersion);
                 }
             }
 
@@ -519,18 +517,25 @@ namespace DoctorVanGogh.ModSwitch {
                         InitVersionContainers(page);
 
                         #region Loaded Mods
-                        var rect = listing_Standard.GetRect(26f);
-                        DrawVersionContainer(rect, "ModSwitch.TreeView.Active".Translate(), LoadedModsContainer);
-                        if (!LoadedModsContainer.Collapsed)
+                        if (VersionContainerMatchingSearchCriteria("ModSwitch.TreeView.Active".Translate(), LoadedModsContainer))
                         {
-                            DrawModsEntries(listing_Standard, LoadedModsContainer.Mods, page, reorderableGroup);
+                            var rect = listing_Standard.GetRect(26f);
+                            DrawVersionContainer(rect, "ModSwitch.TreeView.Active".Translate(), LoadedModsContainer);
+                            if (!LoadedModsContainer.Collapsed)
+                            {
+                                DrawModsEntries(listing_Standard, LoadedModsContainer.Mods, page, reorderableGroup);
+                            }
                         }
                         #endregion
 
                         #region Other Mods
-                        foreach (var version in VersionDictonary.Keys)
+                        var versionInOrder = new List<string>(VersionDictonary.Keys);
+                        versionInOrder.Sort(new Comparison<string>((x, y) => CompareVersion(y, x)));
+                        foreach (var version in versionInOrder)
                         {
-                            rect = listing_Standard.GetRect(26f);
+                            if (!VersionContainerMatchingSearchCriteria(version, VersionDictonary[version]))
+                                continue;
+                            var rect = listing_Standard.GetRect(26f);
                             DrawVersionContainer(rect, version, VersionDictonary[version]);
                             if (!VersionDictonary[version].Collapsed)
                             {
@@ -542,7 +547,7 @@ namespace DoctorVanGogh.ModSwitch {
                     else
                     {
                         var modsInListOrder = typeof(Page_ModsConfig).GetMethod("ModsInListOrder", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(page, new object[] { }) as IEnumerable<ModMetaData>;
-                        foreach(var current in modsInListOrder)
+                        foreach (var current in modsInListOrder)
                         {
                             var doModRow = typeof(Page_ModsConfig).GetMethod("DoModRow", BindingFlags.NonPublic | BindingFlags.Instance);
                             doModRow.Invoke(page, new object[] { listing_Standard, current, num2, reorderableGroup });
@@ -625,6 +630,44 @@ namespace DoctorVanGogh.ModSwitch {
                     }
                 }
 
+                private static bool VersionContainerMatchingSearchCriteria(string name, VersionContainer container)
+                {
+                    if (ModsConfigUI.Search.searchTerm != null && !ModsConfigUI.Search.MatchCriteria(name))
+                    {
+                        // Find at least one matching item
+                        foreach (var mod in container.Mods)
+                            // It can match custom version like 1.0.13
+                            if (ModsConfigUI.Search.MatchCriteria(mod.Name) || ModsConfigUI.Search.MatchCriteria(mod.TargetVersion))
+                                return true;
+
+                        return false;
+                    }
+                    return true;
+                }
+
+                private static int CompareVersion(string x, string y)
+                {
+                    var xFragments = x.Split('.');
+                    var yFragments = y.Split('.');
+
+                    for (int i = 0; i < xFragments.Length || i < yFragments.Length; i++)
+                    {
+                        if (i == xFragments.Length)
+                            return -1;
+                        if (i == yFragments.Length)
+                            return 1;
+
+                        try
+                        {
+                            int xValue = int.Parse(xFragments[i]);
+                            int yValue = int.Parse(yFragments[i]);
+                            if (xValue != yValue)
+                                return xValue - yValue;
+                        }
+                        catch (FormatException e) { }
+                    }
+                    return 0;
+                }
 
                 private static VersionContainer LoadedModsContainer { get; set; }
 
