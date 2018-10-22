@@ -512,48 +512,35 @@ namespace DoctorVanGogh.ModSwitch {
                 /// <returns>new num2 value</returns>
                 public static int NewFragment(Page_ModsConfig page, Listing_Standard listing_Standard, int num2, int reorderableGroup)
                 {
-                    if (string.IsNullOrEmpty(ModsConfigUI.Search.searchTerm))
-                    {
-                        InitVersionContainers(page);
+                    InitVersionContainers(page);
 
-                        #region Loaded Mods
-                        if (VersionContainerMatchingSearchCriteria("ModSwitch.TreeView.Active".Translate(), LoadedModsContainer))
-                        {
-                            var rect = listing_Standard.GetRect(26f);
-                            DrawVersionContainer(rect, "ModSwitch.TreeView.Active".Translate(), LoadedModsContainer);
-                            if (!LoadedModsContainer.Collapsed)
-                            {
-                                DrawModsEntries(listing_Standard, LoadedModsContainer.Mods, page, reorderableGroup);
-                            }
-                        }
-                        #endregion
-
-                        #region Other Mods
-                        var versionInOrder = new List<string>(VersionDictonary.Keys);
-                        versionInOrder.Sort(new Comparison<string>((x, y) => CompareVersion(y, x)));
-                        foreach (var version in versionInOrder)
-                        {
-                            if (!VersionContainerMatchingSearchCriteria(version, VersionDictonary[version]))
-                                continue;
-                            var rect = listing_Standard.GetRect(26f);
-                            DrawVersionContainer(rect, version, VersionDictonary[version]);
-                            if (!VersionDictonary[version].Collapsed)
-                            {
-                                DrawModsEntries(listing_Standard, VersionDictonary[version].Mods, page, reorderableGroup);
-                            }
-                        }
-                        #endregion
-                    }
-                    else
+                    #region Loaded Mods
+                    if (VersionContainerMatchingSearchCriteria("ModSwitch.TreeView.Active".Translate(), LoadedModsContainer))
                     {
-                        var modsInListOrder = typeof(Page_ModsConfig).GetMethod("ModsInListOrder", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(page, new object[] { }) as IEnumerable<ModMetaData>;
-                        foreach (var current in modsInListOrder)
+                        var rect = listing_Standard.GetRect(26f);
+                        DrawVersionContainer(rect, "ModSwitch.TreeView.Active".Translate(), LoadedModsContainer);
+                        if (!LoadedModsContainer.Collapsed)
                         {
-                            var doModRow = typeof(Page_ModsConfig).GetMethod("DoModRow", BindingFlags.NonPublic | BindingFlags.Instance);
-                            doModRow.Invoke(page, new object[] { listing_Standard, current, num2, reorderableGroup });
-                            num2++;
+                            DrawModsEntries(listing_Standard, LoadedModsContainer.Mods, page, reorderableGroup);
                         }
                     }
+                    #endregion
+
+                    #region Other Mods
+                    var versionInOrder = new List<string>(VersionDictonary.Keys);
+                    versionInOrder.Sort(new Comparison<string>((x, y) => CompareVersion(y, x)));
+                    foreach (var version in versionInOrder)
+                    {
+                        if (!VersionContainerMatchingSearchCriteria(version, VersionDictonary[version]))
+                            continue;
+                        var rect = listing_Standard.GetRect(26f);
+                        DrawVersionContainer(rect, version, VersionDictonary[version]);
+                        if (!VersionDictonary[version].Collapsed)
+                        {
+                            DrawModsEntries(listing_Standard, VersionDictonary[version].Mods, page, reorderableGroup);
+                        }
+                    }
+                    #endregion
 
                     return num2;
                 }
