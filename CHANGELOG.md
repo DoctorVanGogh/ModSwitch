@@ -1,3 +1,7 @@
+# Version 1.5.2
+
+- Added japanese translation by Proxyer
+
 # Version 1.5.1
 
 - Upgrade Harmony to 1.2.01

@@ -12,7 +12,12 @@ Allows you to save and switch between sets of active mods with one click.
 
 Supports importing your sets from ModListBackup.
 
-## Third party acknowledgements
+## Authors & third party acknowledgements
+
+### Authors
+
+DoctorVanGogh
+Proxyer (Japanese Translation)
 
 ### Uses [Open Iconic](http://www.useiconic.com/open)
 
