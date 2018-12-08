@@ -118,21 +118,23 @@ namespace DoctorVanGogh.ModSwitch {
                         new List<FloatMenuOption> {
                                                       new FloatMenuOption(
                                                           LanguageKeys.keyed.ModSwitch_Import_FromFile.Translate(),
-                                                          () => Find.WindowStack.Add(
-                                                              new FloatMenu(
-                                                                  MS_GenFilePaths.AllExports
-                                                                                 .Select(
-                                                                                     fi => new FloatMenuOption(
-                                                                                         fi.Name,
-                                                                                         () => {
-                                                                                             try {
-                                                                                                 ImportFromExport(fi);
-                                                                                             } catch (Exception e) {
-                                                                                                 Util.DisplayError(e);
-                                                                                             }
-                                                                                         }))
-                                                                                 .ToList())
-                                                          )),
+                                                          () => {
+                                                              var options = MS_GenFilePaths.AllExports
+                                                                                           .Select(
+                                                                                               fi => new FloatMenuOption(
+                                                                                                   fi.Name,
+                                                                                                   () => {
+                                                                                                       try {
+                                                                                                           ImportFromExport(fi);
+                                                                                                       } catch (Exception e) {
+                                                                                                           Util.DisplayError(e);
+                                                                                                       }
+                                                                                                   }))
+                                                                                           .ToList();
+
+                                                              if (options.Count != 0)
+                                                                  Find.WindowStack.Add(new FloatMenu(options));
+                                                          }),
                                                       new FloatMenuOption(
                                                           LanguageKeys.keyed.ModSwitch_Import_Savegame.Translate(),
                                                           () => Find.WindowStack.Add(
