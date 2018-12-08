@@ -33,6 +33,10 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_Tip_Rename = "ModSwitch.Tip.Rename";
 			/// <summary>
+			/// Gets the translation key for '<em>Export</em>'
+			/// </summary>
+			public const string @ModSwitch_Tip_Export = "ModSwitch.Tip.Export";
+			/// <summary>
 			/// Gets the translation key for '<em>Settings</em>'
 			/// </summary>
 			public const string @ModSwitch_Tip_Settings = "ModSwitch.Tip.Settings";
@@ -72,6 +76,10 @@ namespace DoctorVanGogh.ModSwitch {
 			/// Gets the translation key for '<em>Savegame</em>'
 			/// </summary>
 			public const string @ModSwitch_Import_Savegame = "ModSwitch.Import.Savegame";
+			/// <summary>
+			/// Gets the translation key for '<em>From File</em>'
+			/// </summary>
+			public const string @ModSwitch_Import_FromFile = "ModSwitch.Import.FromFile";
 			/// <summary>
 			/// Gets the translation key for '<em>{0} items</em>'
 			/// </summary>
@@ -201,6 +209,10 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_Error_TargetExists = "ModSwitch.Error.TargetExists";
 			/// <summary>
+			/// Gets the translation key for '<em>Target already exists: {0}</em>'
+			/// </summary>
+			public const string @ModSwitch_Error_TargetExists_Detailed = "ModSwitch.Error.TargetExists.Detailed";
+			/// <summary>
 			/// Gets the translation key for '<em>Not a valid mod path</em>'
 			/// </summary>
 			public const string @ModSwitch_Error_NotValid = "ModSwitch.Error.NotValid";
@@ -276,6 +288,14 @@ namespace DoctorVanGogh.ModSwitch {
 			/// Gets the translation key for '<em>Later</em>'
 			/// </summary>
 			public const string @ModSwitch_RestartRequired_Defer = "ModSwitch.RestartRequired.Defer";
+			/// <summary>
+			/// Gets the translation key for '<em>Active</em>'
+			/// </summary>
+			public const string @ModSwitch_TreeView_Active = "ModSwitch.TreeView.Active";
+			/// <summary>
+			/// Gets the translation key for '<em>Error</em>'
+			/// </summary>
+			public const string @ModSwitch_Dialog_Error = "ModSwitch.Dialog.Error";
 		}
 	}
 }

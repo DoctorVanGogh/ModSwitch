@@ -207,12 +207,24 @@ namespace DoctorVanGogh.ModSwitch {
 
         [HarmonyPatch(typeof(Page_ModsConfig), nameof(Page_ModsConfig.PostClose))]
         public class Page_ModsConfig_PostClose {
-            // yeah, it's effectively a detour - sue me....
-            public static bool Prefix(Page_ModsConfig __instance) {
-                ModsConfig.Save();
-                if ((int) ModsConfigUI.fiPage_ModsConfig_ActiveModsWhenOpenedHash.GetValue(__instance) != ModLister.InstalledModsListHash(true))
-                    ModsConfigUI.OnModsChanged();
-                return false;
+
+            private static MethodInfo mi = typeof(ModsConfig).GetMethod(nameof(ModsConfig.RestartFromChangedMods));
+
+            // redirect "auto-restart" to "maybe restart later?"
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+                foreach (CodeInstruction instruction in instructions) {
+                    if (instruction.opcode == OpCodes.Call && instruction.operand == mi)
+                        instruction.operand = typeof(ModsConfigUI).GetMethod(nameof(ModsConfigUI.OnModsChanged));
+
+                    yield return instruction;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(ModsConfig), nameof(ModsConfig.Save))]
+        public class ModsConfig_Save {
+            public static void Postfix() {
+                LoadedModManager.GetMod<ModSwitch>()?.WriteSettings();
             }
         }
 
@@ -345,6 +357,7 @@ namespace DoctorVanGogh.ModSwitch {
                 return instructions;
             }
         }
+
 
         /// <summary>
         /// Bunch of patches providing Tree View of mods, grouped by version

@@ -1,3 +1,8 @@
+# Version 1.7.0
+
+- Added "Import/Export" for ModSets. If using Steam, exports will even be synced.
+- Add paranoid settings save triggers (several reports of things not saving correctly)
+
 # Version 1.6.0
 
 - Added mods grouping by target rimworld version

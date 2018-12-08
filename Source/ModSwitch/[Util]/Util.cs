@@ -3,9 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using UnityEngine;
+using Verse;
 
 namespace DoctorVanGogh.ModSwitch {
     internal static class Util {
+        public static void DisplayError(Exception e, string title = null) {
+            Util.Warning(e.ToString());
+            Find.WindowStack.Add(new Dialog_Exception(e, title));
+        }
+
         public static void AddRange<TItem>(this ICollection<TItem> collection, IEnumerable<TItem> values) {
             foreach (TItem value in values)
                 collection.Add(value);
@@ -71,6 +77,13 @@ namespace DoctorVanGogh.ModSwitch {
 
         public static void Warning(string s) {
             Verse.Log.Warning($"[ModSwitch]: {s}");
+        }
+
+        private static string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(Path.GetInvalidFileNameChars()));
+        private static string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
+
+        public static string SanitizeFileName(string fileName) {
+            return System.Text.RegularExpressions.Regex.Replace(fileName, invalidRegStr, "_");
         }
     }
 }

@@ -5,6 +5,7 @@
 	<ModSwitch.Tip.Create>Save current mod set</ModSwitch.Tip.Create>
 	<ModSwitch.Tip.Delete>Delete</ModSwitch.Tip.Delete>
 	<ModSwitch.Tip.Rename>Rename</ModSwitch.Tip.Rename>
+	<ModSwitch.Tip.Export>Export</ModSwitch.Tip.Export>
 	<ModSwitch.Tip.Settings>Settings</ModSwitch.Tip.Settings>
 	<ModSwitch.Tip.Undo>Undo</ModSwitch.Tip.Undo>
 	<ModSwitch.Tip.Apply>Apply mod set</ModSwitch.Tip.Apply>
@@ -22,6 +23,7 @@
 
 	<ModSwitch.Import>Import</ModSwitch.Import>
 	<ModSwitch.Import.Savegame>Savegame</ModSwitch.Import.Savegame>
+	<ModSwitch.Import.FromFile>From File</ModSwitch.Import.FromFile>
 
 	<ModSwitch.ModSet.Mods>{0} items</ModSwitch.ModSet.Mods>
 
@@ -66,6 +68,7 @@
 	
 	<ModSwitch.Error.InvalidChars>Contains invalid characters</ModSwitch.Error.InvalidChars>
 	<ModSwitch.Error.TargetExists>Target already exists</ModSwitch.Error.TargetExists>
+	<ModSwitch.Error.TargetExists.Detailed>Target already exists: {0}</ModSwitch.Error.TargetExists.Detailed>	
 	<ModSwitch.Error.NotValid>Not a valid mod path</ModSwitch.Error.NotValid>
 
 	<ModSwitch.CopyLocal.Result.Copy>Copied mod {0} to {1}.</ModSwitch.CopyLocal.Result.Copy>>
@@ -100,4 +103,6 @@ Do you want to keep your existing settings from the local copy or replace them w
 	<ModSwitch.RestartRequired.Defer>Later</ModSwitch.RestartRequired.Defer>
 
 	<ModSwitch.TreeView.Active>Active</ModSwitch.TreeView.Active>
+
+	<ModSwitch.Dialog.Error>Error</ModSwitch.Dialog.Error>
 </LanguageData>

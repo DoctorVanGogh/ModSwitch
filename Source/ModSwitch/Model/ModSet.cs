@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -20,6 +21,7 @@ namespace DoctorVanGogh.ModSwitch {
         private static TipSignal? _renameTip;
         private static TipSignal? _deleteTip;
         private static TipSignal? _dragTip;
+        private static TipSignal? _exportTip;
         private readonly Settings _owner;
 
 
@@ -29,6 +31,7 @@ namespace DoctorVanGogh.ModSwitch {
 
         public List<string> Mods = new List<string>();
         public string Name = string.Empty;
+
 
         static ModSet() {
             Type tModsConfig = typeof(ModsConfig);
@@ -47,6 +50,7 @@ namespace DoctorVanGogh.ModSwitch {
         private TipSignal Tip => (_modsTip ?? (_modsTip = new TipSignal(ToString()))).Value;
         private static TipSignal TipRename => (_renameTip ?? (_renameTip = new TipSignal(LanguageKeys.keyed.ModSwitch_Tip_Rename.Translate()))).Value;
         private static TipSignal TipDelete => (_deleteTip ?? (_deleteTip = new TipSignal(LanguageKeys.keyed.ModSwitch_Tip_Delete.Translate()))).Value;
+        private static TipSignal TipExport => (_exportTip ?? (_exportTip = new TipSignal(LanguageKeys.keyed.ModSwitch_Tip_Export.Translate()))).Value;
 
         private static TipSignal TipDrag => (_dragTip ?? (_dragTip = new TipSignal("DragToReorder".Translate()))).Value;
 
@@ -137,9 +141,14 @@ namespace DoctorVanGogh.ModSwitch {
             float height = rect.height;
             float buttonSize = height - 2 * padding;
 
+            int numButtons = 3;
+
+
             ReorderableWidget.Reorderable(reorderableGroup, rect);
 
-            float leftColumnsWidth = rect.width - 8 * padding - 2 * buttonSize;
+            float leftColumnsWidth = rect.width - (4 * numButtons)* padding - numButtons * buttonSize;
+
+            // name + contents (60/40)
 
             Rect left = new Rect(rect.x, rect.y + padding, leftColumnsWidth * 0.6f - padding, buttonSize);
             Widgets.Label(left, Name);
@@ -148,6 +157,8 @@ namespace DoctorVanGogh.ModSwitch {
 
             Widgets.Label(right, LanguageKeys.keyed.ModSwitch_ModSet_Mods.Translate(Mods.Count));
             TooltipHandler.TipRegion(right, Tip);
+
+            // actions
 
             Rect rctRename = new Rect(rect.x + leftColumnsWidth + 5 * padding, rect.y + padding, buttonSize, buttonSize);
 
@@ -161,8 +172,28 @@ namespace DoctorVanGogh.ModSwitch {
                         Name)
                 );
 
-            Rect rctDelete = new Rect(rect.x + leftColumnsWidth + 7 * padding + buttonSize, rect.y + padding, buttonSize, buttonSize);
+            Rect rctExport = new Rect(rect.x + leftColumnsWidth + 7 * padding + buttonSize, rect.y + padding, buttonSize, buttonSize);
 
+            if (ExtraWidgets.ButtonImage(rctExport, Assets.Extract, false, TipExport, rctExport.ContractedBy(4)))
+                Find.WindowStack.Add(
+                    new Dialog_SetText(
+                        s => {
+                            try {
+                                ExportModSet(s);
+                            } catch (Exception e) {
+                                Util.DisplayError(e);                                
+                            }
+                        },
+                        Name,
+                        s => MS_GenFilePaths.AllExports
+                                            .Select(fi => Path.GetFileNameWithoutExtension(fi.FullName))
+                                            .Any(fileName => fileName == s)
+                            ? LanguageKeys.keyed.ModSwitch_Error_TargetExists.Translate()
+                            : null
+                    )
+                );
+
+            Rect rctDelete = new Rect(rect.x + leftColumnsWidth + 9 * padding + 2 * buttonSize, rect.y + padding, buttonSize, buttonSize);
 
             if (ExtraWidgets.ButtonImage(rctDelete, Assets.Delete, false, TipDelete, rctDelete.ContractedBy(4)))
                 Find.WindowStack.Add(
@@ -171,8 +202,27 @@ namespace DoctorVanGogh.ModSwitch {
                         Delete,
                         true,
                         LanguageKeys.keyed.ModSwitch_Confirmation_Title.Translate()));
+
         }
 
+        private void ExportModSet(string name) {
+            var target = MS_GenFilePaths.FilePathForModSetExport(name);
+            if (File.Exists(target))
+                throw new ArgumentException(LanguageKeys.keyed.ModSwitch_Error_TargetExists_Detailed.Translate(new object[] { target}));
+            Scribe.saver.InitSaving(target, "ModSwitch.Export");
+            try {
+                Scribe.EnterNode(Export_ElementName);
+                try {
+                    this.ExposeData();
+                } finally {
+                    Scribe.ExitNode();
+                }
+            } finally {
+                Scribe.saver.FinalizeSaving();
+            }
+        }
+
+        public const string Export_ElementName = "ModSet";
 
         public static ModSet FromCurrent(string name, Settings owner) {
             object modsConfigData = fiModsConfig_data.GetValue(null);

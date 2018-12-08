@@ -117,6 +117,23 @@ namespace DoctorVanGogh.ModSwitch {
                     new FloatMenu(
                         new List<FloatMenuOption> {
                                                       new FloatMenuOption(
+                                                          LanguageKeys.keyed.ModSwitch_Import_FromFile.Translate(),
+                                                          () => Find.WindowStack.Add(
+                                                              new FloatMenu(
+                                                                  MS_GenFilePaths.AllExports
+                                                                                 .Select(
+                                                                                     fi => new FloatMenuOption(
+                                                                                         fi.Name,
+                                                                                         () => {
+                                                                                             try {
+                                                                                                 ImportFromExport(fi);
+                                                                                             } catch (Exception e) {
+                                                                                                 Util.DisplayError(e);
+                                                                                             }
+                                                                                         }))
+                                                                                 .ToList())
+                                                          )),
+                                                      new FloatMenuOption(
                                                           LanguageKeys.keyed.ModSwitch_Import_Savegame.Translate(),
                                                           () => Find.WindowStack.Add(
                                                               new FloatMenu(
@@ -209,8 +226,36 @@ namespace DoctorVanGogh.ModSwitch {
             } catch (Exception ex) {
                 Log.Warning(string.Concat("Exception loading ", fi.FullName, ": ", ex));
                 Scribe.ForceStop();
+
             }
         }
+        
+        private void ImportFromExport(FileInfo fi){
+            if (File.Exists(fi.FullName)) {
+                ModSet imported = null;
+
+                Scribe.loader.InitLoading(fi.FullName);
+                try {
+                    Scribe_Deep.Look(ref imported, ModSet.Export_ElementName, this);
+                } finally {
+                    Scribe.loader.FinalizeLoading();
+                }
+                if (imported == null)
+                    throw new InvalidOperationException("Error importing ModSet...");
+
+                int suffix = 0;
+                string name = imported.Name;
+                while (Sets.Any(ms => ms.Name == name))
+                    name = $"{imported.Name}_{++suffix}";
+                imported.Name = name;
+                Sets.Add(imported);
+
+                Mod.WriteSettings();
+            } else {
+                throw new FileNotFoundException();
+            }
+        }
+
 
         private void ImportModListBackup(bool overwrite = false) {
             if (overwrite) {
