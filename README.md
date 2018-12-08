@@ -16,9 +16,9 @@ Supports importing your sets from ModListBackup.
 
 ### Authors
 
-DoctorVanGogh
-Aviuz
-Proxyer (Japanese Translation)
+- DoctorVanGogh 
+- Aviuz
+- Proxyer (Japanese Translation)
 
 ### Uses [Open Iconic](http://www.useiconic.com/open)
 
