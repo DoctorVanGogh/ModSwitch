@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Harmony;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -14,7 +15,7 @@ namespace DoctorVanGogh.ModSwitch {
     internal class ModSet : IExposable {
         private static readonly FieldInfo fiModsConfig_data;
         private static readonly FieldInfo fiModsConfigData_activeMods;
-        private static readonly FieldInfo fiModsConfigData_buildNumber;
+        private static readonly FieldInfo fiModsConfigData_version;
 
         private static readonly Regex rgxSteamModId;
 
@@ -37,7 +38,7 @@ namespace DoctorVanGogh.ModSwitch {
             Type tModsConfig = typeof(ModsConfig);
             Type tModsConfigData = AccessTools.Inner(tModsConfig, @"ModsConfigData");
             fiModsConfigData_activeMods = AccessTools.Field(tModsConfigData, @"activeMods");
-            fiModsConfigData_buildNumber = AccessTools.Field(tModsConfigData, @"buildNumber");
+            fiModsConfigData_version = AccessTools.Field(tModsConfigData, @"version");
             fiModsConfig_data = AccessTools.Field(tModsConfig, @"data");
 
             rgxSteamModId = new Regex(@"^\d+$", RegexOptions.Singleline | RegexOptions.Compiled);        
@@ -229,7 +230,7 @@ namespace DoctorVanGogh.ModSwitch {
 
             return new ModSet(owner) {
                                          Name = name,
-                                         BuildNumber = (int) fiModsConfigData_buildNumber.GetValue(modsConfigData),
+                                         BuildNumber = VersionControl.BuildFromVersionString((string)fiModsConfigData_version.GetValue(modsConfigData)),
                                          Mods = new List<string>((IEnumerable<string>) fiModsConfigData_activeMods.GetValue(modsConfigData))
                                      };
         }

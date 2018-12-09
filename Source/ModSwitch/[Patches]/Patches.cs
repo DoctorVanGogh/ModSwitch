@@ -790,9 +790,10 @@ namespace DoctorVanGogh.ModSwitch {
                     return false;
                 }
 
-                public static string ShortVerisonString(string targetVersion)
-                {
-                    return VersionControl.MajorFromVersionString(targetVersion).ToString() + "." + VersionControl.MinorFromVersionString(targetVersion).ToString();
+                public static string ShortVerisonString(string targetVersion) {
+                    return VersionControl.IsWellFormattedVersionString(targetVersion)
+                        ? VersionControl.VersionFromString(targetVersion).ToString(2)
+                        : targetVersion;
                 }
             }
         }
