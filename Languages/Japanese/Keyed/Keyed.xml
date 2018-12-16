@@ -1,10 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <ModSwitch>ModSwitch</ModSwitch>
 
   <ModSwitch.Tip.Create>現在のMODセットを保存</ModSwitch.Tip.Create>
   <ModSwitch.Tip.Delete>削除</ModSwitch.Tip.Delete>
   <ModSwitch.Tip.Rename>改名</ModSwitch.Tip.Rename>
+  <ModSwitch.Tip.Export>出力</ModSwitch.Tip.Export>
   <ModSwitch.Tip.Settings>設定</ModSwitch.Tip.Settings>
   <ModSwitch.Tip.Undo>元に戻す</ModSwitch.Tip.Undo>
   <ModSwitch.Tip.Apply>MODセット適用</ModSwitch.Tip.Apply>
@@ -22,6 +23,7 @@
 
   <ModSwitch.Import>インポート</ModSwitch.Import>
   <ModSwitch.Import.Savegame>セーブゲーム</ModSwitch.Import.Savegame>
+  <ModSwitch.Import.FromFile>ファイルから</ModSwitch.Import.FromFile>
 
   <ModSwitch.ModSet.Mods>{0}アイテム</ModSwitch.ModSet.Mods>
 
@@ -66,6 +68,7 @@
 
   <ModSwitch.Error.InvalidChars>無効な文字が含まれています</ModSwitch.Error.InvalidChars>
   <ModSwitch.Error.TargetExists>その名前は既に存在します</ModSwitch.Error.TargetExists>
+  <ModSwitch.Error.TargetExists.Detailed>そのターゲットは既に存在します：{0}</ModSwitch.Error.TargetExists.Detailed>
   <ModSwitch.Error.NotValid>有効なMODパスではありません</ModSwitch.Error.NotValid>
 
   <ModSwitch.CopyLocal.Result.Copy>{0}から{1}へコピーされました。</ModSwitch.CopyLocal.Result.Copy>&gt;
@@ -98,5 +101,9 @@
 
   <ModSwitch.RestartRequired.Restart>再起動</ModSwitch.RestartRequired.Restart>
   <ModSwitch.RestartRequired.Defer>後で</ModSwitch.RestartRequired.Defer>
+
+  <ModSwitch.TreeView.Active>有効</ModSwitch.TreeView.Active>
+
+  <ModSwitch.Dialog.Error>エラー</ModSwitch.Dialog.Error>
 
 </LanguageData>
