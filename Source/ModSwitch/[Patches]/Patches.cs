@@ -791,8 +791,8 @@ namespace DoctorVanGogh.ModSwitch {
                 }
 
                 public static string ShortVerisonString(string targetVersion) {
-                    return VersionControl.IsWellFormattedVersionString(targetVersion)
-                        ? VersionControl.VersionFromString(targetVersion).ToString(2)
+                    return VersionControl.TryParseVersionString(targetVersion, out Version v) 
+                        ? v.ToString(2) 
                         : targetVersion;
                 }
             }
