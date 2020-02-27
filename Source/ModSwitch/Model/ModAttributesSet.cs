@@ -15,7 +15,7 @@ namespace DoctorVanGogh.ModSwitch {
             }
         }
 
-        public ModAttributes this[ModMetaData mod] => this[mod.Identifier];
+        public ModAttributes this[ModMetaData mod] => this[mod.PackageId];
 
         protected override string GetKeyForItem(ModAttributes item) {
             return item.Key;

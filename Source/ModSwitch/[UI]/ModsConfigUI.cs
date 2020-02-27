@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using Harmony;
+using HarmonyLib;
 using RimWorld;
 using Steamworks;
 using UnityEngine;
@@ -47,7 +47,7 @@ namespace DoctorVanGogh.ModSwitch {
         public static ModsChangeAction ChangeAction { get; set; } = ModsChangeAction.Query;
 
         private static void CopyModLocal(ModMetaData mod, string name, StringBuilder log, bool? forceCopySettings = null, bool deleteExisting = false) {
-            string targetDirectory = Path.Combine(GenFilePaths.CoreModsFolderPath, name);
+            string targetDirectory = Path.Combine(GenFilePaths.ModsFolderPath, name);
 
             if (deleteExisting && Directory.Exists(targetDirectory)) {
                 Directory.Delete(targetDirectory, true);
@@ -61,7 +61,7 @@ namespace DoctorVanGogh.ModSwitch {
 
             // copy mod settings
             string[] settings = Directory.GetFiles(GenFilePaths.ConfigFolderPath);
-            string pattern = $@"^Mod_{mod.Identifier}_([^\.]+).xml$";
+            string pattern = $@"^Mod_{mod.PackageId}_([^\.]+).xml$";
             Util.Trace(pattern);
             Regex rgxSettings = new Regex(pattern);
             var matching = settings
@@ -142,14 +142,14 @@ namespace DoctorVanGogh.ModSwitch {
                                         },
                                         $"{mod.Name}",
                                         name => {
-                                            string targetDirectory = Path.Combine(GenFilePaths.CoreModsFolderPath, name);
+                                            string targetDirectory = Path.Combine(GenFilePaths.ModsFolderPath, name);
                                             if (Path.GetInvalidPathChars().Any(name.Contains))
                                                 return LanguageKeys.keyed.ModSwitch_Error_InvalidChars.Translate();
                                             if (Directory.Exists(targetDirectory))
                                                 return LanguageKeys.keyed.ModSwitch_Error_TargetExists.Translate();
 
                                             // walk target path up to root, check we are under 'CoreModsFolderPath' - no '..\..\' shenanigans to break out of mods jail
-                                            DirectoryInfo modsRoot = new DirectoryInfo(GenFilePaths.CoreModsFolderPath);
+                                            DirectoryInfo modsRoot = new DirectoryInfo(GenFilePaths.ModsFolderPath);
                                             for (DirectoryInfo current = new DirectoryInfo(targetDirectory);
                                                  current?.FullName != current?.Root.FullName;
                                                  current = current.Parent)
@@ -191,7 +191,7 @@ namespace DoctorVanGogh.ModSwitch {
                                             Find.WindowStack.Add(
                                                 new Dialog_MessageBox(
                                                     LanguageKeys.keyed.ModSwitch_Sync_Message.Translate(
-                                                        mod.Identifier,
+                                                        mod.PackageId,
                                                         Helpers.WrapTimestamp(tsCopy),
                                                         Helpers.WrapTimestamp(tsSteam)
                                                     ),
@@ -227,8 +227,8 @@ namespace DoctorVanGogh.ModSwitch {
                                                                 Dialog_MessageBox.CreateConfirmation(
                                                                     LanguageKeys.keyed.ModSwitch_SetOrigin_Confirm.Translate(mod.Name, mmd.Name),
                                                                     () => {
-                                                                        ModAttributes attributes = ms.CustomSettings.Attributes[mod.Identifier];
-                                                                        attributes.SteamOrigin = mmd.Identifier;
+                                                                        ModAttributes attributes = ms.CustomSettings.Attributes[mod.PackageId];
+                                                                        attributes.SteamOrigin = mmd.PackageId;
                                                                         Helpers.RebuildModsList();
                                                                     },
                                                                     true,
@@ -264,7 +264,7 @@ namespace DoctorVanGogh.ModSwitch {
                 ContentSourceUtility.DrawContentSource(
                     r,
                     source,
-                    source == ContentSource.LocalFolder
+                    source == ContentSource.ModsFolder 
                         ? (clickAction ?? (() => Process.Start(mod.RootDir.FullName)))
                         : clickAction);
             } else {
@@ -330,8 +330,8 @@ namespace DoctorVanGogh.ModSwitch {
         private static void SyncSteam(ModMetaData mod, string steamId, bool forceCopySettings) {
             StringBuilder log = new StringBuilder();
             ModMetaData mdOriginal = Helpers.GetMetadata(steamId);
-            CopyModLocal(mdOriginal, mod.Identifier, log, forceCopySettings, true);
-            UpdateSteamAttributes(mod.Identifier, mdOriginal, log);
+            CopyModLocal(mdOriginal, mod.PackageId, log, forceCopySettings, true);
+            UpdateSteamAttributes(mod.PackageId, mdOriginal, log);
             Helpers.RebuildModsList();
             ShowLog(log, LanguageKeys.keyed.ModSwitch_Sync.Translate());
         }
@@ -342,7 +342,7 @@ namespace DoctorVanGogh.ModSwitch {
 
             ModSwitch ms = LoadedModManager.GetMod<ModSwitch>();
             ModAttributes attributes = ms.CustomSettings.Attributes[name];
-            attributes.SteamOrigin = original.Identifier;
+            attributes.SteamOrigin = original.PackageId;
             attributes.SteamOriginTS = ms.CustomSettings.Attributes[original].LastUpdateTS;
 
             if (attributes.SteamOriginTS == null) {

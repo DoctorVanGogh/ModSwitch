@@ -2,9 +2,13 @@
 <ModMetaData>
 	<name>ModSwitch</name>
 	<author>DoctorVanGogh, Aviuz</author>
-	<targetVersion>1.0.0</targetVersion>
-    <url>https://github.com/DoctorVanGogh/ModSwitch</url>
-	<description><![CDATA[<b>A Rimworld mod manager.</b>
+   <supportedVersions>
+      <li>1.0</li>
+      <li>1.1</li>
+   </supportedVersions>
+   <packageId>DoctorVanGogh.ModSwitch</packageId>
+   <url>https://github.com/DoctorVanGogh/ModSwitch</url>
+   <description><![CDATA[<b>A Rimworld mod manager.</b>
 
 Allows loading & saving sets of active mods for Rimworld.
 

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
-using Harmony;
+
+using HarmonyLib;
 using UnityEngine;
 using Verse;
 
@@ -14,7 +15,7 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         public ModSwitch(ModContentPack content) : base(content) {
-            HarmonyInstance harmony = HarmonyInstance.Create("DoctorVanGogh.ModSwitch");
+            Harmony harmony = new Harmony("DoctorVanGogh.ModSwitch");
             Assembly assembly = typeof(ModSwitch).Assembly;
             harmony.PatchAll(assembly);
 

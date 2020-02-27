@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DoctorVanGogh.ModSwitch</RootNamespace>
     <AssemblyName>ModSwitch</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -19,7 +19,7 @@
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\Assemblies\</OutputPath>
+    <OutputPath>..\..\v1.1\Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -27,18 +27,18 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\Assemblies\</OutputPath>
+    <OutputPath>..\..\v1.1\Assemblies\</OutputPath>
     <DefineConstants>IMPORT_STEAM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(RimworldManagedDir10)\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(RimworldManagedDir11)\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(RimworldManagedDir10)\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(RimworldManagedDir11)\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -46,9 +46,21 @@
     </Reference>
     <Reference Include="System.XML" />
     <Reference Include="UnityEngine">
-      <HintPath>$(RimworldManagedDir10)\UnityEngine.dll</HintPath>
+      <HintPath>$(RimworldManagedDir11)\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(RimworldManagedDir11)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>  
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(RimworldManagedDir11)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(RimworldManagedDir11)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>  
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LanguageKeys.Generated.cs">
@@ -89,7 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Lib.Harmony">
-      <Version>1.2.0.1</Version>
+      <Version>2.0.0.6</Version>
     </PackageReference>
     <PackageReference Include="MSBuildTasks">
       <Version>1.5.0.235</Version>

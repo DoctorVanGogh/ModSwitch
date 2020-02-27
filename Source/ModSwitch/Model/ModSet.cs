@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using Harmony;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -73,12 +73,12 @@ namespace DoctorVanGogh.ModSwitch {
                 .FullOuterJoin(
                     ModLister.AllInstalledMods,
                     t => t.id,
-                    mmd => mmd.Identifier,
+                    mmd => mmd.PackageId,
                     (t, mmd, s) => new {
                                            Key = s,
                                            SetIndex = t?.Index,
-                                           InstalledIdentifier = mmd?.Identifier
-                                       })
+                                           InstalledIdentifier = mmd?.PackageId
+                    })
                 .ToArray();
 
             // partition by install status
