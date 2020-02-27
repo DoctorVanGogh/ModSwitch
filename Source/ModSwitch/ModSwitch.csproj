@@ -52,7 +52,7 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(RimworldManagedDir11)\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
-    </Reference>  
+    </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
       <HintPath>$(RimworldManagedDir11)\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>False</Private>
@@ -60,7 +60,7 @@
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>$(RimworldManagedDir11)\UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>False</Private>
-    </Reference>  
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LanguageKeys.Generated.cs">
@@ -74,6 +74,7 @@
     <Compile Include="ModSwitch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
+    <None Include="[Patches]\Disabled.cs" />
     <Compile Include="[UI]\Assets.cs" />
     <Compile Include="[UI]\Dialog_Exception.cs" />
     <Compile Include="[UI]\Dialog_MissingMods.cs" />
