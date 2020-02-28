@@ -82,6 +82,7 @@
     <Compile Include="[UI]\Dialog_SetText.cs" />
     <Compile Include="[UI]\ModsConfigUI.cs" />
     <Compile Include="[UI]\Page_ModsConfigReopened.cs" />
+    <Compile Include="[Util]\ModConfigUtil.cs" />
     <Compile Include="[Util]\MS_GenFilePaths.cs" />
     <Compile Include="[Util]\Position.cs" />
     <Compile Include="[Util]\Scribe.cs" />

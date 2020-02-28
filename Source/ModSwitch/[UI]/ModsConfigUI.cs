@@ -61,7 +61,7 @@ namespace DoctorVanGogh.ModSwitch {
 
             // copy mod settings
             string[] settings = Directory.GetFiles(GenFilePaths.ConfigFolderPath);
-            string pattern = $@"^Mod_{mod.PackageId}_([^\.]+).xml$";
+            string pattern = $@"^Mod_{mod.FolderName}_([^\.]+).xml$";
             Util.Trace(pattern);
             Regex rgxSettings = new Regex(pattern);
             var matching = settings
@@ -72,10 +72,7 @@ namespace DoctorVanGogh.ModSwitch {
                                  source = Path.Combine(GenFilePaths.ConfigFolderPath, m.Value),
                                  destination = Path.Combine(
                                      GenFilePaths.ConfigFolderPath,
-                                     string.Format(
-                                         "Mod_{0}_{1}.xml",
-                                         name,
-                                         m.Groups[1].Value))
+                                     ModConfigUtil.GetConfigFilename(name, m.Groups[1].Value))
                              })
                 .ToArray();
 
@@ -119,6 +116,7 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         private static void DeferRestart() {
+            Log.Message("Defering restart!");
             ModSwitch.IsRestartDefered = true;
         }
 
@@ -191,7 +189,7 @@ namespace DoctorVanGogh.ModSwitch {
                                             Find.WindowStack.Add(
                                                 new Dialog_MessageBox(
                                                     LanguageKeys.keyed.ModSwitch_Sync_Message.Translate(
-                                                        mod.PackageId,
+                                                        mod.Name,
                                                         Helpers.WrapTimestamp(tsCopy),
                                                         Helpers.WrapTimestamp(tsSteam)
                                                     ),
@@ -227,8 +225,8 @@ namespace DoctorVanGogh.ModSwitch {
                                                                 Dialog_MessageBox.CreateConfirmation(
                                                                     LanguageKeys.keyed.ModSwitch_SetOrigin_Confirm.Translate(mod.Name, mmd.Name),
                                                                     () => {
-                                                                        ModAttributes attributes = ms.CustomSettings.Attributes[mod.PackageId];
-                                                                        attributes.SteamOrigin = mmd.PackageId;
+                                                                        ModAttributes attributes = ms.CustomSettings.Attributes[mod.FolderName];
+                                                                        attributes.SteamOrigin = mmd.FolderName;
                                                                         Helpers.RebuildModsList();
                                                                     },
                                                                     true,
@@ -248,8 +246,18 @@ namespace DoctorVanGogh.ModSwitch {
                                     null));
                         }
                 }
+
             }
 
+#if DEBUG
+            options.Add(new FloatMenuOption("[DEBUG] GetInfo",
+                                            () => Log.Message($"Mod: {mod.Name}\r\n"
+                                                              + $"FolderName: {mod.FolderName}\r\n"
+                                                              + $"PackageId: {mod.PackageId}\r\n"
+                                                              + $"PackageId non unique: {mod.PackageIdNonUnique}\r\n"
+                                                              + $"PackageId player facing: {mod.PackageIdPlayerFacing}\r\n"
+                                                              + $"Root dir: {mod.RootDir}")));
+#endif
             options.Add(
                 new FloatMenuOption(
                     LanguageKeys.keyed.ModSwitch_Color.Translate(),
@@ -305,6 +313,22 @@ namespace DoctorVanGogh.ModSwitch {
             }
         }
 
+        /// <summary>
+        /// Wraps the ctor of <see cref="ListableOption"/> and performs a check for <see cref="ModSwitch.IsRestartDefered"/>
+        /// before either executing the provided <param name="action"/> or invoking the game restart handler. 
+        /// </summary>
+        public static ListableOption WrapMainMenuOption(string label, Action action, string uiHighlightTag = null) {
+            return new ListableOption(
+                label,
+                () => {
+                    if (ModSwitch.IsRestartDefered)
+                        RestartRequiredHandler();
+                    else
+                        action();
+                },
+                uiHighlightTag);
+        }
+
         private static void RestartRequiredHandler() {
             Find.WindowStack.Add(
                 new Dialog_MessageBox(
@@ -330,8 +354,8 @@ namespace DoctorVanGogh.ModSwitch {
         private static void SyncSteam(ModMetaData mod, string steamId, bool forceCopySettings) {
             StringBuilder log = new StringBuilder();
             ModMetaData mdOriginal = Helpers.GetMetadata(steamId);
-            CopyModLocal(mdOriginal, mod.PackageId, log, forceCopySettings, true);
-            UpdateSteamAttributes(mod.PackageId, mdOriginal, log);
+            CopyModLocal(mdOriginal, mod.FolderName, log, forceCopySettings, true);
+            UpdateSteamAttributes(mod.FolderName, mdOriginal, log);
             Helpers.RebuildModsList();
             ShowLog(log, LanguageKeys.keyed.ModSwitch_Sync.Translate());
         }
@@ -342,7 +366,7 @@ namespace DoctorVanGogh.ModSwitch {
 
             ModSwitch ms = LoadedModManager.GetMod<ModSwitch>();
             ModAttributes attributes = ms.CustomSettings.Attributes[name];
-            attributes.SteamOrigin = original.PackageId;
+            attributes.SteamOrigin = original.FolderName;
             attributes.SteamOriginTS = ms.CustomSettings.Attributes[original].LastUpdateTS;
 
             if (attributes.SteamOriginTS == null) {

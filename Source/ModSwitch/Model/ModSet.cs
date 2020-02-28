@@ -73,11 +73,11 @@ namespace DoctorVanGogh.ModSwitch {
                 .FullOuterJoin(
                     ModLister.AllInstalledMods,
                     t => t.id,
-                    mmd => mmd.PackageId,
+                    mmd => mmd.FolderName,
                     (t, mmd, s) => new {
                                            Key = s,
                                            SetIndex = t?.Index,
-                                           InstalledIdentifier = mmd?.PackageId
+                                           InstalledIdentifier = mmd?.FolderName
                     })
                 .ToArray();
 

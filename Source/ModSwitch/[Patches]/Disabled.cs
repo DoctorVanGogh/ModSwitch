@@ -10,7 +10,7 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 
-namespace DoctorVanGogh.ModSwitch._Patches_
+namespace DoctorVanGogh.ModSwitch
 {
     class Disabled
     {
