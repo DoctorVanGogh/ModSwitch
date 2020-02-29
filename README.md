@@ -2,6 +2,7 @@
 # ModSwitch
 
 [![RimWorld 1.0](https://img.shields.io/badge/RimWorld-1.0-green.svg?style=popout-square)](http://rimworldgame.com/) 
+[![RimWorld 1.1](https://img.shields.io/badge/RimWorld-1.1-green.svg?style=popout-square)](http://rimworldgame.com/) 
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg?style=popout-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/) ![Github Total Downloads](https://img.shields.io/github/downloads-pre/doctorvangogh/modswitch/total.svg?style=popout-square)  [![GitHub Latest Release Version](https://img.shields.io/github/release/doctorvangogh/modswitch.svg?style=popout-square)](../../releases/latest) [![GitHub Latest Pre-Release Version](https://img.shields.io/github/release/doctorvangogh/modswitch/all.svg?style=popout-square)](../../releases)
 
 _A Rimworld mod manager_
