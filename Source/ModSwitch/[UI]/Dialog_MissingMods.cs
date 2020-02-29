@@ -3,6 +3,11 @@ using UnityEngine;
 using Verse;
 
 namespace DoctorVanGogh.ModSwitch {
+    public enum ModSetAction {
+        Apply = 0,
+        Import
+    }
+
     public class Dialog_MissingMods : Window {
         private const float TitleHeight = 42f;
         private const float ButtonHeight = 35f;
@@ -18,6 +23,8 @@ namespace DoctorVanGogh.ModSwitch {
         private Vector2 scrollPosition = Vector2.zero;
 
         public string text;
+
+        public ModSetAction Trigger { get; set; } = ModSetAction.Apply;
 
         public Dialog_MissingMods(string text, Action ignore, Action workshop, Action remove) {
             this.text = text;
@@ -77,15 +84,18 @@ namespace DoctorVanGogh.ModSwitch {
                 2,
                 LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Workshop.Translate(),
                 _workshop,
-                LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Workshop_Tip.Translate(),
+                Trigger == ModSetAction.Apply
+                    ? LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Workshop_Apply_Tip.Translate()
+                    : LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Workshop_Import_Tip.Translate(),
                 false);
-            AddButton(
-                inRect,
-                3,
-                LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Remove.Translate(),
-                _remove,
-                LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Remove_Tip.Translate(),
-                true);
+            if (_remove != null)
+                AddButton(
+                    inRect,
+                    3,
+                    LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Remove.Translate(),
+                    _remove,
+                    LanguageKeys.keyed.ModSwitch_MissingMods_Choice_Remove_Tip.Translate(),
+                    true);
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Reflection;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using RimWorld;
 using UnityEngine;
@@ -122,6 +123,14 @@ namespace DoctorVanGogh.ModSwitch {
                     new FloatMenu(
                         new List<FloatMenuOption> {
                                                       new FloatMenuOption(
+                                                          LanguageKeys.keyed.ModSwitch_Import_OpenFolder.Translate(),
+                                                          () => {
+                                                              MS_GenFilePaths.EnsureExportFolderExists();
+
+                                                              Process.Start(MS_GenFilePaths.ModSwitchFolderPath);
+                                                          }
+                                                      ),
+                                                      new FloatMenuOption(
                                                           LanguageKeys.keyed.ModSwitch_Import_FromFile.Translate(),
                                                           () => {
                                                               var options = MS_GenFilePaths.AllExports
@@ -163,15 +172,9 @@ namespace DoctorVanGogh.ModSwitch {
                                                                     absorbInputAroundWindow = true,
                                                                     closeOnClickedOutside = true,
                                                                     doCloseX = true
-                                                                }))
+                                                                })),
                                                   }));
 
-            if (list.ButtonTextLabeled("Import/Export location", "Open folder")) {
-                MS_GenFilePaths.EnsureExportFolderExists();
-
-                Process.Start(MS_GenFilePaths.ModSwitchFolderPath);
-            }
-                
 #if DEBUG
             if (list.ButtonTextLabeled("Debug", "ListExisting")) {
                 foreach (var modSet in Sets) {
@@ -219,28 +222,76 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         private void ImportFromSave(FileInfo fi) {
+
+            void AddModSet(string name, IEnumerable<ModMetaData> mods) {
+                Sets.Add(
+                    new ModSet(this)  {
+                                         Name = name,
+                                         BuildNumber = new Version(VersionControl.VersionStringWithoutRev(ScribeMetaHeaderUtility.loadedGameVersion)).Build,
+                                         Mods = new List<string>(mods.Select(mmd => mmd.FolderName))
+                                     });
+                Mod.WriteSettings();
+            }
+
+
             Scribe.loader.InitLoadingMetaHeaderOnly(fi.FullName);
             try {
                 ScribeMetaHeaderUtility.LoadGameDataHeader(ScribeMetaHeaderUtility.ScribeHeaderMode.Map, false);
                 Scribe.loader.FinalizeLoading();
 
                 int suffix = 0;
-                string name = fi.Name;
-                while (Sets.Any(ms => ms.Name == name))
-                    name = $"{fi.Name}_{++suffix}";
-                Sets.Add(
-                    new ModSet(this) {
-                                         Name = name,
-                                         BuildNumber = new Version(VersionControl.VersionStringWithoutRev(ScribeMetaHeaderUtility.loadedGameVersion)).Build,
-                                         Mods = new List<string>(ScribeMetaHeaderUtility.loadedModIdsList)
-                                     });
-                Mod.WriteSettings();
+                string setname = fi.Name;
+                while (Sets.Any(ms => ms.Name == setname))
+                    setname = $"{fi.Name}_{++suffix}";
+
+                var modsFromSave = ScribeMetaHeaderUtility.loadedModIdsList
+                                                          .Zip(ScribeMetaHeaderUtility.loadedModNamesList, (id, name) => new {Id = id, Name = name})
+                                                          .Select((t, idx) => new { Id = t.Id, Name = t.Name, Index  = idx});
+
+
+                Log.Message($"Loaded version: '{ScribeMetaHeaderUtility.loadedGameVersion}'");
+                
+                var idAccessor = Util.GetVersionSpecificIdMapping(VersionControl.VersionFromString(VersionControl.VersionStringWithoutRev(ScribeMetaHeaderUtility.loadedGameVersion)));
+
+                var (resolved, unresolved) = ModConfigUtil.TryResolveModsList(
+                    modsFromSave,
+                    idAccessor,
+                    t => t.Id,
+                    (mmd, t) => new {Mod = mmd, Index = t.Index },
+                    (_, t) => new {Name = t.Name, Id = t.Id});
+
+                var loadableMods = resolved.OrderBy(t => t.Index).Select(t => t.Mod);
+
+                StringBuilder sb = new StringBuilder(LanguageKeys.keyed.ModSwitch_MissingMods.Translate(Path.GetFileNameWithoutExtension(fi.Name)));
+                sb.AppendLine();
+                sb.AppendLine();
+                foreach (var item in unresolved)
+                    sb.AppendLine($" - {item.Name} ({item.Id})");
+
+                if (unresolved.Any()) {
+                    Find.WindowStack.Add(
+                        new Dialog_MissingMods(
+                            sb.ToString(),
+                            () => AddModSet(setname, loadableMods),
+                            () => {
+                                // dont know how to open multiple tabs in steam overlay right now - just pop urls to browser ;)
+                                foreach (var mod in unresolved)  {
+                                    string url = Util.BuildWorkshopUrl(mod.Name, mod.Id);
+                                    Process.Start(url);
+                                }
+                            },
+                            null
+                        ));
+                }
+
+                AddModSet(setname, loadableMods);
             } catch (Exception ex) {
                 Log.Warning(string.Concat("Exception loading ", fi.FullName, ": ", ex));
                 Scribe.ForceStop();
 
             }
         }
+
         
         private void ImportFromExport(FileInfo fi){
             if (File.Exists(fi.FullName)) {

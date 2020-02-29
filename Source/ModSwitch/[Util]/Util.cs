@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using Verse;
 
@@ -84,6 +85,24 @@ namespace DoctorVanGogh.ModSwitch {
 
         public static string SanitizeFileName(string fileName) {
             return System.Text.RegularExpressions.Regex.Replace(fileName, invalidRegStr, "_");
+        }
+
+        private static readonly Version RW_11 = new Version(1, 1);
+
+        private static readonly Regex rgxSteamModId = new Regex(@"^\d+$", RegexOptions.Singleline | RegexOptions.Compiled);
+
+        public static Func<ModMetaData, string> GetVersionSpecificIdMapping(Version version) {
+            // 1.1+ uses packageid to identify a mod
+            if (version >= RW_11)
+                return  mmd => mmd.PackageId;
+            // pre 1.1 uses folder name for id
+            return mmd => mmd.FolderName;
+        }
+
+        public static string BuildWorkshopUrl(string name, string id) {
+            return rgxSteamModId.IsMatch(id)
+                ? $"http://steamcommunity.com/sharedfiles/filedetails/?id={id}"
+                : $"https://steamcommunity.com/workshop/browse/?appid=294100&searchtext={name}&browsesort=textsearch&section=items";
         }
     }
 }

@@ -24,6 +24,7 @@
 	<ModSwitch.Import>Import</ModSwitch.Import>
 	<ModSwitch.Import.Savegame>Savegame</ModSwitch.Import.Savegame>
 	<ModSwitch.Import.FromFile>From File</ModSwitch.Import.FromFile>
+	<ModSwitch.Import.OpenFolder>Open import/export folder</ModSwitch.Import.OpenFolder>
 
 	<ModSwitch.ModSet.Mods>{0} items</ModSwitch.ModSet.Mods>
 
@@ -36,7 +37,8 @@
 	<ModSwitch.MissingMods.Choice.Ignore>Ignore</ModSwitch.MissingMods.Choice.Ignore>
 	<ModSwitch.MissingMods.Choice.Ignore.Tip>Ignore the missing mods.</ModSwitch.MissingMods.Choice.Ignore.Tip>		
 	<ModSwitch.MissingMods.Choice.Workshop>Cancel &amp; Open workshop</ModSwitch.MissingMods.Choice.Workshop>
-	<ModSwitch.MissingMods.Choice.Workshop.Tip>Dont apply the Mod Set. Instead try retrieving applicable mods from the Steam Workshop. Keep in mind those mods might no longer be available.</ModSwitch.MissingMods.Choice.Workshop.Tip>			
+	<ModSwitch.MissingMods.Choice.Workshop_Apply.Tip>Dont apply the Mod Set. Instead try retrieving applicable mods from the Steam Workshop. Keep in mind those mods might no longer be available.</ModSwitch.MissingMods.Choice.Workshop_Apply.Tip>			
+	<ModSwitch.MissingMods.Choice.Workshop_Import.Tip>Dont import the Mod Set. Instead try retrieving applicable mods from the Steam Workshop. Keep in mind those mods might no longer be available.</ModSwitch.MissingMods.Choice.Workshop_Import.Tip>			
 	<ModSwitch.MissingMods.Choice.Remove>Remove from Set</ModSwitch.MissingMods.Choice.Remove>
 	<ModSwitch.MissingMods.Choice.Remove.Tip>Remove the missing mods from the stored Mod Set.</ModSwitch.MissingMods.Choice.Remove.Tip>		
 

@@ -67,31 +67,32 @@ namespace DoctorVanGogh.ModSwitch {
                           (m, idx) => new {
                                               id = m,
                                               Index = idx
-                                          })
-                      .FullOuterJoin(
-                          ModLister.AllInstalledMods,
-                          t => t.id,
-                          mmd => mmd.FolderName,
-                          (t, mmd, s) => new {
-                                                 Key = s,
-                                                 SetIndex = t?.Index,
-                                                 Metadata = mmd
-                                             })
-                      .ToArray();
+                                          });
 
             // partition by install status
-            var notInstalled = tmp.Where(t => t.Metadata?.FolderName == null)
-                                  .ToArray();
-            var installedMods = tmp.Where(t => t.SetIndex != null && t.Metadata?.FolderName != null)
-                                   .OrderBy(t => t.SetIndex)
-                                   .Select(t => t.Metadata);
+            var resolution = ModConfigUtil.TryResolveModsList(tmp, 
+                                                              mmd => mmd.FolderName,
+                                                              t => t.id,
+                                                              (mmd, t) => new { Mod = mmd, Index = t.Index},
+                                                              (_, t) => t.id);
+
+            foreach (var x in resolution.Resolved) {   
+                Log.Message($"{x.Mod.Name} - {x.Index}");
+            }
+
+
+            string[] notInstalled =resolution.Unresolved;
+            ModMetaData[] installedMods = resolution.Resolved
+                                                    .OrderBy(t => t.Index)
+                                                    .Select(t => t.Mod)
+                                                    .ToArray();
 
             if (notInstalled.Length != 0) {
                 var missing = notInstalled
                     .Select(
-                        t => new {
-                                     t.Key,
-                                     IsSteam = rgxSteamModId.IsMatch(t.Key)
+                        s => new {
+                                     Key = s,
+                                     IsSteam = rgxSteamModId.IsMatch(s)
                                  })
                     .OrderBy(t => t.Key)
                     .ToArray();
@@ -108,11 +109,14 @@ namespace DoctorVanGogh.ModSwitch {
                         () => ApplyMods(installedMods),
                         () => {
                             // dont know how to open multiple tabs in steam overlay right now - just pop urls to browser ;)
-                            foreach (var mod in missing.Where(t => t.IsSteam))
-                                Process.Start($"http://steamcommunity.com/sharedfiles/filedetails/?id={mod.Key}");
+                            foreach (var mod in missing) {
+                                string url = Util.BuildWorkshopUrl(mod.Key, mod.Key);
+                                Process.Start(url);
+                            }
+
                         },
                         () => {
-                            Mods.RemoveAll(s => notInstalled.Any(ni => ni.Key == s));
+                            Mods.RemoveAll(s => notInstalled.Any(ni => ni == s));
                             _owner.Mod.WriteSettings();
                             ApplyMods(installedMods);
                         }

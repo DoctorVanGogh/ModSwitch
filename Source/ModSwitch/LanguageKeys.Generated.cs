@@ -81,6 +81,10 @@ namespace DoctorVanGogh.ModSwitch {
 			/// </summary>
 			public const string @ModSwitch_Import_FromFile = "ModSwitch.Import.FromFile";
 			/// <summary>
+			/// Gets the translation key for '<em>Open import/export folder</em>'
+			/// </summary>
+			public const string @ModSwitch_Import_OpenFolder = "ModSwitch.Import.OpenFolder";
+			/// <summary>
 			/// Gets the translation key for '<em>{0} items</em>'
 			/// </summary>
 			public const string @ModSwitch_ModSet_Mods = "ModSwitch.ModSet.Mods";
@@ -115,7 +119,11 @@ namespace DoctorVanGogh.ModSwitch {
 			/// <summary>
 			/// Gets the translation key for '<em>Dont apply the Mod Set. Instead try retrieving applicable mods from the Steam Workshop. Keep in mind those mods might no longer be available.</em>'
 			/// </summary>
-			public const string @ModSwitch_MissingMods_Choice_Workshop_Tip = "ModSwitch.MissingMods.Choice.Workshop.Tip";
+			public const string @ModSwitch_MissingMods_Choice_Workshop_Apply_Tip = "ModSwitch.MissingMods.Choice.Workshop_Apply.Tip";
+			/// <summary>
+			/// Gets the translation key for '<em>Dont import the Mod Set. Instead try retrieving applicable mods from the Steam Workshop. Keep in mind those mods might no longer be available.</em>'
+			/// </summary>
+			public const string @ModSwitch_MissingMods_Choice_Workshop_Import_Tip = "ModSwitch.MissingMods.Choice.Workshop_Import.Tip";
 			/// <summary>
 			/// Gets the translation key for '<em>Remove from Set</em>'
 			/// </summary>
