@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.IO;
@@ -59,7 +60,11 @@ namespace DoctorVanGogh.ModSwitch {
                                                           () => Find.WindowStack.Add(
                                                               new Dialog_SetText(
                                                                   s => {
-                                                                      Sets.Add(ModSet.FromCurrent(s, this));
+                                                                      var set = ModSet.FromCurrent(s, this);
+                                                                      Sets.Add(set);
+#if DEBUG
+                                                                      Log.Message($"Created new set '{set.Name}' with {set.Mods.Count} entries");
+#endif
                                                                       Mod.WriteSettings();
                                                                   },
                                                                   LanguageKeys.keyed.ModSwitch_Create_DefaultName.Translate()
@@ -161,7 +166,12 @@ namespace DoctorVanGogh.ModSwitch {
                                                                 }))
                                                   }));
 
+            if (list.ButtonTextLabeled("Import/Export location", "Open folder")) {
+                MS_GenFilePaths.EnsureExportFolderExists();
 
+                Process.Start(MS_GenFilePaths.ModSwitchFolderPath);
+            }
+                
 #if DEBUG
             if (list.ButtonTextLabeled("Debug", "ListExisting")) {
                 foreach (var modSet in Sets) {

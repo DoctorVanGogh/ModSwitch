@@ -462,7 +462,7 @@ namespace DoctorVanGogh.ModSwitch {
             }
 
             public static bool MatchCriteria(string value) {
-                if (searchTerm != string.Empty)
+                if (!String.IsNullOrEmpty(value))
                     return value.IndexOf(searchTerm, StringComparison.CurrentCultureIgnoreCase) != -1;
                 return true;
             }

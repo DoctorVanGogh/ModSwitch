@@ -79,7 +79,7 @@ namespace DoctorVanGogh.ModSwitch {
             [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow", new[] {typeof(Listing_Standard), typeof(ModMetaData), typeof(int), typeof(int)})]
             public class SupressNonMatchingFilteredRows {
                 public static bool Prefix(ModMetaData mod) {
-                    return ModsConfigUI.Search.MatchCriteria(mod.Name) || ModsConfigUI.Search.MatchCriteria(mod.TargetVersion);
+                    return ModsConfigUI.Search.MatchCriteria(mod?.Name) || true == mod?.SupportedVersionsReadOnly.Any(s => ModsConfigUI.Search.MatchCriteria(s.ToString()));
                 }
             }
 

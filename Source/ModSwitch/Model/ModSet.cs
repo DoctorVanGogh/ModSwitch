@@ -14,7 +14,6 @@ using Verse;
 namespace DoctorVanGogh.ModSwitch {
     internal class ModSet : IExposable {
         private static readonly FieldInfo fiModsConfig_data;
-        private static readonly FieldInfo fiModsConfigData_activeMods;
         private static readonly FieldInfo fiModsConfigData_version;
 
         private static readonly Regex rgxSteamModId;
@@ -37,7 +36,6 @@ namespace DoctorVanGogh.ModSwitch {
         static ModSet() {
             Type tModsConfig = typeof(ModsConfig);
             Type tModsConfigData = AccessTools.Inner(tModsConfig, @"ModsConfigData");
-            fiModsConfigData_activeMods = AccessTools.Field(tModsConfigData, @"activeMods");
             fiModsConfigData_version = AccessTools.Field(tModsConfigData, @"version");
             fiModsConfig_data = AccessTools.Field(tModsConfig, @"data");
 
@@ -65,25 +63,28 @@ namespace DoctorVanGogh.ModSwitch {
         public void Apply() {
             // mix installed and set mods
             var tmp = Mods
-                .Select(
-                    (m, idx) => new {
-                                        id = m,
-                                        Index = idx
-                                    })
-                .FullOuterJoin(
-                    ModLister.AllInstalledMods,
-                    t => t.id,
-                    mmd => mmd.FolderName,
-                    (t, mmd, s) => new {
-                                           Key = s,
-                                           SetIndex = t?.Index,
-                                           InstalledIdentifier = mmd?.FolderName
-                    })
-                .ToArray();
+                      .Select(
+                          (m, idx) => new {
+                                              id = m,
+                                              Index = idx
+                                          })
+                      .FullOuterJoin(
+                          ModLister.AllInstalledMods,
+                          t => t.id,
+                          mmd => mmd.FolderName,
+                          (t, mmd, s) => new {
+                                                 Key = s,
+                                                 SetIndex = t?.Index,
+                                                 Metadata = mmd
+                                             })
+                      .ToArray();
 
             // partition by install status
-            var notInstalled = tmp.Where(t => t.InstalledIdentifier == null).ToArray();
-            IEnumerable<string> installedMods = tmp.Where(t => t.SetIndex != null && t.InstalledIdentifier != null).OrderBy(t => t.SetIndex).Select(t => t.Key);
+            var notInstalled = tmp.Where(t => t.Metadata?.FolderName == null)
+                                  .ToArray();
+            var installedMods = tmp.Where(t => t.SetIndex != null && t.Metadata?.FolderName != null)
+                                   .OrderBy(t => t.SetIndex)
+                                   .Select(t => t.Metadata);
 
             if (notInstalled.Length != 0) {
                 var missing = notInstalled
@@ -121,8 +122,8 @@ namespace DoctorVanGogh.ModSwitch {
             }
         }
 
-        private static void ApplyMods(IEnumerable<string> mods) {
-            fiModsConfigData_activeMods.SetValue(fiModsConfig_data.GetValue(null), new List<string>(mods));
+        private static void ApplyMods(IEnumerable<ModMetaData> mods) {
+            ModsConfig.SetActiveToList(mods.Select(mmd => mmd.PackageId).ToList());
         }
 
         private string Colorize(string modId) {
@@ -231,8 +232,8 @@ namespace DoctorVanGogh.ModSwitch {
             return new ModSet(owner) {
                                          Name = name,
                                          BuildNumber = VersionControl.BuildFromVersionString((string)fiModsConfigData_version.GetValue(modsConfigData)),
-                                         Mods = new List<string>((IEnumerable<string>) fiModsConfigData_activeMods.GetValue(modsConfigData))
-                                     };
+                                         Mods = ModsConfig.ActiveModsInLoadOrder.Select(mmd => mmd.FolderName).ToList()
+            };
         }
 
 

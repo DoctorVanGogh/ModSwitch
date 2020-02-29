@@ -17,10 +17,9 @@ namespace DoctorVanGogh.ModSwitch
 
         public static IEnumerable<FileInfo> AllExports {
             get {
+                EnsureExportFolderExists();
+
                 DirectoryInfo directoryInfo = new DirectoryInfo(ModSwitchFolderPath);
-                if (!directoryInfo.Exists) {
-                    directoryInfo.Create();
-                }
 
                 return from f in directoryInfo.GetFiles()
                        where f.Extension == ExportExtension
@@ -32,10 +31,14 @@ namespace DoctorVanGogh.ModSwitch
         public const string ExportExtension = ".rws";
 
         public static string FilePathForModSetExport(string setName) {
-            if (!Directory.Exists(ModSwitchFolderPath))
-                Directory.CreateDirectory(ModSwitchFolderPath);
+            EnsureExportFolderExists();
 
             return Path.Combine(ModSwitchFolderPath, Util.SanitizeFileName(setName) + ExportExtension);
+        }
+
+        public static void EnsureExportFolderExists() {
+            if (!Directory.Exists(ModSwitchFolderPath))
+                Directory.CreateDirectory(ModSwitchFolderPath);
         }
     }
 }
