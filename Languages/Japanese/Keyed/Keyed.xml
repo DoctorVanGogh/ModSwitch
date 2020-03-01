@@ -34,7 +34,7 @@
   <ModSwitch.MissingMods.Choice.Ignore>無視する</ModSwitch.MissingMods.Choice.Ignore>
   <ModSwitch.MissingMods.Choice.Ignore.Tip>不足しているMODを無視します。</ModSwitch.MissingMods.Choice.Ignore.Tip>
   <ModSwitch.MissingMods.Choice.Workshop>中止してワークショップを開く</ModSwitch.MissingMods.Choice.Workshop>
-  <ModSwitch.MissingMods.Choice.Workshop_Apply.Tip>このままMODセットを適用しないでください。代わりにSteamワークショップから該当するModを入手してみてください。それらのMODは、削除されていて利用できないかもしれません。</ModSwitch.MissingMods.Choice.Workshop_Apply.Tip>
+  <ModSwitch.MissingMods.Choice.Workshop.Tip>このままMODセットを適用しないでください。代わりにSteamワークショップから該当するModを入手してみてください。それらのMODは、削除されていて利用できないかもしれません。</ModSwitch.MissingMods.Choice.Workshop.Tip>
   <ModSwitch.MissingMods.Choice.Remove>セットから削除</ModSwitch.MissingMods.Choice.Remove>
   <ModSwitch.MissingMods.Choice.Remove.Tip>不足しているMODを保存したMODセットから削除します。</ModSwitch.MissingMods.Choice.Remove.Tip>
 

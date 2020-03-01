@@ -1,3 +1,4 @@
 - Combine search boxes with highlight/hide feature
-- import/export for settings
+x import/export for settings
 - cloud sync for settings
+- centralize language definitions to eliminate duplicates across versions
