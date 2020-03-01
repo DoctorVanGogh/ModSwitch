@@ -13,4 +13,17 @@
 Allows loading & saving sets of active mods for Rimworld.
 
 Japanese translation by Proxyer]]></description>
+  <modDependenciesByVersion>
+      <v1.1>
+          <li>
+              <packageId>brrainz.harmony</packageId>
+              <displayName>Harmony</displayName>
+              <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+              <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+          </li>
+      </v1.1>
+  </modDependenciesByVersion>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+  </loadAfter>
 </ModMetaData>
