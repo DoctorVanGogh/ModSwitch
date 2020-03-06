@@ -274,7 +274,6 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         [HarmonyPatch(typeof(MainMenuDrawer), nameof(MainMenuDrawer.DoMainMenuControls))]
-        [HarmonyDebug]
         public class MainMenuDrawer_DoMainMenuControls {
             private static readonly ConstructorInfo ciNewListableOption = AccessTools.Constructor(typeof(ListableOption), new[] {typeof(string), typeof(Action), typeof(string)});
             private static readonly MethodInfo miWrappedMenuOption = AccessTools.Method(typeof(ModsConfigUI), nameof(ModsConfigUI.WrapMainMenuOption));
