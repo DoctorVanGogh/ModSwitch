@@ -13,6 +13,7 @@ Allows you to save and switch between sets of active mods with one click.
 
 Supports importing your sets from ModListBackup.
 
+
 ## Authors & third party acknowledgements
 
 ### Authors
@@ -32,3 +33,6 @@ Open Iconic is lisenced under a [MIT license](http://opensource.org/licenses/MIT
 </p>
 
 Harmony is lisenced under a [MIT license](https://raw.githubusercontent.com/pardeike/Harmony/master/LICENSE).
+
+## Like my Mods?
+[![Buy me a coffee](https://raw.githubusercontent.com/DoctorVanGogh/Shared/master/Sponsoring/Ko-Fi/buymeacoffee-28.png)](https://ko-fi.com/DoctorVanGogh)
