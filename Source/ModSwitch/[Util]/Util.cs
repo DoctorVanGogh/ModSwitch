@@ -107,12 +107,30 @@ namespace DoctorVanGogh.ModSwitch {
                 : $"https://steamcommunity.com/workshop/browse/?appid=294100&searchtext={name}&browsesort=textsearch&section=items";
         }
 
-        public static string Concat<T>(this IEnumerable<T> items, Func<T, string> itemFormatter, string delimiter = ", ", string seed = "") {
+
+        /// <summary>
+        /// Combines <see cref="items"/> using <see cref="itemFormatter"/> on each element, puts <see cref="delimiter"/> between items. 
+        /// An optional prefix/seed may be supplied via <see cref="seed"/>
+        /// </summary>
+        public static string Combine<T>(this IEnumerable<T> items, Func<T, string> itemFormatter, string delimiter = ", ", string seed = "") {
             return items.Aggregate(
                 new StringBuilder(seed),
                 (sb, item) => sb.Length == 0
                     ? sb.Append(itemFormatter(item))
                     : sb.Append($"{delimiter}{itemFormatter(item)}"),
+                sb => sb.ToString());
+        }
+
+        /// <summary>
+        /// Simplified version of <seealso cref="Combine"/> which uses the items themselves.
+        /// </summary>
+        public static string Combine(this IEnumerable<string> items, string delimiter = ", ", string seed = "")
+        {
+            return items.Aggregate(
+                new StringBuilder(seed),
+                (sb, item) => sb.Length == 0
+                    ? sb.Append(item)
+                    : sb.Append($"{delimiter}{item}"),
                 sb => sb.ToString());
         }
     }

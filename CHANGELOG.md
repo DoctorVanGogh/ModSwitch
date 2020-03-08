@@ -4,6 +4,13 @@
 - Better display of ModSet tooltips (now lists actual mod names, not just steam ids)
 - Can open import/export folder directly via Mods page
 - Improved import handling for pre/post 1.1 savegame support
+- Fixed a potential error on applying a mod set
+
+# Version 2.0 BETA
+
+- Updated for Rimworld 1.1
+- Can open import/export folder directly via Mods page
+- Improved import handling for pre/post 1.1 savegame support
 
 # Version 1.7.0
 
