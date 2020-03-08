@@ -51,9 +51,9 @@ namespace DoctorVanGogh.ModSwitch {
             [HarmonyPatch(typeof(Page_ModsConfig), nameof(Page_ModsConfig.DoWindowContents))]
             public class DrawOperationButtons {
                 // draw bottom buttons
-                public static void Postfix(Rect rect) {
+                public static void Postfix(Page_ModsConfig __instance, Rect rect) {
                     const float bottomHeight = 52f;
-                    LoadedModManager.GetMod<ModSwitch>()?.DoModsConfigWindowContents(new Rect(0, rect.height - bottomHeight + 8f, 350f, bottomHeight - 8f));
+                    LoadedModManager.GetMod<ModSwitch>()?.DoModsConfigWindowContents(new Rect(0, rect.height - bottomHeight + 8f, 350f, bottomHeight - 8f), __instance);
                 }
             }
         }
@@ -77,6 +77,7 @@ namespace DoctorVanGogh.ModSwitch {
 
         public class Page_ModsConfig_DoModRow {
             [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow", new[] {typeof(Listing_Standard), typeof(ModMetaData), typeof(int), typeof(int)})]
+            [HarmonyDebug]
             public class SupressNonMatchingFilteredRows {
                 public static bool Prefix(ModMetaData mod) {
                     return ModsConfigUI.Search.MatchCriteria(mod?.Name) || true == mod?.SupportedVersionsReadOnly.Any(s => ModsConfigUI.Search.MatchCriteria(s.ToString()));

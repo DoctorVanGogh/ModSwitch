@@ -127,14 +127,31 @@ namespace DoctorVanGogh.ModSwitch {
         }
 
         private static void ApplyMods(IEnumerable<ModMetaData> mods) {
-            ModsConfig.SetActiveToList(mods.Select(mmd => mmd.PackageId).ToList());
+            var packageIds = mods.Select(mmd => mmd.PackageId).ToList();
+
+#if DEBUG
+
+            Log.Message(packageIds.Concat(
+                            id => $" - {id}", 
+                            "\r\n", 
+                            "Applying ModSet:\r\n"));
+            
+            Log.Message(ModLister.AllInstalledMods
+                                 .OrderBy(mmd => mmd.PackageId)
+                                 .Concat(mmd => $" - {mmd.PackageId}: '{mmd.Name}' [{mmd.SupportedVersionsReadOnly.Concat(v => v.ToString(2))}]",
+                                     "\r\n",
+                                     "Locally installed mods:\r\n"));
+#endif
+
+            ModsConfig.SetActiveToList(packageIds);
         }
 
-        private string Colorize(string modId) {
+        private string Colorize(string modId, string text = null) {
+            var result = text ?? modId;
             Color? color = _owner.Attributes[modId].Color;
             return color != null
-                ? modId.Colorize(color.Value)
-                : modId;
+                ? result.Colorize(color.Value)
+                : result;
         }
 
         public void Delete() {
@@ -242,7 +259,18 @@ namespace DoctorVanGogh.ModSwitch {
 
 
         public override string ToString() {
-            return Mods.Aggregate(new StringBuilder(), (sb, m) => sb.Length == 0 ? sb.Append(Colorize(m)) : sb.AppendFormat(@", {0}", Colorize(m)), sb => sb.ToString());
+            var mapModsOntoLocalInstalls = ModConfigUtil.LetOuterJoin(
+                Mods,
+                mmd => mmd.FolderName,
+                s => s);
+
+            return mapModsOntoLocalInstalls.Concat(
+                t => Colorize(
+                    t.Key,
+                    t.MetaData?.OnSteamWorkshop == true
+                        ? $"[S] {t.MetaData.Name}"
+                        : $"{t.MetaData?.Name ?? t.Key}"));
+
         }
     }
 }

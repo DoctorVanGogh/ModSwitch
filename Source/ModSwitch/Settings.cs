@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -34,8 +35,14 @@ namespace DoctorVanGogh.ModSwitch {
 
         public static TipSignal TipUndo => (_tipUndo ?? (_tipUndo = new TipSignal(LanguageKeys.keyed.ModSwitch_Tip_Undo.Translate()))).Value;
 
+        private static FastInvokeHandler RecacheSelectedModRequirements = MethodInvoker.GetHandler(typeof(Page_ModsConfig).GetMethod("RecacheSelectedModRequirements", BindingFlags.NonPublic | BindingFlags.Instance));
 
-        public void DoModsConfigWindowContents(Rect target) {
+        private static SetterHandler<Page_ModsConfig, List<string>> Page_ModsConfig_SetModWarningsCached =
+            FastAccess.CreateSetterHandler<Page_ModsConfig, List<string>>(AccessTools.Field(typeof(Page_ModsConfig), "modWarningsCached"));
+
+        private static object[] Empty = new object[0];
+
+        public void DoModsConfigWindowContents(Rect target, Page_ModsConfig page) {
             target.x += 30f;
 
             Rect rctApply = new Rect(target.x, target.y, 30f, 30f);
@@ -48,7 +55,7 @@ namespace DoctorVanGogh.ModSwitch {
                                         ms.Name,
                                         () => {
                                             _undo = ModSet.FromCurrent("undo", this);
-                                            ms.Apply();
+                                            ApplyModSet(ms, page);
                                         }))
                                 .ToList()));
             Rect rctNew = new Rect(target.x + 30f + 8f, target.y, 30f, 30f);
@@ -101,7 +108,7 @@ namespace DoctorVanGogh.ModSwitch {
             Rect rctUndo = new Rect(target.x + 2 * (30f + 8f), target.y, 30f, 30f);
             if (_undo != null)
                 if (ExtraWidgets.ButtonImage(rctUndo, Assets.Undo, false, TipUndo, rctUndo.ContractedBy(4))) {
-                    _undo.Apply();
+                    ApplyModSet(_undo, page);
                     _undo = null;
                 }
 
@@ -420,6 +427,17 @@ namespace DoctorVanGogh.ModSwitch {
             }
 
             Mod.WriteSettings();
+        }
+
+        public void ApplyModSet(ModSet set, Page_ModsConfig owner) {
+            set.Apply();
+            InvalidateCache(owner);
+        }
+
+
+        public void InvalidateCache(Page_ModsConfig page) {
+            RecacheSelectedModRequirements(page, Empty);
+            Page_ModsConfig_SetModWarningsCached(null, ModsConfig.GetModWarnings());
         }
 
         private void OverwriteMod(ModSet ms) {

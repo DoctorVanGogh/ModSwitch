@@ -410,6 +410,8 @@ namespace DoctorVanGogh.ModSwitch {
             public static string WrapTimestamp(long? timestamp) {
                 return timestamp != null ? Util.UnixTimeStampToDateTime(timestamp.Value).ToString("g") : $"<i>{LanguageKeys.keyed.ModSwitch_Sync_UnknownTimestamp.Translate()}</i>";
             }
+
+
         }
 
         public static class Search {

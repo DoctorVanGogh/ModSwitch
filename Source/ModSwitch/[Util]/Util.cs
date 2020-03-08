@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using Verse;
@@ -103,6 +105,15 @@ namespace DoctorVanGogh.ModSwitch {
             return rgxSteamModId.IsMatch(id)
                 ? $"http://steamcommunity.com/sharedfiles/filedetails/?id={id}"
                 : $"https://steamcommunity.com/workshop/browse/?appid=294100&searchtext={name}&browsesort=textsearch&section=items";
+        }
+
+        public static string Concat<T>(this IEnumerable<T> items, Func<T, string> itemFormatter, string delimiter = ", ", string seed = "") {
+            return items.Aggregate(
+                new StringBuilder(seed),
+                (sb, item) => sb.Length == 0
+                    ? sb.Append(itemFormatter(item))
+                    : sb.Append($"{delimiter}{itemFormatter(item)}"),
+                sb => sb.ToString());
         }
     }
 }

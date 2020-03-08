@@ -31,28 +31,32 @@ namespace DoctorVanGogh.ModSwitch {
             Func<ModMetaData, T, TResolved> resolvedProjection,
             Func<ModMetaData, T, TUnresolved> unresolvedProjection) {
 
-            var tmp = candidates.FullOuterJoin(
-                                    ModLister.AllInstalledMods,
-                                    candidateKeyFactory,
-                                    installedKeyFactory,
-                                    (c, mmd, key) => new {
-                                                             Key = key,
-                                                             ModMetadata = mmd,
-                                                             Candidate = c
-                                                         })
-                                .Where(t => t.Candidate != null);       // we dont care about installed mods not in the candidate set
+            var tmp = LetOuterJoin(candidates, installedKeyFactory, candidateKeyFactory);
 
 
-            var partition = tmp.GroupBy(t => t.ModMetadata == null)
+            var partition = tmp.GroupBy(t => t.MetaData == null)
                                .ToDictionary(g => g.Key);
 
             partition.TryGetValue(false, out var resolved);
             partition.TryGetValue(true, out var unresolved);
 
             return (
-                Resolved: resolved?.Select(t => resolvedProjection(t.ModMetadata, t.Candidate)).ToArray() ?? new TResolved[0],
-                Unresolved: unresolved?.Select(t => unresolvedProjection(t.ModMetadata, t.Candidate)).ToArray() ?? new TUnresolved[0]
+                Resolved: resolved?.Select(t => resolvedProjection(t.MetaData, t.Candidate)).ToArray() ?? new TResolved[0],
+                Unresolved: unresolved?.Select(t => unresolvedProjection(t.MetaData, t.Candidate)).ToArray() ?? new TUnresolved[0]
             );
+        }
+
+        public static IEnumerable<(TKey Key, ModMetaData MetaData, T Candidate)> LetOuterJoin<T, TKey>(
+            IEnumerable<T> candidates,
+            Func<ModMetaData, TKey> installedKeyFactory,
+            Func<T, TKey> candidateKeyFactory) {
+            var tmp = candidates.FullOuterJoin(
+                                    ModLister.AllInstalledMods,
+                                    candidateKeyFactory,
+                                    installedKeyFactory,
+                                    (c, mmd, key) => (Key: key, MetaData: mmd, Candidate: c))
+                                .Where(t => t.Candidate != null); // we dont care about installed mods not in the candidate set
+            return tmp;
         }
     }
 }

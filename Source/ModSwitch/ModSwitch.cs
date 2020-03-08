@@ -1,6 +1,8 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
 
 using HarmonyLib;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -30,8 +32,11 @@ namespace DoctorVanGogh.ModSwitch {
 
         public Settings CustomSettings { get; }
 
-        public void DoModsConfigWindowContents(Rect bottom) {
-            CustomSettings.DoModsConfigWindowContents(bottom);
+        /// <summary>
+        /// Call to draw the main mod config interaction buttons
+        /// </summary>
+        public void DoModsConfigWindowContents(Rect bottom, Page_ModsConfig owner) {
+            CustomSettings.DoModsConfigWindowContents(bottom, owner);
         }
 
         public override void DoSettingsWindowContents(Rect inRect) {
