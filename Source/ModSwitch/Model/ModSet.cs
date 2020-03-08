@@ -76,10 +76,11 @@ namespace DoctorVanGogh.ModSwitch {
                                                               (mmd, t) => new { Mod = mmd, Index = t.Index},
                                                               (_, t) => t.id);
 
+#if DEBUG
             foreach (var x in resolution.Resolved) {   
                 Log.Message($"{x.Mod.Name} - {x.Index}");
             }
-
+#endif
 
             string[] notInstalled =resolution.Unresolved;
             ModMetaData[] installedMods = resolution.Resolved
