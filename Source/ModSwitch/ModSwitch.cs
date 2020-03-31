@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 using HarmonyLib;
@@ -28,6 +29,16 @@ namespace DoctorVanGogh.ModSwitch {
             Log.Message($"ModSwitch {assembly.GetName().Version} - initialized patches...");
 
             CustomSettings = GetSettings<Settings>();
+
+            if (ModsConfigUI.Helpers.PreInitTSUpdateCache.Count != null) {
+                var entries = ModsConfigUI.Helpers.PreInitTSUpdateCache.ToArray();
+                ModsConfigUI.Helpers.PreInitTSUpdateCache.Clear();
+                Log.Message($"ModSwitch - copying cached steam TS values.");
+
+                foreach (KeyValuePair<string, uint> cachedTSValue in entries) {
+                    CustomSettings.Attributes[cachedTSValue.Key].LastUpdateTS = cachedTSValue.Value;
+                }
+            }
         }
 
         public Settings CustomSettings { get; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -379,6 +380,9 @@ namespace DoctorVanGogh.ModSwitch {
 
 
         public static class Helpers {
+
+            public static IDictionary<string, uint> PreInitTSUpdateCache = new ConcurrentDictionary<string, uint>();
+
             public static string ExplainError(string label, string error) {
                 return $"{label} *{error}*";
             }
@@ -404,7 +408,16 @@ namespace DoctorVanGogh.ModSwitch {
             }
 
             public static void UpdateSteamTS(PublishedFileId_t pfid, uint ts) {
-                LoadedModManager.GetMod<ModSwitch>().CustomSettings.Attributes[pfid.ToString()].LastUpdateTS = ts;
+                var modModSwitch = LoadedModManager.GetMod<ModSwitch>();
+
+                if (modModSwitch != null) {
+                    modModSwitch.CustomSettings.Attributes[pfid.ToString()].LastUpdateTS = ts;
+                } else {
+                    if (PreInitTSUpdateCache.Count == 0) {
+                        Log.Message("ModSwitch: Mod yet loaded, but already getting steam update values - caching until mod initialization.");
+                    }
+                    PreInitTSUpdateCache[pfid.ToString()] = ts;
+                }
             }
 
             public static string WrapTimestamp(long? timestamp) {

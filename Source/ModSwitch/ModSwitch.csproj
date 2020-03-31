@@ -90,7 +90,7 @@
     <Compile Include="[Util]\Position.cs" />
     <Compile Include="[Util]\Scribe.cs" />
     <Compile Include="[Util]\Util.cs" />
-    <None Include="[Patches]\Patches.cs" />
+    <Compile Include="[Patches]\Patches.cs" />
     <Compile Include="[Util]\Linq.cs" />
     <Compile Include="[Util]\Widgets.cs" />
   </ItemGroup>

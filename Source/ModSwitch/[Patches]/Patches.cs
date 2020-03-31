@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using RimWorld;
+using Steamworks;
 using UnityEngine;
 using Verse;
 using Verse.Steam;
@@ -235,6 +236,7 @@ namespace DoctorVanGogh.ModSwitch {
                 List<CodeInstruction> instructions = new List<CodeInstruction>(instr);
 
                 ConstructorInfo ciTarget = AccessTools.Constructor(typeof(WorkshopItem_Mod));
+                MethodInfo miAnchor = AccessTools.DeclaredMethod(typeof(SteamUGC), nameof(SteamUGC.GetItemInstallInfo));
 
                 int idxAnchor = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Newobj && ci.operand == ciTarget);
 
@@ -243,7 +245,30 @@ namespace DoctorVanGogh.ModSwitch {
                     return instructions;
                 }
 
+
+
+                int idxGetItemInstallInfo = instructions.FirstIndexOf(ci => ci.opcode == OpCodes.Call && ci.operand == miAnchor);
+                if (idxGetItemInstallInfo == -1) {
+                    Util.Warning("Could not find SteamUGC.GetItemInstallInfo transpiler anchor - not injecting code");
+                    return instructions;
+                }
+
+                Log.Message($"operand: {instructions[idxGetItemInstallInfo - 1].operand.GetType()}");
+
+                LocalBuilder lbTS = null;
+                var opcode = instructions[idxGetItemInstallInfo - 1].opcode;
+                if (opcode == OpCodes.Ldloca || opcode == OpCodes.Ldloca_S) {
+                    lbTS = (LocalBuilder) instructions[idxGetItemInstallInfo - 1].operand;
+                } else {
+                    Util.Warning("Could not find SteamUGC.GetItemInstallInfo TS local - not injecting code");
+                    return instructions;
+                }
+
                 /* Transform
+                 *      ...
+                 *      SteamUGC.GetItemInstallInfo(..., out [foo]);
+                 * 
+                 *      ...
                  * 
                  * 		if (workshopItem == null)
                  * 		{
@@ -251,10 +276,12 @@ namespace DoctorVanGogh.ModSwitch {
                  * 		}
                  * 
                  * into
-                 * 
+                 *      ...
+                 *      SteamUGC.GetItemInstallInfo(..., out [foo]);
+                 *      ....
                  * 		if (workshopItem == null)
                  * 		{
-                 * 		    ModsConfigUI.UpdateSteamTS(pfid, num2);
+                 * 		    ModsConfigUI.UpdateSteamTS(pfid, [foo]);
                  * 			workshopItem = new WorkshopItem_Mod();
                  * 		}
                  * 
@@ -264,7 +291,7 @@ namespace DoctorVanGogh.ModSwitch {
                     idxAnchor,
                     new[] {
                               new CodeInstruction(OpCodes.Ldarg_0),
-                              new CodeInstruction(OpCodes.Ldloc_2),
+                              new CodeInstruction(OpCodes.Ldloc, lbTS),
                               new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ModsConfigUI.Helpers), nameof(ModsConfigUI.Helpers.UpdateSteamTS)))
                           }
                 );
