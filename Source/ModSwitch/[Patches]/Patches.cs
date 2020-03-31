@@ -77,14 +77,14 @@ namespace DoctorVanGogh.ModSwitch {
 
 
         public class Page_ModsConfig_DoModRow {
-            [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow", new[] {typeof(Listing_Standard), typeof(ModMetaData), typeof(int), typeof(int)})]
+            [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow")]
             public class SupressNonMatchingFilteredRows {
                 public static bool Prefix(ModMetaData mod) {
                     return ModsConfigUI.Search.MatchCriteria(mod?.Name) || true == mod?.SupportedVersionsReadOnly.Any(s => ModsConfigUI.Search.MatchCriteria(s.ToString()));
                 }
             }
 
-            [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow", new[] {typeof(Listing_Standard), typeof(ModMetaData), typeof(int), typeof(int)})]
+            [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow")]
             public class InjectRightClickMenu {
                 // inject right click menu on mod rows
                 public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen) {
@@ -177,7 +177,7 @@ namespace DoctorVanGogh.ModSwitch {
                 }
             }
 
-            [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow", new[] {typeof(Listing_Standard), typeof(ModMetaData), typeof(int), typeof(int)})]
+            [HarmonyPatch(typeof(Page_ModsConfig), "DoModRow")]
             public class InjectCustomContentSourceDraw {
                 public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr) {
                     List<CodeInstruction> instructions = new List<CodeInstruction>(instr);
