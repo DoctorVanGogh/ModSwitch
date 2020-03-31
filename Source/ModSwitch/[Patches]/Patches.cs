@@ -253,8 +253,6 @@ namespace DoctorVanGogh.ModSwitch {
                     return instructions;
                 }
 
-                Log.Message($"operand: {instructions[idxGetItemInstallInfo - 1].operand.GetType()}");
-
                 LocalBuilder lbTS = null;
                 var opcode = instructions[idxGetItemInstallInfo - 1].opcode;
                 if (opcode == OpCodes.Ldloca || opcode == OpCodes.Ldloca_S) {
